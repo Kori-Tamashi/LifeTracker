@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../../LifeTracker.Kernel/LifeTracker.Kernel.csproj" />
+    <ProjectReference Include="../../../LifeTracker.Application.Abstractions/LifeTracker.Application.Abstractions.csproj" />
+    <ProjectReference Include="../LifeTracker.State.Domain/LifeTracker.State.Domain.csproj" />
+    <ProjectReference Include="../LifeTracker.State.Contracts/LifeTracker.State.Contracts.csproj" />
+  </ItemGroup>
+</Project>

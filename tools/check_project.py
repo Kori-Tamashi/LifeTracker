@@ -37,7 +37,7 @@ def validate(paths):
         if path.is_symlink():
             errors.append(f'{rel}: review symlink before publication')
             continue
-        if rel.suffix.lower() not in {'.md', '.puml', '.bpmn', '.svg', '.py', '.mjs', '.sql', '.yml', '.yaml', '.json', '.toml'}:
+        if rel.suffix.lower() not in {'.md', '.puml', '.bpmn', '.svg', '.py', '.mjs', '.sql', '.yml', '.yaml', '.json', '.toml', '.cs', '.csproj', '.props', '.slnx', '.swift', '.sh'}:
             continue
         try:
             content = path.read_text(encoding='utf-8')

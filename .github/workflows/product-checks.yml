@@ -1,0 +1,56 @@
+name: Product checks
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main, 'feature/**', 'release/**', 'hotfix/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-fast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+      - name: Restore locked dependencies
+        run: dotnet restore services/core/LifeTracker.slnx --locked-mode
+      - name: Check formatting
+        run: dotnet format whitespace services/core/LifeTracker.slnx --no-restore --verify-no-changes
+      - name: Build with analyzers
+        run: dotnet build services/core/LifeTracker.slnx --no-restore --configuration Debug
+      - name: Domain, application and architecture tests
+        run: dotnet test --solution services/core/LifeTracker.slnx --no-build --configuration Debug --minimum-expected-tests 1
+
+  macos-client:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Build and test native client package
+        run: sh tools/test_macos.sh
+
+  product-checks:
+    if: always()
+    needs: [core-fast, macos-client]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require all product checks
+        env:
+          CORE_RESULT: ${{ needs.core-fast.result }}
+          MAC_RESULT: ${{ needs.macos-client.result }}
+        run: test "$CORE_RESULT" = success && test "$MAC_RESULT" = success

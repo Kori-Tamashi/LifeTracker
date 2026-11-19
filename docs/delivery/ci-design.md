@@ -2,7 +2,7 @@
 
 > Baseline 1.0: нормативные значения и закрытые решения — [BR-01–10](../requirements/baseline-rules.md). Этот документ — вспомогательное представление; прежние пометки «предложено/уточнить» не отменяют зафиксированный baseline. Реализуемость интеграций подтверждается отдельными gates.
 
-Статус: предложено. Текущая реализация — только workflow проверки проектных материалов; продуктового кода пока нет.
+Статус: начата реализация. Project checks опубликован и прошёл в PR #1. Product checks добавляет Linux build/analyzers/format/domain/application/architecture и macOS Swift tests; release/E2E/persistence gates подключаются с соответствующим кодом.
 
 ## Pipeline
 
@@ -30,7 +30,7 @@ Linux подходит для переносимого ядра и контей�
 
 Feature → develop после checks. Release отделяется для стабилизации целого этапа; main получает только проверенный релиз с тегом и заметками. Hotfix от main проходит обязательные проверки затронутой области и сквозной smoke, затем возвращается в develop/активную release. ИИ уполномочен выполнять слияния/релизы, но отсутствие зелёных проверок блокирует действие.
 
-GitHub branch protection/rulesets и required checks должны быть настроены после первого успешного запуска workflow. В этой работе удалённые настройки не изменялись и CI на GitHub не запускался. CI и автоматическая публикация — отдельные процессы; первый не выпускает новую версию при каждом push.
+GitHub branch protection/rulesets и required checks должны быть настроены после первого успешного запуска workflow. Удалённые rulesets пока не настроены; успешные запуски и незакрытые gates фиксируются в progress.md. CI и автоматическая публикация — отдельные процессы; первый не выпускает новую версию при каждом push.
 
 ## Основания
 
@@ -39,3 +39,5 @@ GitHub branch protection/rulesets и required checks должны быть на�
 Синтаксис, события и права сверены с [официальной документацией GitHub Actions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax); checkout — [официальный репозиторий](https://github.com/actions/checkout). Дата проверки: 19 ноября 2026 года. Фиксация SHA требует регулярного контролируемого обновления.
 
 Стек продуктового CI выбран в [ADR-005](../architecture/decisions/ADR-005-component-selection.md). Дополнительно текущий workflow проверяет `python3 tools/build_processes.py --check`; XSD OMG валидирована локально, автоматический CI сейчас проверяет модель/ссылки/DI без сетевой загрузки XSD.
+
+Текущий продуктовый workflow: `.github/workflows/product-checks.yml`. Stable gate `product-checks` требует успешного завершения обеих jobs, включая случай skip/cancel. Используются стандартные hosted runners без платных large/xlarge labels. Dependencies восстанавливаются в locked mode; actions закреплены SHA. Microsoft.Testing.Platform выбран по [документации .NET](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-dotnet-test).
