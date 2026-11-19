@@ -26,3 +26,10 @@ node_modules/
 *.db-wal
 *.db-shm
 *.har
+
+# .NET / Swift build outputs
+**/bin/
+**/obj/
+**/TestResults/
+**/.build/
+**/.swiftpm/
