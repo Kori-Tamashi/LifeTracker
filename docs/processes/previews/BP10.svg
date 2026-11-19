@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1821" height="625" viewBox="0 0 1821 625" role="img">
+<title>Импорт источника и checkpoint</title>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#334155"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<text x="22" y="30" font-family="Arial, sans-serif" font-size="21" font-weight="bold">BP10 — Импорт источника и checkpoint</text>
+<text x="22" y="55" font-family="Arial, sans-serif" font-size="13" fill="#475569">BPMN 2.0 • проект • ALG-02 / ALG-11</text>
+<rect x="20" y="80" width="1781" height="160" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="20" y="80" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="150" font-family="Arial, sans-serif" font-size="14">Адаптер</text>
+<rect x="20" y="240" width="1781" height="160" fill="#fff" stroke="#cbd5e1"/>
+<rect x="20" y="240" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="310" font-family="Arial, sans-serif" font-size="14">Ядро</text>
+<rect x="20" y="400" width="1781" height="160" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="20" y="400" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="470" font-family="Arial, sans-serif" font-size="14">Хранилище</text>
+<polyline points="311.0,147.0 471.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="497.0,173.0 497.0,307.0 625.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="556.0" y="193.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">да</text>
+<polyline points="497.0,121.0 497.0,97.0 659.0,97.0 659.0,147.0 683.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="501.0" y="111.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">нет</text>
+<polyline points="779.0,307.0 881.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="933.0,307.0 1035.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="937.0" y="297.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">да</text>
+<polyline points="907.0,281.0 907.0,147.0 1035.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="911.0" y="271.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">нет</text>
+<polyline points="1189.0,147.0 1298.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1189.0,307.0 1213.0,307.0 1213.0,467.0 1240.0,467.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1394.0,467.0 1418.0,467.0 1418.0,307.0 1445.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1599.0,307.0 1623.0,307.0 1623.0,147.0 1708.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<circle cx="292.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="1.5"/>
+<text x="292.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Автоматический batch</text>
+<polygon points="497.0,121.0 523.0,147.0 497.0,173.0 471.0,147.0" fill="#fef3c7" stroke="#0f172a"/><path d="M491.0 141.0 L503.0 153.0 M503.0 141.0 L491.0 153.0" stroke="#0f172a" stroke-width="2"/>
+<text x="497.0" y="190.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Источник допущен?</text>
+<circle cx="702.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="3.5"/>
+<text x="702.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Capability unavailable</text>
+<rect x="625.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="633.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="702.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Нормализовать IDs /</text>
+<text x="702.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">units</text>
+<polygon points="907.0,281.0 933.0,307.0 907.0,333.0 881.0,307.0" fill="#fef3c7" stroke="#0f172a"/><path d="M901.0 301.0 L913.0 313.0 M913.0 301.0 L901.0 313.0" stroke="#0f172a" stroke-width="2"/>
+<text x="907.0" y="350.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Batch корректен?</text>
+<rect x="1035.0" y="112.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1043.0" y="127.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1112.0" y="143.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Сохранить ошибку /</text>
+<text x="1112.0" y="159.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">retry</text>
+<circle cx="1317.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="3.5"/>
+<text x="1317.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Checkpoint не продвинут</text>
+<rect x="1035.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1043.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">R</text>
+<text x="1112.0" y="311.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Сверить версии и дубли</text>
+<rect x="1240.0" y="432.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1248.0" y="447.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1317.0" y="463.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Commit records + cursor</text>
+<text x="1317.0" y="479.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">+ outbox</text>
+<rect x="1445.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1453.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1522.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Обновить проекции /</text>
+<text x="1522.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">freshness</text>
+<circle cx="1727.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="3.5"/>
+<text x="1727.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Batch принят ровно</text>
+<text x="1727.0" y="199.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">логически</text>
+<text x="22" y="613" font-family="Arial, sans-serif" font-size="12" fill="#64748b">U — user task; S — service task; R — business rule task. Полная BPMN-семантика и DI — в .bpmn.</text>
+</svg>

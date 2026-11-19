@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title C4 L3 — Core Host components (baseline 1.0)
+left to right direction
+rectangle "macOS UI" as ui <<External Container>>
+rectangle "Inference Worker" as worker <<External Container>>
+rectangle "Core Host" {
+ component "Input adapters\nAPI / Telegram / imports" as input
+ component "State\nAssessments / balance" as state
+ component "Character\nRead model / game effects" as character
+ component "Journal\nConversations / events / people" as journal
+ component "Insights\nInterpretations / evidence graph" as insights
+ component "Future modules\nNutrition / Finance / Investments / Quests" as future
+ component "Notifications\nQuota / expiry / delivery" as notif
+ component "Operations\nInbox / jobs / outbox / retention" as ops
+ component "Persistence adapters\nTransaction / media / index ports" as persist
+ component "Inference adapter\nTyped, validated results" as infer
+}
+database "Transactional Store" as db
+ui --> input
+input --> state
+input --> character
+input --> journal
+input --> future
+character --> state : Current state query
+journal --> insights : Accepted evidence API
+future --> character : Validated game effect API
+state --> ops : Outbox in transaction
+journal --> ops
+insights --> ops
+future --> ops
+notif --> ops
+ops --> infer : Processing jobs
+infer --> worker
+ops --> notif : Scheduled intent
+state --> persist
+journal --> persist
+insights --> persist
+future --> persist
+character --> persist
+notif --> persist
+ops --> persist
+persist --> db
+note bottom of ops
+Logical components, not separate services.
+Arrows: runtime calls; code dependencies use inner ports.
+end note
+@enduml

@@ -1,0 +1,99 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title UML logical domain — state / evidence / game (baseline 1.0)
+hide empty methods
+class Profile <<aggregate>> {
+ id: ProfileId
+ timezone: ZoneId
+ autoConfirm: bool
+}
+class Observation <<aggregate>> {
+ id: ObservationId
+ currentRevision: RevisionId
+}
+class ObservationRevision {
+ id: RevisionId
+ metric: MetricKind
+ value: Score
+ observedAt: Instant
+ receivedAt: Instant
+ sourceKind: SourceKind
+ supersedes: RevisionId?
+}
+class Evidence {
+ id: EvidenceId
+ episodeId: EpisodeId
+ excerpt: Text?
+ sourceRef: SourceRef
+ originalAvailable: bool
+}
+class Interpretation <<aggregate>> {
+ id: InterpretationId
+ status: pending / accepted / stale / superseded
+ confidence: qualitative
+ ruleVersion: Version
+}
+class InterpretationBasis {
+ evidenceId: EvidenceId
+ observationRevisionId: RevisionId?
+}
+class Disagreement {
+ note: Text
+ recordedAt: Instant
+}
+class Person <<aggregate>> {
+ id: PersonId
+ aliases: Text[]
+}
+class JournalEntry <<aggregate>> {
+ id: EntryId
+ summary: Text
+ acceptance: pending / accepted / rejected
+}
+class BalanceSnapshot <<projection>> {
+ balance: Score?
+ computedAt: Instant
+ validUntil: Instant?
+ ruleVersion: Version
+}
+class SelectedMetric {
+ metric: MetricKind
+ revisionId: RevisionId
+ normalizedValue: Score
+}
+class Character <<aggregate>> {
+ id: CharacterId
+ lifetimeExperience: Integer
+}
+class QuestOccurrence <<aggregate>> {
+ id: OccurrenceId
+ window: TimeWindow
+ status: QuestStatus
+ ruleVersion: Version
+}
+class GameEffect {
+ id: EffectId
+ causeId: EntityId
+ delta: Decimal
+ reversalOf: EffectId?
+}
+Profile "1" -- "0..*" Observation : owns
+Observation "1" *-- "1..*" ObservationRevision
+ObservationRevision "0..*" --> "1..*" Evidence : basis
+Interpretation "1" *-- "1..*" InterpretationBasis
+InterpretationBasis "0..*" --> "1" Evidence
+Interpretation "1" *-- "0..*" Disagreement
+JournalEntry "0..*" -- "0..*" Person : mentions
+JournalEntry "1" --> "1..*" Evidence : retains
+BalanceSnapshot "1" *-- "0..4" SelectedMetric
+SelectedMetric "0..*" --> "1" ObservationRevision
+Profile "1" -- "1" Character
+Character "1" -- "0..*" GameEffect
+QuestOccurrence "0..1" <-- "0..*" GameEffect : cause
+note bottom of BalanceSnapshot
+Exactly 4 selected metrics for defined balance.
+Game effects never overwrite assessments.
+end note
+@enduml

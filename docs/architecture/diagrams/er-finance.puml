@@ -1,0 +1,160 @@
+@startuml
+skinparam backgroundColor white
+hide methods
+hide stereotypes
+skinparam shadowing false
+left to right direction
+title er-finance / physical schema v1 (baseline 1.0)
+entity "profiles" as profiles {
+  * id : TEXT
+  timezone : TEXT
+  active : INTEGER
+}
+entity "entities" as entities {
+  * profile_id : TEXT
+  * id : TEXT
+  kind : TEXT
+  current_revision : INTEGER
+}
+entity "revisions" as revisions {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  recorded_ms : INTEGER
+  actor : TEXT
+  status : TEXT
+  reason : TEXT
+}
+entity "source_events" as source_events {
+  * profile_id : TEXT
+  * id : TEXT
+  source : TEXT
+  external_id : TEXT
+  payload_hash : TEXT
+  received_ms : INTEGER
+  state : TEXT
+  receipt_json : TEXT
+}
+entity "accounts" as accounts {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  source : TEXT
+  external_id : TEXT
+  currency : TEXT
+  kind : TEXT
+}
+entity "ledger_journals" as ledger_journals {
+  * profile_id : TEXT
+  * id : TEXT
+  source_event_id : TEXT
+  kind : TEXT
+  status : TEXT
+  occurred_ms : INTEGER
+  source_revision : TEXT
+}
+entity "ledger_postings" as ledger_postings {
+  * profile_id : TEXT
+  * journal_id : TEXT
+  * line_no : INTEGER
+  account_id : TEXT
+  currency : TEXT
+  amount_minor : INTEGER
+}
+entity "budgets" as budgets {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  month : TEXT
+  currency : TEXT
+  approval : TEXT
+  expected_minor : INTEGER
+}
+entity "budget_lines" as budget_lines {
+  * profile_id : TEXT
+  * budget_id : TEXT
+  * budget_revision : INTEGER
+  * id : TEXT
+  line_kind : TEXT
+  category : TEXT
+  amount_minor : INTEGER
+  percent_basis_points : INTEGER
+  due_day : TEXT
+}
+entity "reserves" as reserves {
+  * profile_id : TEXT
+  * id : TEXT
+  budget_id : TEXT
+  budget_revision : INTEGER
+  budget_line_id : TEXT
+  backing_account_id : TEXT
+  remaining_minor : INTEGER
+  currency : TEXT
+  state : TEXT
+}
+entity "closing_records" as closing_records {
+  * profile_id : TEXT
+  * id : TEXT
+  month : TEXT
+  version : INTEGER
+  previous_id : TEXT
+  status : TEXT
+  savings_adjustment_minor : INTEGER
+}
+entity "instruments" as instruments {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  source : TEXT
+  external_id : TEXT
+  currency : TEXT
+  instrument_kind : TEXT
+}
+entity "investment_events" as investment_events {
+  * profile_id : TEXT
+  * id : TEXT
+  account_id : TEXT
+  instrument_id : TEXT
+  source_event_id : TEXT
+  occurred_ms : INTEGER
+  kind : TEXT
+}
+entity "portfolio_snapshots" as portfolio_snapshots {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  account_id : TEXT
+  observed_ms : INTEGER
+  coverage : TEXT
+}
+entity "calculation_runs" as calculation_runs {
+  * profile_id : TEXT
+  * id : TEXT
+  method : TEXT
+  method_version : TEXT
+  coverage : TEXT
+}
+entities }o--|| revisions
+entities }o--|| profiles
+revisions }o--|| entities
+source_events }o--|| profiles
+accounts }o--|| revisions
+ledger_journals }o--|| source_events
+ledger_journals }o--|| profiles
+ledger_postings }o--|| entities
+ledger_postings }o--|| ledger_journals
+budgets }o--|| revisions
+budget_lines }o--|| budgets
+reserves }o--|| entities
+reserves }o--|| budget_lines
+reserves }o--|| profiles
+closing_records }o--|| closing_records
+closing_records }o--|| profiles
+instruments }o--|| revisions
+investment_events }o--|| source_events
+investment_events }o--|| entities
+investment_events }o--|| profiles
+portfolio_snapshots }o--|| revisions
+portfolio_snapshots }o--|| entities
+calculation_runs }o--|| profiles
+@enduml

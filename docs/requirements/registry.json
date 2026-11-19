@@ -1,0 +1,1205 @@
+{
+  "baseline": "1.0",
+  "requirements": [
+    {
+      "id": "FR-BOT-001",
+      "description": "Telegram интерфейс всех выпущенных capabilities: state, voice, photos, budget, quests, reminders.",
+      "owner": "Telegram",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-01",
+        "BR-07"
+      ],
+      "acceptance_cases": [
+        "TC-BOT-OWNER",
+        "TC-BOT-OFFLINE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-BUD-001",
+      "description": "Отдельные календарные месяцы; плановые даты/суммы доходов разных типов, сверка факта",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-002",
+      "description": "Доходы, обязательные платежи, накопления, лимиты категорий",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-003",
+      "description": "Ручное распределение и предложение приложения с подтверждением; суммы и проценты от планового дохода",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-004",
+      "description": "Отдельно показывать фактически полученное и свободные деньги после обязательств/накоплений",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-005",
+      "description": "При недополучении дохода предлагать пересмотр бюджета и ждать подтверждения",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-006",
+      "description": "Начальные направления: еда, транспорт, развлечения, накопления, бытовые расходы",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-007",
+      "description": "Накопления суммой; учётная копилка, closing/restatement без реального банковского перевода.",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-BUD-008",
+      "description": "Разбор: план/факт, остаток месяца и дня, причины отклонений и предложения на подтверждение",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-BUD-PLAN",
+        "TC-BUD-RESERVE",
+        "TC-BUD-CLOSING"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-CHR-001",
+      "description": "Стилизованный 2D-персонаж-человек в духе RPG; анимации желательны",
+      "owner": "Character",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-03"
+      ],
+      "acceptance_cases": [
+        "TC-CHR-UNKNOWN",
+        "TC-CHR-UI"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-CHR-002",
+      "description": "Главный экран показывает характеристики, бафы/дебафы, время и источник оценок; переход к истории и объяснению",
+      "owner": "Character",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-03"
+      ],
+      "acceptance_cases": [
+        "TC-CHR-UNKNOWN",
+        "TC-CHR-UI"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-CHR-003",
+      "description": "Настройка внешности и интерфейса отложена; внешность/анимация могут отражать настроение и энергию",
+      "owner": "Character",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-03"
+      ],
+      "acceptance_cases": [
+        "TC-CHR-UNKNOWN",
+        "TC-CHR-UI"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-CRD-001",
+      "description": "Учитывать долг и покупки, предупреждать об использовании/платежах; кредитный лимит не источник бюджета.",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-CRD-CREDIT"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-DIA-001",
+      "description": "Пользователь может говорить; ответы ИИ допустимы текстом или голосом",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-002",
+      "description": "Свободный диалог с уточняющими вопросами для понимания ситуации; можно возвращаться к прошлым темам",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-003",
+      "description": "Сохранять резюме и извлечённые записи, помнить события и людей между разговорами",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-004",
+      "description": "Предлагать подтверждение, исправление или отклонение извлечений; настройка автоподтверждения распространяется на все виды извлечений",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-005",
+      "description": "Автосохранённые факты, самоотчёты и интерпретации различаются по типу и происхождению",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-006",
+      "description": "У каждого вывода доступны основания; неприятная интерпретация не убирается простым несогласием, несогласие хранится пометкой",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-007",
+      "description": "Ошибку распознавания или факта можно исправить; зависимые выводы пересчитываются, история сохраняется",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-008",
+      "description": "Черты характера — пересматриваемые предположения с уверенностью, основанные на повторениях или устойчивой истории, не одном эпизоде",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-009",
+      "description": "Признаки возможной зависимости показываются через наблюдения, частоту, последствия и источники; автоматического диагноза нет",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-DIA-010",
+      "description": "Выбор ленты, календаря и недельного отчёта с R2.",
+      "owner": "Journal/Insights",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-04"
+      ],
+      "acceptance_cases": [
+        "TC-DIA-VOICE",
+        "TC-DIA-ACCEPT",
+        "TC-DIA-PERSON",
+        "TC-DIA-CORRECTION",
+        "TC-DIA-ROLE",
+        "TC-DIA-VIEWS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-FIN-001",
+      "description": "Первый банковский адаптер — Т-Банк; автоматическое получение без ручного ввода/загрузки как замены; наличные вне текущего объёма",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-FIN-GATE",
+        "TC-FIN-IMPORT",
+        "TC-FIN-FRESH"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-FIN-002",
+      "description": "Охват всех типов продуктов: дебетовые, кредитные, накопительные, вклады, инвестиции",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-FIN-GATE",
+        "TC-FIN-IMPORT",
+        "TC-FIN-FRESH"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-FIN-003",
+      "description": "Если бесплатного устойчивого получения данных нет, финансовый этап откладывается",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-FIN-GATE",
+        "TC-FIN-IMPORT",
+        "TC-FIN-FRESH"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-FIN-004",
+      "description": "Желаемое обновление расходов и предупреждений не реже раза в пять часов при работающем Mac и доступном источнике",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-FIN-GATE",
+        "TC-FIN-IMPORT",
+        "TC-FIN-FRESH"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-FIN-005",
+      "description": "Отдельно учитывать переводы между своими счетами, не удваивать доходы и расходы",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-FIN-GATE",
+        "TC-FIN-IMPORT",
+        "TC-FIN-FRESH"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-FIN-006",
+      "description": "Настраиваемые правила нежелательных расходов; автоматическое определение предпочтительно, ручное уточнение необязательно",
+      "owner": "Finance",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-FIN-GATE",
+        "TC-FIN-IMPORT",
+        "TC-FIN-FRESH"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-FOOD-001",
+      "description": "Поддерживать настраиваемые цели качества питания, например домашняя высокобелковая пища",
+      "owner": "Nutrition",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-05"
+      ],
+      "acceptance_cases": [
+        "TC-FOOD-UNCERTAIN",
+        "TC-FOOD-PORTION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-FOOD-002",
+      "description": "Принимать фото блюда, желательна автоматическая оценка КБЖУ с небольшим числом уточнений",
+      "owner": "Nutrition",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-05"
+      ],
+      "acceptance_cases": [
+        "TC-FOOD-UNCERTAIN",
+        "TC-FOOD-PORTION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-FOOD-003",
+      "description": "Отправка фото с iPhone через Telegram вместо обязательного ручного переноса на Mac",
+      "owner": "Nutrition",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-05"
+      ],
+      "acceptance_cases": [
+        "TC-FOOD-UNCERTAIN",
+        "TC-FOOD-PORTION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-INV-001",
+      "description": "Полный журнал портфеля, сделок, доходности, комиссий и доступных налоговых событий с coverage/method; без исполнения сделок.",
+      "owner": "Investments",
+      "release": "R3",
+      "design": [
+        "docs/requirements/finance-design.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-09"
+      ],
+      "acceptance_cases": [
+        "TC-INV-POSITION",
+        "TC-INV-RETURN"
+      ],
+      "status": "baseline",
+      "qualification_gated": true
+    },
+    {
+      "id": "FR-LIFE-001",
+      "description": "Автозапуск, фон после закрытия UI, отдельный Stop, восстановление после сна без шквала старых уведомлений.",
+      "owner": "Operations",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-LIFE-WAKE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-NOT-001",
+      "description": "Три reminder events/день на два канала, quiet22–09, финансовый дайджест отдельно без дублей.",
+      "owner": "Notifications",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-07"
+      ],
+      "acceptance_cases": [
+        "TC-NOT-QUOTA",
+        "TC-NOT-QUIET"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-QST-001",
+      "description": "ИИ автономно управляет квестами по целям, состоянию, характеристикам и ситуации; подтверждение каждого назначения не требуется",
+      "owner": "Quests/Character",
+      "release": "R4",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-06"
+      ],
+      "acceptance_cases": [
+        "TC-QST-LOAD",
+        "TC-QST-OUTCOME",
+        "TC-QST-REVISE",
+        "TC-QST-SCHEDULE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-QST-002",
+      "description": "Примеры: ежедневная зарядка без нормы длительности, отход ко сну до 00:00",
+      "owner": "Quests/Character",
+      "release": "R4",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-06"
+      ],
+      "acceptance_cases": [
+        "TC-QST-LOAD",
+        "TC-QST-OUTCOME",
+        "TC-QST-REVISE",
+        "TC-QST-SCHEDULE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-QST-003",
+      "description": "Опыт, квесты, награды, развитие персонажа; желателен постепенный спад за пропуски",
+      "owner": "Quests/Character",
+      "release": "R4",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-06"
+      ],
+      "acceptance_cases": [
+        "TC-QST-LOAD",
+        "TC-QST-OUTCOME",
+        "TC-QST-REVISE",
+        "TC-QST-SCHEDULE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-QST-004",
+      "description": "Нагрузку адаптировать к продуктивности, болезни и ситуации; больному не назначать много заданий",
+      "owner": "Quests/Character",
+      "release": "R4",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-06"
+      ],
+      "acceptance_cases": [
+        "TC-QST-LOAD",
+        "TC-QST-OUTCOME",
+        "TC-QST-REVISE",
+        "TC-QST-SCHEDULE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-QST-005",
+      "description": "Не штрафовать за технический сбой",
+      "owner": "Quests/Character",
+      "release": "R4",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-06"
+      ],
+      "acceptance_cases": [
+        "TC-QST-LOAD",
+        "TC-QST-OUTCOME",
+        "TC-QST-REVISE",
+        "TC-QST-SCHEDULE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-001",
+      "description": "Самооценки: энергия, настроение, тревога, физическое самочувствие; диапазон 0–10, шаг 0,5; несколько записей в день, комментарий необязателен",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-002",
+      "description": "Разрешён частичный ввод; неизвестный показатель не заменяется выдуманным значением",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-003",
+      "description": "Самооценка актуальна шесть часов; время и источник видны пользователю",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-004",
+      "description": "Для каждого показателя приоритет у актуальной самооценки; при её отсутствии — явно помеченная оценка ИИ; без обоих источников значение неизвестно",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-005",
+      "description": "Баланс — минимум энергии, настроения, физического самочувствия и спокойствия, равного 10 минус тревога",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-006",
+      "description": "Пороги: [0;6) — требует внимания, [6;7,5) — удовлетворительно, [7,5;9) — хорошо, [9;10] — отлично",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-007",
+      "description": "Если нет хотя бы одного актуального показателя с учётом допустимого ИИ-источника, баланс не определён; известные значения отображаются отдельно",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-STA-008",
+      "description": "Игровые характеристики и баланс не представляются медицинским измерением здоровья",
+      "owner": "State",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-02"
+      ],
+      "acceptance_cases": [
+        "TC-STA-SCORE",
+        "TC-STA-TTL",
+        "TC-STA-BALANCE",
+        "TC-STA-REVISION"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "FR-UI-001",
+      "description": "macOS приложение SwiftUI; native core default, Docker как отдельный квалифицируемый профиль.",
+      "owner": "Presentation",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-01",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-UI-APP"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-001",
+      "description": "Локальная обработка личных данных ИИ, без скрытого облачного fallback",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-LOCAL"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-002",
+      "description": "Первый содержательный ответ после получения минутного аудио — целевой ориентир ≤15 секунд; проверить на целевом Mac",
+      "owner": "Cross-cutting",
+      "release": "R2",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-LATENCY"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-003",
+      "description": "Уложиться в лимит 10 ГБ, при недостаточности допускается 20 ГБ",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-DISK"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-004",
+      "description": "Локальная очередь, статус, повторная обработка при временных ошибках",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-DURABLE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-005",
+      "description": "Копии только локально в структуре проекта; политика делегирована проектировщику",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-RESTORE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-006",
+      "description": "Сбалансированный фон/батарея; числовые пределы CPU/RAM и условия проверки определить экспериментом",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-ENERGY"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-007",
+      "description": "Нет дополнительного пароля/Touch ID; базовая привязка бота владельцу без лишних шагов",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-ACCESS"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-008",
+      "description": "Чистая архитектура и SOLID: независимый домен, прикладные сценарии, внешние адаптеры, направленные внутрь зависимости",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-ARCH"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-009",
+      "description": "Полное тестирование проекта: правила, сценарии, контракты, реальные интеграции хранения, UI/E2E, отказы, восстановление и качество ИИ",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-COVERAGE"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    },
+    {
+      "id": "NFR-010",
+      "description": "CI как обязательное условие интеграции и выпуска; тесты на синтетических данных, отдельная приёмка на целевом Mac",
+      "owner": "Cross-cutting",
+      "release": "R1",
+      "design": [
+        "docs/requirements/baseline-rules.md",
+        "docs/architecture/overview.md"
+      ],
+      "rule_ids": [
+        "BR-08",
+        "BR-10"
+      ],
+      "acceptance_cases": [
+        "TC-NFR-CI"
+      ],
+      "status": "baseline",
+      "qualification_gated": false
+    }
+  ]
+}

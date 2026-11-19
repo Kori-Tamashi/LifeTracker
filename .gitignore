@@ -1,0 +1,28 @@
+# Personal data, models, backups and runtime files
+/var/
+/private/
+/local/
+*.local.*
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# Local tooling
+.venv/
+__pycache__/
+node_modules/
+
+# Credentials and personal exports (synthetic fixtures use text formats)
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.har

@@ -1,0 +1,38 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title C4 L2 — logical containers (baseline 1.0)
+left to right direction
+actor Owner as owner
+rectangle Telegram as tg <<External>>
+rectangle "Local Mac boundary" {
+ rectangle "macOS App\nPresentation / lifecycle controls" as ui <<Application>>
+ rectangle "Core Host\nUse cases + Telegram adapter + jobs" as core <<Application>>
+ rectangle "Inference Worker\nLocal speech / language / image adapters" as ai <<Application>>
+ rectangle "macOS Agent\nSystem API adapter (conditional)" as agent <<Application>>
+ database "SQLite Store\nAggregates, revisions, jobs, outbox" as db <<Data Store>>
+ folder "Media / evidence" as media <<Data Store>>
+ database "Search Index\nRebuildable" as idx <<Data Store>>
+}
+rectangle "iPhone Bridge\nConditional free installation" as ios <<Application>>
+rectangle "Apple Health / Screen Time\nAuthorized access to verify" as apple <<External>>
+rectangle "T-Bank" as bank <<External>>
+owner --> ui : Local interaction
+ui --> core : Application API / HTTP JSON + SSE
+core --> tg : Poll / send (protocol to verify)
+core --> ai : Typed inference request
+core --> agent : Authorized system observations
+core --> db : Exclusive business write ownership
+core --> media : Durable inputs / evidence
+core --> idx : Derived index write / read
+core --> bank : Read adapter (unverified)
+ios --> apple : Health access (unverified)
+ios --> core : Authorized observation batches (TBD)
+agent --> apple : Screen Time feasibility unknown
+note bottom of core
+Native Core is default; Docker optional after qualification.
+AI / native API access may stay on host.
+No direct UI / AI database writes.
+end note
+@enduml

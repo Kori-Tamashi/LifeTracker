@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2436" height="625" viewBox="0 0 2436 625" role="img">
+<title>Портфель и объяснимый расчёт доходности</title>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#334155"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<text x="22" y="30" font-family="Arial, sans-serif" font-size="21" font-weight="bold">BP11 — Портфель и объяснимый расчёт доходности</text>
+<text x="22" y="55" font-family="Arial, sans-serif" font-size="13" fill="#475569">BPMN 2.0 • проект • ALG-06 / ALG-11</text>
+<rect x="20" y="80" width="2396" height="160" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="20" y="80" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="150" font-family="Arial, sans-serif" font-size="14">Владелец</text>
+<rect x="20" y="240" width="2396" height="160" fill="#fff" stroke="#cbd5e1"/>
+<rect x="20" y="240" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="310" font-family="Arial, sans-serif" font-size="14">Инвестиционное</text>
+<text x="32" y="328" font-family="Arial, sans-serif" font-size="14">ядро</text>
+<rect x="20" y="400" width="2396" height="160" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="20" y="400" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="470" font-family="Arial, sans-serif" font-size="14">Источники</text>
+<polyline points="311.0,147.0 335.0,147.0 335.0,467.0 420.0,467.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="574.0,467.0 598.0,467.0 598.0,307.0 625.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="779.0,307.0 881.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="933.0,307.0 957.0,307.0 957.0,257.0 1216.0,257.0 1216.0,307.0 1240.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="937.0" y="297.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">да</text>
+<polyline points="907.0,281.0 907.0,257.0 1011.0,257.0 1011.0,307.0 1035.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="911.0" y="271.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">нет</text>
+<polyline points="1189.0,307.0 1213.0,307.0 1213.0,257.0 1831.0,257.0 1831.0,307.0 1855.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1394.0,307.0 1445.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1599.0,307.0 1701.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1753.0,307.0 1855.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="1757.0" y="297.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">да</text>
+<polyline points="1727.0,333.0 1727.0,467.0 1855.0,467.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="1786.0" y="353.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">нет</text>
+<polyline points="2009.0,467.0 2033.0,467.0 2033.0,357.0 1831.0,357.0 1831.0,307.0 1855.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="2009.0,307.0 2060.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="2214.0,307.0 2238.0,307.0 2238.0,147.0 2323.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<circle cx="292.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="1.5"/>
+<text x="292.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Запрос портфеля</text>
+<rect x="420.0" y="432.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="428.0" y="447.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="497.0" y="463.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Взять trades / flows /</text>
+<text x="497.0" y="479.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">quotes</text>
+<rect x="625.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="633.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">R</text>
+<text x="702.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Сверить позиции и</text>
+<text x="702.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">corporate actions</text>
+<polygon points="907.0,281.0 933.0,307.0 907.0,333.0 881.0,307.0" fill="#fef3c7" stroke="#0f172a"/><path d="M901.0 301.0 L913.0 313.0 M913.0 301.0 L901.0 313.0" stroke="#0f172a" stroke-width="2"/>
+<text x="907.0" y="350.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Есть основания расчёта?</text>
+<rect x="1035.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1043.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1112.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Coverage partial /</text>
+<text x="1112.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">unavailable</text>
+<rect x="1240.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1248.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">R</text>
+<text x="1317.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Выбрать TWR / Dietz /</text>
+<text x="1317.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">MWR</text>
+<rect x="1445.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1453.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1522.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Рассчитать по версии</text>
+<text x="1522.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">метода</text>
+<polygon points="1727.0,281.0 1753.0,307.0 1727.0,333.0 1701.0,307.0" fill="#fef3c7" stroke="#0f172a"/><path d="M1721.0 301.0 L1733.0 313.0 M1733.0 301.0 L1721.0 313.0" stroke="#0f172a" stroke-width="2"/>
+<text x="1727.0" y="350.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Результат однозначен?</text>
+<rect x="1855.0" y="432.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1863.0" y="447.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1932.0" y="463.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Отметить unknown /</text>
+<text x="1932.0" y="479.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">ambiguous</text>
+<rect x="1855.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1863.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1932.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Сохранить inputs /</text>
+<text x="1932.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">method / coverage</text>
+<rect x="2060.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="2068.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="2137.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Отчёт: P&amp;L / fees / tax</text>
+<text x="2137.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">ledger</text>
+<circle cx="2342.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="3.5"/>
+<text x="2342.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Объяснение доступно</text>
+<text x="22" y="613" font-family="Arial, sans-serif" font-size="12" fill="#64748b">U — user task; S — service task; R — business rule task. Полная BPMN-семантика и DI — в .bpmn.</text>
+</svg>

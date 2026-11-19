@@ -1,0 +1,33 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title UML use cases — target scope
+left to right direction
+actor Owner
+actor "External source" as Source
+rectangle "Life Tracker" {
+ usecase "View character / explanation\nUC-001" as view
+ usecase "Record assessment\nUC-002" as assess
+ usecase "Voice conversation\nUC-003" as voice
+ usecase "Review interpretation\nUC-004" as review
+ usecase "Browse diary\nUC-005" as diary
+ usecase "Record meal photo\nUC-006" as meal
+ usecase "Plan budget\nUC-007" as budget
+ usecase "Review expenses\nUC-008" as expense
+ usecase "Complete quest\nUC-009" as quest
+ usecase "Restore local backup\nUC-011" as restore
+ usecase "Ingest observation" as ingest
+}
+Owner --> view
+Owner --> assess
+Owner --> voice
+Owner --> review
+Owner --> diary
+Owner --> meal
+Owner --> budget
+Owner --> expense
+Owner --> quest
+Owner --> restore
+Source --> ingest
+@enduml

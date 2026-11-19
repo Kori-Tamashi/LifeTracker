@@ -1,0 +1,17 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+title UML state — extraction acceptance / baseline 1.0
+[*] --> Pending : valid candidates saved
+Pending --> Accepted : confirm / validated autoconfirm
+Pending --> Rejected : owner rejects
+Accepted --> Superseded : fact correction / new revision
+Accepted --> Stale : basis revised
+Stale --> Superseded : rebuild replaces interpretation
+Rejected --> [*]
+Superseded --> [*]
+note right of Pending
+No active inference lease while waiting.
+Autoconfirm does not change hypothesis source kind.
+end note
+@enduml

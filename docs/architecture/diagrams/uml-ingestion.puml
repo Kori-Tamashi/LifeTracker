@@ -1,0 +1,33 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title UML activity — input / retry / acceptance
+start
+:Authenticate channel and validate envelope;
+if (Duplicate source key?) then (yes)
+ :Return previous durable receipt;
+ stop
+endif
+:Persist media, verify durable reference;
+:Commit inbox + job + outbox;
+:Confirm local acceptance;
+:Claim job lease;
+:Run local model outside transaction;
+if (Temporary failure?) then (yes)
+ :Persist retry status and next attempt;
+ stop
+endif
+if (Schema / references / versions valid?) then (no)
+ :Mark needs review / failed, retain input;
+ stop
+endif
+if (Autoconfirm?) then (yes)
+ :Save typed records and provenance;
+else (no)
+ :Save pending extraction;
+ :Wait for user decision without lease;
+endif
+:Schedule derived recalculation / response;
+stop
+@enduml
