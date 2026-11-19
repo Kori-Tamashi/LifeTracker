@@ -1,0 +1,16 @@
+{
+  "name": "lifetracker-design-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local design validation and rendering only",
+  "type": "module",
+  "scripts": {
+    "validate-api": "node validate_api.mjs",
+    "render-diagrams": "node render_diagrams.mjs"
+  },
+  "devDependencies": {
+    "@plantuml/core": "1.2026.10",
+    "playwright-core": "1.65.1",
+    "@apidevtools/swagger-parser": "13.1.0"
+  }
+}

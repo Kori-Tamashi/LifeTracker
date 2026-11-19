@@ -1,0 +1,25 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+title Deployment baseline 1.0 — native default
+node "macOS 26 / Apple Silicon" {
+ artifact "LifeTracker.app\nSwiftUI / AppKit" as ui
+ node "Owned supervisor" as sup
+ component "Core Host\n.NET 10 / HTTP v1" as core
+ component "Local inference\nllama.cpp + whisper.cpp" as ai
+ database "SQLite >=3.51.3\nOne writer environment" as db
+ folder "Project runtime root\nlocal / var / backups" as files
+}
+node "iPhone bridge\nOnly after qualification" as phone
+cloud "Telegram Bot API" as tg
+cloud "Qualified source APIs" as source
+ui --> core : loopback HTTP / SSE
+sup --> core : start / stop / recovery
+sup --> ai : owned process lifecycle
+core --> db
+core --> files
+core --> ai : typed requests / local only
+core --> tg : HTTPS long polling / send
+core --> source : read-only adapters
+phone --> core : optional paired TLS Health batch
+@enduml

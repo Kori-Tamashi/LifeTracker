@@ -1,0 +1,20 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+title UML state — durable job / baseline 1.0
+[*] --> Queued : durable intake
+Queued --> Running : claim lease / fence
+Running --> Completed : result or pending extraction + outbox committed
+Running --> RetryWait : transient error / expired lease
+RetryWait --> Queued : backoff elapsed
+Running --> Failed : terminal error / attempts exhausted
+Failed --> Queued : explicit retry after fix
+Queued --> Cancelled : deletion / explicit cancel
+Running --> Cancelled : cancel and result fencing
+Completed --> [*]
+Cancelled --> [*]
+note right of Completed
+Extraction acceptance has a separate lifecycle.
+A completed processing job may leave pending candidates.
+end note
+@enduml

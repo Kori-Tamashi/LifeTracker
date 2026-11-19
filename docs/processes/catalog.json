@@ -1,0 +1,1848 @@
+[
+  {
+    "id": "BP01",
+    "title": "Самооценка и текущий баланс",
+    "lanes": [
+      "Владелец",
+      "Ядро"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Новая отметка",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "enter",
+        "type": "userTask",
+        "name": "Ввести часть показателей",
+        "lane": 0,
+        "column": 1
+      },
+      {
+        "id": "validate",
+        "type": "serviceTask",
+        "name": "Проверить диапазон и время",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "ok",
+        "type": "exclusiveGateway",
+        "name": "Ввод корректен?",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "fix",
+        "type": "userTask",
+        "name": "Исправить ввод",
+        "lane": 0,
+        "column": 3
+      },
+      {
+        "id": "save",
+        "type": "serviceTask",
+        "name": "Сохранить ревизии атомарно",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "calc",
+        "type": "businessRuleTask",
+        "name": "Выбрать источники и TTL",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "full",
+        "type": "exclusiveGateway",
+        "name": "Все показатели известны?",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "balance",
+        "type": "businessRuleTask",
+        "name": "Рассчитать минимум и уровень",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "unknown",
+        "type": "serviceTask",
+        "name": "Показать известное / unknown",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "end",
+        "type": "endEvent",
+        "name": "Состояние показано",
+        "lane": 0,
+        "column": 9
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "enter",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "enter",
+        "target": "validate",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "validate",
+        "target": "ok",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "ok",
+        "target": "save",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "ok",
+        "target": "fix",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "fix",
+        "target": "validate",
+        "label": "повтор",
+        "default": false
+      },
+      {
+        "source": "save",
+        "target": "calc",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "calc",
+        "target": "full",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "full",
+        "target": "balance",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "full",
+        "target": "unknown",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "balance",
+        "target": "end",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "unknown",
+        "target": "end",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-01",
+      "ALG-04"
+    ]
+  },
+  {
+    "id": "BP02",
+    "title": "Голосовой дневник и принятие записей",
+    "lanes": [
+      "Владелец",
+      "Ядро",
+      "Локальный ИИ"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Голосовое сообщение",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "intake",
+        "type": "serviceTask",
+        "name": "Durable приём и dedup",
+        "lane": 1,
+        "column": 1
+      },
+      {
+        "id": "infer",
+        "type": "serviceTask",
+        "name": "Распознать и извлечь",
+        "lane": 2,
+        "column": 2
+      },
+      {
+        "id": "valid",
+        "type": "exclusiveGateway",
+        "name": "Результат валиден?",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "retry",
+        "type": "serviceTask",
+        "name": "Сохранить retry / failed",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "auto",
+        "type": "exclusiveGateway",
+        "name": "Автоподтверждение?",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "confirm",
+        "type": "userTask",
+        "name": "Подтвердить / исправить",
+        "lane": 0,
+        "column": 5
+      },
+      {
+        "id": "accepted",
+        "type": "exclusiveGateway",
+        "name": "Записи приняты?",
+        "lane": 0,
+        "column": 6
+      },
+      {
+        "id": "store",
+        "type": "serviceTask",
+        "name": "Commit записей и Evidence",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "memory",
+        "type": "serviceTask",
+        "name": "Обновить память / ответ",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Результат доступен",
+        "lane": 0,
+        "column": 9
+      },
+      {
+        "id": "re",
+        "type": "endEvent",
+        "name": "Ожидание повтора / исправления",
+        "lane": 0,
+        "column": 4
+      },
+      {
+        "id": "reject",
+        "type": "endEvent",
+        "name": "Извлечение отклонено",
+        "lane": 0,
+        "column": 7
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "intake",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "intake",
+        "target": "infer",
+        "label": "job lease",
+        "default": false
+      },
+      {
+        "source": "infer",
+        "target": "valid",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "valid",
+        "target": "auto",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "valid",
+        "target": "retry",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "retry",
+        "target": "re",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "auto",
+        "target": "store",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "auto",
+        "target": "confirm",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "confirm",
+        "target": "accepted",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "accepted",
+        "target": "store",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "accepted",
+        "target": "reject",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "store",
+        "target": "memory",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "memory",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-02",
+      "ALG-03",
+      "ALG-05"
+    ]
+  },
+  {
+    "id": "BP03",
+    "title": "Исправление факта и зависимых выводов",
+    "lanes": [
+      "Владелец",
+      "Ядро"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Ошибка факта обнаружена",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "edit",
+        "type": "userTask",
+        "name": "Исправить факт / причину",
+        "lane": 0,
+        "column": 1
+      },
+      {
+        "id": "check",
+        "type": "serviceTask",
+        "name": "Проверить expected revision",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "current",
+        "type": "exclusiveGateway",
+        "name": "Версия актуальна?",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "conflict",
+        "type": "userTask",
+        "name": "Просмотреть конфликт версий",
+        "lane": 0,
+        "column": 3
+      },
+      {
+        "id": "commit",
+        "type": "serviceTask",
+        "name": "Новая ревизия и stale связей",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "rebuild",
+        "type": "serviceTask",
+        "name": "Пересчитать граф зависимостей",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "effects",
+        "type": "serviceTask",
+        "name": "Компенсировать игровые эффекты",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "index",
+        "type": "serviceTask",
+        "name": "Обновить индекс и объяснения",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "История и результат доступны",
+        "lane": 0,
+        "column": 8
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "edit",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "edit",
+        "target": "check",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "check",
+        "target": "current",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "current",
+        "target": "commit",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "current",
+        "target": "conflict",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "conflict",
+        "target": "edit",
+        "label": "повтор с новой версией",
+        "default": false
+      },
+      {
+        "source": "commit",
+        "target": "rebuild",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "rebuild",
+        "target": "effects",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "effects",
+        "target": "index",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "index",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-04"
+    ]
+  },
+  {
+    "id": "BP04",
+    "title": "Месячный бюджет и разбор",
+    "lanes": [
+      "Владелец",
+      "Ядро",
+      "Банковский адаптер"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "План / обновление месяца",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "fetch",
+        "type": "serviceTask",
+        "name": "Получить операции автоматически",
+        "lane": 2,
+        "column": 1
+      },
+      {
+        "id": "avail",
+        "type": "exclusiveGateway",
+        "name": "Источник доступен?",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "blocked",
+        "type": "endEvent",
+        "name": "Финансовый этап отложен",
+        "lane": 2,
+        "column": 3
+      },
+      {
+        "id": "norm",
+        "type": "serviceTask",
+        "name": "Сверить переводы и версии",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "plan",
+        "type": "userTask",
+        "name": "Задать / пересмотреть план",
+        "lane": 0,
+        "column": 4
+      },
+      {
+        "id": "calc",
+        "type": "businessRuleTask",
+        "name": "Посчитать план / факт / резервы",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "change",
+        "type": "exclusiveGateway",
+        "name": "Нужно изменить план?",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "approve",
+        "type": "userTask",
+        "name": "Подтвердить новое распределение",
+        "lane": 0,
+        "column": 6
+      },
+      {
+        "id": "store",
+        "type": "serviceTask",
+        "name": "Сохранить принятый план",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "view",
+        "type": "serviceTask",
+        "name": "Показать разбор и остатки",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Обзор месяца доступен",
+        "lane": 0,
+        "column": 9
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "fetch",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "fetch",
+        "target": "avail",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "avail",
+        "target": "norm",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "avail",
+        "target": "blocked",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "norm",
+        "target": "plan",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "plan",
+        "target": "calc",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "calc",
+        "target": "change",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "change",
+        "target": "approve",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "change",
+        "target": "view",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "approve",
+        "target": "store",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "store",
+        "target": "view",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "view",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-06",
+      "ALG-11"
+    ]
+  },
+  {
+    "id": "BP05",
+    "title": "Автономные квесты и игровые последствия",
+    "lanes": [
+      "Владелец",
+      "Ядро",
+      "Локальный ИИ",
+      "Правила прогресса"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Планирование заданий",
+        "lane": 1,
+        "column": 0
+      },
+      {
+        "id": "context",
+        "type": "serviceTask",
+        "name": "Оценить контекст и нагрузку",
+        "lane": 1,
+        "column": 1
+      },
+      {
+        "id": "generate",
+        "type": "serviceTask",
+        "name": "Предложить квесты",
+        "lane": 2,
+        "column": 2
+      },
+      {
+        "id": "gate",
+        "type": "businessRuleTask",
+        "name": "Проверить срок / допустимость",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "valid",
+        "type": "exclusiveGateway",
+        "name": "Есть допустимое задание?",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "empty",
+        "type": "endEvent",
+        "name": "Без назначения и штрафа",
+        "lane": 0,
+        "column": 5
+      },
+      {
+        "id": "assign",
+        "type": "serviceTask",
+        "name": "Назначить автономно",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "do",
+        "type": "userTask",
+        "name": "Выполнить / сообщить исход",
+        "lane": 0,
+        "column": 6
+      },
+      {
+        "id": "outcome",
+        "type": "exclusiveGateway",
+        "name": "Исход?",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "reward",
+        "type": "serviceTask",
+        "name": "Начислить уникальную награду",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "decay",
+        "type": "businessRuleTask",
+        "name": "Проверить правило спада",
+        "lane": 3,
+        "column": 8
+      },
+      {
+        "id": "nodata",
+        "type": "serviceTask",
+        "name": "Сохранить unknown / паузу",
+        "lane": 1,
+        "column": 9
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Прогресс обновлён",
+        "lane": 1,
+        "column": 10
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "context",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "context",
+        "target": "generate",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "generate",
+        "target": "gate",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "gate",
+        "target": "valid",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "valid",
+        "target": "assign",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "valid",
+        "target": "empty",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "assign",
+        "target": "do",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "do",
+        "target": "outcome",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "outcome",
+        "target": "reward",
+        "label": "выполнен",
+        "default": false
+      },
+      {
+        "source": "outcome",
+        "target": "decay",
+        "label": "явный пропуск",
+        "default": false
+      },
+      {
+        "source": "outcome",
+        "target": "nodata",
+        "label": "нет данных / болезнь",
+        "default": true
+      },
+      {
+        "source": "reward",
+        "target": "e",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "decay",
+        "target": "e",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "nodata",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-07"
+    ]
+  },
+  {
+    "id": "BP06",
+    "title": "Напоминания и доставка в два канала",
+    "lanes": [
+      "Планировщик",
+      "Ядро",
+      "Канальные адаптеры"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Готов trigger",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "fresh",
+        "type": "exclusiveGateway",
+        "name": "Trigger актуален?",
+        "lane": 1,
+        "column": 1
+      },
+      {
+        "id": "expired",
+        "type": "endEvent",
+        "name": "Истёк без доставки",
+        "lane": 0,
+        "column": 2
+      },
+      {
+        "id": "quiet",
+        "type": "exclusiveGateway",
+        "name": "Тихие часы?",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "wait",
+        "type": "intermediateCatchEvent",
+        "name": "Дождаться разрешённого времени",
+        "lane": 0,
+        "column": 3
+      },
+      {
+        "id": "quota",
+        "type": "businessRuleTask",
+        "name": "Проверить причину и квоту",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "allowed",
+        "type": "exclusiveGateway",
+        "name": "Отправка допустима?",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "limited",
+        "type": "endEvent",
+        "name": "Пропуск / объединение",
+        "lane": 0,
+        "column": 6
+      },
+      {
+        "id": "reserve",
+        "type": "serviceTask",
+        "name": "Событие + слот + Delivery",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "send",
+        "type": "serviceTask",
+        "name": "Доставить в macOS и Telegram",
+        "lane": 2,
+        "column": 7
+      },
+      {
+        "id": "result",
+        "type": "serviceTask",
+        "name": "Записать исходы / retry",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Доставки учтены",
+        "lane": 1,
+        "column": 9
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "fresh",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "fresh",
+        "target": "quiet",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "fresh",
+        "target": "expired",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "quiet",
+        "target": "wait",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "quiet",
+        "target": "quota",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "wait",
+        "target": "fresh",
+        "label": "проверить заново",
+        "default": false
+      },
+      {
+        "source": "quota",
+        "target": "allowed",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "allowed",
+        "target": "reserve",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "allowed",
+        "target": "limited",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "reserve",
+        "target": "send",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "send",
+        "target": "result",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "result",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-08"
+    ]
+  },
+  {
+    "id": "BP07",
+    "title": "Резервирование и проверка восстановления",
+    "lanes": [
+      "Планировщик",
+      "Ядро",
+      "Хранилище"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Срок копии / миграция",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "preflight",
+        "type": "serviceTask",
+        "name": "Проверить место и media pin",
+        "lane": 1,
+        "column": 1
+      },
+      {
+        "id": "snapshot",
+        "type": "serviceTask",
+        "name": "Сделать snapshot БД + медиа",
+        "lane": 2,
+        "column": 2
+      },
+      {
+        "id": "validate",
+        "type": "serviceTask",
+        "name": "Проверить manifest / hashes",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "ok",
+        "type": "exclusiveGateway",
+        "name": "Копия целостна?",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "fail",
+        "type": "endEvent",
+        "name": "Ошибка: старые копии сохранены",
+        "lane": 0,
+        "column": 5
+      },
+      {
+        "id": "complete",
+        "type": "serviceTask",
+        "name": "Пометить completed",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "restore",
+        "type": "serviceTask",
+        "name": "Тест restore в отдельный каталог",
+        "lane": 2,
+        "column": 6
+      },
+      {
+        "id": "restored",
+        "type": "exclusiveGateway",
+        "name": "Restore успешен?",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "rotation",
+        "type": "serviceTask",
+        "name": "Ротация и освобождение pin",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Копия готова",
+        "lane": 0,
+        "column": 9
+      },
+      {
+        "id": "warn",
+        "type": "endEvent",
+        "name": "Копия не допущена к ротации",
+        "lane": 0,
+        "column": 8
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "preflight",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "preflight",
+        "target": "snapshot",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "snapshot",
+        "target": "validate",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "validate",
+        "target": "ok",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "ok",
+        "target": "complete",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "ok",
+        "target": "fail",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "complete",
+        "target": "restore",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "restore",
+        "target": "restored",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "restored",
+        "target": "rotation",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "restored",
+        "target": "warn",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "rotation",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-10"
+    ]
+  },
+  {
+    "id": "BP08",
+    "title": "Фото блюда и оценка питания",
+    "lanes": [
+      "Владелец",
+      "Ядро",
+      "Локальный ИИ",
+      "Правила питания"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Фото блюда",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "accept",
+        "type": "serviceTask",
+        "name": "Принять фото durable",
+        "lane": 1,
+        "column": 1
+      },
+      {
+        "id": "vision",
+        "type": "serviceTask",
+        "name": "Предложить состав и порцию",
+        "lane": 2,
+        "column": 2
+      },
+      {
+        "id": "enough",
+        "type": "exclusiveGateway",
+        "name": "Данных достаточно?",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "ask",
+        "type": "userTask",
+        "name": "Уточнить массу / состав ≤2 раза",
+        "lane": 0,
+        "column": 3
+      },
+      {
+        "id": "after",
+        "type": "exclusiveGateway",
+        "name": "Теперь достаточно?",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "unknown",
+        "type": "serviceTask",
+        "name": "Сохранить без КБЖУ",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "calc",
+        "type": "businessRuleTask",
+        "name": "Оценить диапазон по справочнику",
+        "lane": 3,
+        "column": 5
+      },
+      {
+        "id": "save",
+        "type": "serviceTask",
+        "name": "Сохранить допущения / источники",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Блюдо записано",
+        "lane": 0,
+        "column": 7
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "accept",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "accept",
+        "target": "vision",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "vision",
+        "target": "enough",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "enough",
+        "target": "calc",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "enough",
+        "target": "ask",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "ask",
+        "target": "after",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "after",
+        "target": "calc",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "after",
+        "target": "unknown",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "calc",
+        "target": "save",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "unknown",
+        "target": "save",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "save",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-02",
+      "ALG-09"
+    ]
+  },
+  {
+    "id": "BP09",
+    "title": "Закрытие месяца и поздняя корректировка",
+    "lanes": [
+      "Планировщик",
+      "Финансовое ядро",
+      "Владелец"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Новый месяц / late operation",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "snapshot",
+        "type": "serviceTask",
+        "name": "Получить версии и сверку",
+        "lane": 1,
+        "column": 1
+      },
+      {
+        "id": "complete",
+        "type": "exclusiveGateway",
+        "name": "Данные полны и свежи?",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "provisional",
+        "type": "serviceTask",
+        "name": "Сохранить provisional",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "pe",
+        "type": "endEvent",
+        "name": "Ожидание данных",
+        "lane": 0,
+        "column": 4
+      },
+      {
+        "id": "calc",
+        "type": "businessRuleTask",
+        "name": "Рассчитать остаток без дублей",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "deficit",
+        "type": "exclusiveGateway",
+        "name": "Есть дефицит?",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "proposal",
+        "type": "userTask",
+        "name": "Рассмотреть покрытие дефицита",
+        "lane": 2,
+        "column": 6
+      },
+      {
+        "id": "residual",
+        "type": "businessRuleTask",
+        "name": "Учётный резерв копилки",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "commit",
+        "type": "serviceTask",
+        "name": "Closing / delta restatement",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "История месяца согласована",
+        "lane": 0,
+        "column": 8
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "snapshot",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "snapshot",
+        "target": "complete",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "complete",
+        "target": "calc",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "complete",
+        "target": "provisional",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "provisional",
+        "target": "pe",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "calc",
+        "target": "deficit",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "deficit",
+        "target": "proposal",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "deficit",
+        "target": "residual",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "proposal",
+        "target": "commit",
+        "label": "решение / сохранить дефицит",
+        "default": false
+      },
+      {
+        "source": "residual",
+        "target": "commit",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "commit",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-06"
+    ]
+  },
+  {
+    "id": "BP10",
+    "title": "Импорт источника и checkpoint",
+    "lanes": [
+      "Адаптер",
+      "Ядро",
+      "Хранилище"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Автоматический batch",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "qualified",
+        "type": "exclusiveGateway",
+        "name": "Источник допущен?",
+        "lane": 0,
+        "column": 1
+      },
+      {
+        "id": "stop",
+        "type": "endEvent",
+        "name": "Capability unavailable",
+        "lane": 0,
+        "column": 2
+      },
+      {
+        "id": "normalize",
+        "type": "serviceTask",
+        "name": "Нормализовать IDs / units",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "validate",
+        "type": "exclusiveGateway",
+        "name": "Batch корректен?",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "retry",
+        "type": "serviceTask",
+        "name": "Сохранить ошибку / retry",
+        "lane": 0,
+        "column": 4
+      },
+      {
+        "id": "re",
+        "type": "endEvent",
+        "name": "Checkpoint не продвинут",
+        "lane": 0,
+        "column": 5
+      },
+      {
+        "id": "dedup",
+        "type": "businessRuleTask",
+        "name": "Сверить версии и дубли",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "commit",
+        "type": "serviceTask",
+        "name": "Commit records + cursor + outbox",
+        "lane": 2,
+        "column": 5
+      },
+      {
+        "id": "refresh",
+        "type": "serviceTask",
+        "name": "Обновить проекции / freshness",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Batch принят ровно логически",
+        "lane": 0,
+        "column": 7
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "qualified",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "qualified",
+        "target": "normalize",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "qualified",
+        "target": "stop",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "normalize",
+        "target": "validate",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "validate",
+        "target": "dedup",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "validate",
+        "target": "retry",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "retry",
+        "target": "re",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "dedup",
+        "target": "commit",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "commit",
+        "target": "refresh",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "refresh",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-02",
+      "ALG-11"
+    ]
+  },
+  {
+    "id": "BP11",
+    "title": "Портфель и объяснимый расчёт доходности",
+    "lanes": [
+      "Владелец",
+      "Инвестиционное ядро",
+      "Источники"
+    ],
+    "nodes": [
+      {
+        "id": "s",
+        "type": "startEvent",
+        "name": "Запрос портфеля",
+        "lane": 0,
+        "column": 0
+      },
+      {
+        "id": "load",
+        "type": "serviceTask",
+        "name": "Взять trades / flows / quotes",
+        "lane": 2,
+        "column": 1
+      },
+      {
+        "id": "reconcile",
+        "type": "businessRuleTask",
+        "name": "Сверить позиции и corporate actions",
+        "lane": 1,
+        "column": 2
+      },
+      {
+        "id": "basis",
+        "type": "exclusiveGateway",
+        "name": "Есть основания расчёта?",
+        "lane": 1,
+        "column": 3
+      },
+      {
+        "id": "unknown",
+        "type": "serviceTask",
+        "name": "Coverage partial / unavailable",
+        "lane": 1,
+        "column": 4
+      },
+      {
+        "id": "method",
+        "type": "businessRuleTask",
+        "name": "Выбрать TWR / Dietz / MWR",
+        "lane": 1,
+        "column": 5
+      },
+      {
+        "id": "calc",
+        "type": "serviceTask",
+        "name": "Рассчитать по версии метода",
+        "lane": 1,
+        "column": 6
+      },
+      {
+        "id": "valid",
+        "type": "exclusiveGateway",
+        "name": "Результат однозначен?",
+        "lane": 1,
+        "column": 7
+      },
+      {
+        "id": "ambiguous",
+        "type": "serviceTask",
+        "name": "Отметить unknown / ambiguous",
+        "lane": 2,
+        "column": 8
+      },
+      {
+        "id": "store",
+        "type": "serviceTask",
+        "name": "Сохранить inputs / method / coverage",
+        "lane": 1,
+        "column": 8
+      },
+      {
+        "id": "report",
+        "type": "serviceTask",
+        "name": "Отчёт: P&L / fees / tax ledger",
+        "lane": 1,
+        "column": 9
+      },
+      {
+        "id": "e",
+        "type": "endEvent",
+        "name": "Объяснение доступно",
+        "lane": 0,
+        "column": 10
+      }
+    ],
+    "flows": [
+      {
+        "source": "s",
+        "target": "load",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "load",
+        "target": "reconcile",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "reconcile",
+        "target": "basis",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "basis",
+        "target": "method",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "basis",
+        "target": "unknown",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "unknown",
+        "target": "store",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "method",
+        "target": "calc",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "calc",
+        "target": "valid",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "valid",
+        "target": "store",
+        "label": "да",
+        "default": false
+      },
+      {
+        "source": "valid",
+        "target": "ambiguous",
+        "label": "нет",
+        "default": true
+      },
+      {
+        "source": "ambiguous",
+        "target": "store",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "store",
+        "target": "report",
+        "label": "",
+        "default": false
+      },
+      {
+        "source": "report",
+        "target": "e",
+        "label": "",
+        "default": false
+      }
+    ],
+    "algorithms": [
+      "ALG-06",
+      "ALG-11"
+    ]
+  }
+]

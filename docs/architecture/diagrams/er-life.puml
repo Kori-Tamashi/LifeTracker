@@ -1,0 +1,225 @@
+@startuml
+skinparam backgroundColor white
+hide methods
+hide stereotypes
+skinparam shadowing false
+left to right direction
+title er-life / physical schema v1 (baseline 1.0)
+entity "profiles" as profiles {
+  * id : TEXT
+  timezone : TEXT
+  active : INTEGER
+}
+entity "entities" as entities {
+  * profile_id : TEXT
+  * id : TEXT
+  kind : TEXT
+  current_revision : INTEGER
+}
+entity "revisions" as revisions {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  recorded_ms : INTEGER
+  actor : TEXT
+  status : TEXT
+  reason : TEXT
+}
+entity "persons" as persons {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  display_name : TEXT
+  aliases_json : TEXT
+}
+entity "episodes" as episodes {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  occurred_ms : INTEGER
+  precision_kind : TEXT
+  summary : TEXT
+}
+entity "person_mentions" as person_mentions {
+  * profile_id : TEXT
+  * episode_id : TEXT
+  * person_id : TEXT
+}
+entity "conversations" as conversations {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  title : TEXT
+  opened_ms : INTEGER
+  closed_ms : INTEGER
+}
+entity "messages" as messages {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  conversation_id : TEXT
+  role : TEXT
+  source_event_id : TEXT
+  text_body : TEXT
+  media_id : TEXT
+}
+entity "journal_entries" as journal_entries {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  conversation_id : TEXT
+  summary : TEXT
+}
+entity "extractions" as extractions {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  source_event_id : TEXT
+  acceptance : TEXT
+  model_manifest_id : TEXT
+}
+entity "interpretations" as interpretations {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  summary : TEXT
+  confidence : TEXT
+  rule_version : TEXT
+  model_manifest_id : TEXT
+  unique_episode_count : INTEGER
+}
+entity "disagreements" as disagreements {
+  * profile_id : TEXT
+  * id : TEXT
+  entity_id : TEXT
+  revision : INTEGER
+  note : TEXT
+  recorded_ms : INTEGER
+}
+entity "observations" as observations {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  metric : TEXT
+  score_half : INTEGER
+  observed_ms : INTEGER
+  source_kind : TEXT
+}
+entity "meals" as meals {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  occurred_ms : INTEGER
+  name : TEXT
+  portion_json : TEXT
+  nutrients_json : TEXT
+  estimate_status : TEXT
+}
+entity "quest_templates" as quest_templates {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  goal : TEXT
+  rule_version : TEXT
+  attribute : TEXT
+  recurrence_json : TEXT
+}
+entity "quest_occurrences" as quest_occurrences {
+  * profile_id : TEXT
+  * entity_id : TEXT
+  * revision : INTEGER
+  template_id : TEXT
+  start_ms : INTEGER
+  end_ms : INTEGER
+  load_points : INTEGER
+  outcome : TEXT
+  optional : INTEGER
+  rule_version : TEXT
+}
+entity "game_effects" as game_effects {
+  * profile_id : TEXT
+  * id : TEXT
+  occurrence_id : TEXT
+  outcome_revision : INTEGER
+  attribute : TEXT
+  effect_kind : TEXT
+  delta : INTEGER
+  xp_delta : INTEGER
+  reversal_of : TEXT
+  rule_version : TEXT
+}
+entity "evidence" as evidence {
+  * profile_id : TEXT
+  * id : TEXT
+  episode_id : TEXT
+  source_event_id : TEXT
+  media_id : TEXT
+  excerpt : TEXT
+  original_available : INTEGER
+}
+entity "source_events" as source_events {
+  * profile_id : TEXT
+  * id : TEXT
+  source : TEXT
+  external_id : TEXT
+  payload_hash : TEXT
+  received_ms : INTEGER
+  state : TEXT
+  receipt_json : TEXT
+}
+entity "media" as media {
+  * profile_id : TEXT
+  * id : TEXT
+  relative_path : TEXT
+  sha256 : TEXT
+  bytes : INTEGER
+  mime : TEXT
+  lifecycle : TEXT
+  retention_after_ms : INTEGER
+  pin_count : INTEGER
+}
+entities }o--|| revisions
+entities }o--|| profiles
+revisions }o--|| entities
+persons }o--|| revisions
+episodes }o--|| revisions
+person_mentions }o--|| entities
+conversations }o--|| revisions
+messages }o--|| revisions
+messages }o--|| media
+messages }o--|| source_events
+messages }o--|| entities
+journal_entries }o--|| revisions
+journal_entries }o--|| entities
+extractions }o--|| revisions
+extractions }o--|| source_events
+interpretations }o--|| revisions
+disagreements }o--|| revisions
+observations }o--|| revisions
+meals }o--|| revisions
+quest_templates }o--|| revisions
+quest_occurrences }o--|| revisions
+quest_occurrences }o--|| entities
+game_effects }o--|| game_effects
+game_effects }o--|| revisions
+game_effects }o--|| profiles
+evidence }o--|| media
+evidence }o--|| entities
+evidence }o--|| source_events
+evidence }o--|| profiles
+source_events }o--|| profiles
+media }o--|| profiles
+entity "measurements" as measurements {
+ * profile_id : TEXT
+ * entity_id : TEXT
+ * revision : INTEGER
+ metric : TEXT
+ start_ms : INTEGER
+ end_ms : INTEGER
+ value_decimal : TEXT
+ unit : TEXT
+ source_event_id : TEXT
+}
+measurements }o--|| revisions
+measurements }o--|| source_events
+@enduml

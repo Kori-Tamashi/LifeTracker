@@ -1,0 +1,44 @@
+name: Project checks
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  project-checks:
+    name: project-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Validate project materials
+        run: python3 tools/check_project.py
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Install design validators
+        run: |
+          python3 -m pip install -r tools/requirements-design.txt
+          npm ci --prefix tools --ignore-scripts --no-audit --no-fund
+      - name: Validate OpenAPI
+        run: node tools/validate_api.mjs
+      - name: Test project checker
+        run: python3 -m unittest discover -s tests/tools -v
+      - name: Check generated BPMN and previews
+        run: python3 tools/build_processes.py --check

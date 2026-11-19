@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title Clean Architecture — compile-time dependencies (baseline 1.0)
+left to right direction
+package "Domain" {
+ class Observation
+ class BalancePolicy
+ class Score
+}
+package "Application" {
+ class RecordAssessment
+ interface AssessmentRepository
+ interface UnitOfWork
+ interface Clock
+}
+package "Infrastructure" {
+ class TransactionalAssessmentRepository
+ class StoreUnitOfWork
+ class SystemClock
+}
+package "Presentation" {
+ class MacOSController
+ class TelegramController
+}
+package "Composition Root" {
+ class Bootstrap
+}
+RecordAssessment --> Observation
+RecordAssessment --> BalancePolicy
+RecordAssessment --> AssessmentRepository
+RecordAssessment --> UnitOfWork
+RecordAssessment --> Clock
+Observation --> Score
+TransactionalAssessmentRepository ..|> AssessmentRepository
+StoreUnitOfWork ..|> UnitOfWork
+SystemClock ..|> Clock
+MacOSController --> RecordAssessment
+TelegramController --> RecordAssessment
+Bootstrap --> RecordAssessment
+Bootstrap --> TransactionalAssessmentRepository
+Bootstrap --> StoreUnitOfWork
+Bootstrap --> SystemClock
+note bottom of Bootstrap
+Runtime calls may go outward through ports.
+Compile-time dependencies always point inward.
+Domain has no framework / persistence imports.
+end note
+@enduml
