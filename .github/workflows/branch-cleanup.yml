@@ -1,0 +1,36 @@
+name: Merged branch cleanup
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop, main]
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/branch-cleanup.yml
+      - tools/prune_merged_branches.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: merged-branch-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.merged && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          ref: develop
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Remove merged branches with exact head leases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 tools/prune_merged_branches.py
