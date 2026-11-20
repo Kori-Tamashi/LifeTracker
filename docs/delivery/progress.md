@@ -55,3 +55,9 @@ D-004: реальный SQLite adapter и транзакционные contract 
 ## Минимальный корень репозитория
 
 Удалены корневые props, .editorconfig и AGENTS.md; SDK config перенесён в configs/dotnet. Общие настройки подключаются через tools/dotnet.sh с явными MSBuild paths, Roslyn использует configs/.editorconfig. CI/команды обновлены, checker запрещает возвращение служебных файлов в корень и AGENTS.md в отслеживаемое дерево. Политики проекта остаются в docs.
+
+## D-006.1: главное окно состояния
+
+Добавлен SwiftUI executable LifeTrackerDesktop: нейтральный 2D-силуэт, серверный баланс, карточки показателей и подробности с источником/временем. Обновление ручное, при активации и раз в минуту. При истечении серверного valid_until баланс скрывается до обновления; ошибка не стирает последний snapshot и не выдаёт его за текущий. Креденциал читается локально из runtime-root; настройки запуска — src/macos/README.md и tools/run_macos.sh.
+
+Локально Swift executable собран, 8 Swift tests пройдены; presentation tests покрывают expiry boundary, failure со старым snapshot и cancellation. Это реализация D-006.1 без объявления визуальной/UI E2E-приёмки. D-006.2 (ввод/история/исправления), D-006.3 (.app/установка) и R1 gates остаются открытыми. Remote CI проверяется на head PR.
