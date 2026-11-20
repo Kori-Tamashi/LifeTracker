@@ -3,7 +3,7 @@ import Foundation
 import Observation
 
 public enum RuntimePhase: String, Sendable {
-    case stopped, starting, ready, stopping, failed
+    case stopped, starting, ready, recovering, degraded, stopping, failed
 }
 
 public struct NativeHostConfiguration: Sendable {
@@ -29,6 +29,7 @@ public final class NativeRuntime {
     public private(set) var errorMessage: String?
     @ObservationIgnored private var child: Process?
     @ObservationIgnored private var generation: UUID?
+    @ObservationIgnored private var activeConfiguration: NativeHostConfiguration?
     private let probe: @Sendable (URL, Int) async throws -> LocalAPIClient
 
     public init(probe: @escaping @Sendable (URL, Int) async throws -> LocalAPIClient = NativeRuntime.connect) {
@@ -44,18 +45,26 @@ public final class NativeRuntime {
         configuration.timeoutIntervalForRequest = 1
         configuration.timeoutIntervalForResource = 2
         configuration.connectionProxyDictionary = [:]
+        let healthSession = URLSession(configuration: configuration)
+        defer { healthSession.invalidateAndCancel() }
         let client = try LocalAPIClient(
             baseURL: url, ownerToken: token.trimmingCharacters(in: .whitespacesAndNewlines),
-            session: URLSession(configuration: configuration))
+            session: healthSession)
         let state = try await client.currentState()
         guard state.ruleVersion == "state-v1" else { throw LocalAPIError.invalidResponse }
-        return client
+        // Readiness has a short deadline; interactive requests retain the normal session timeout.
+        let interactiveConfiguration = URLSessionConfiguration.ephemeral
+        interactiveConfiguration.connectionProxyDictionary = [:]
+        return try LocalAPIClient(
+            baseURL: url, ownerToken: token.trimmingCharacters(in: .whitespacesAndNewlines),
+            session: URLSession(configuration: interactiveConfiguration))
     }
 
     public func start(_ configuration: NativeHostConfiguration, timeout: Duration = .seconds(15)) async {
         guard phase == .stopped || phase == .failed, child == nil else { return }
         let startup = UUID()
         generation = startup
+        activeConfiguration = configuration
         phase = .starting
         errorMessage = nil
         do {
@@ -85,7 +94,7 @@ public final class NativeRuntime {
             try process.run()
             child = process
             ownsHost = true
-            let clock = ContinuousClock()
+            let clock = SuspendingClock()
             let deadline = clock.now.advanced(by: timeout)
             while process.isRunning, clock.now < deadline {
                 try Task.checkCancellation()
@@ -110,6 +119,34 @@ public final class NativeRuntime {
         }
     }
 
+    /// Revalidate after wake without replacing the Process, workspace or pending mutation.
+    @discardableResult public func reconcile() async -> Bool {
+        guard phase == .ready || phase == .degraded,
+            let configuration = activeConfiguration, let token = generation
+        else { return false }
+        let previous = phase
+        phase = .recovering
+        do {
+            _ = try await probe(configuration.root, configuration.port)
+            try Task.checkCancellation()
+            guard generation == token, phase == .recovering else { return false }
+            if ownsHost, child?.isRunning != true { return false }
+            phase = .ready
+            errorMessage = nil
+            return true
+        } catch {
+            guard generation == token, phase == .recovering else { return false }
+            if Task.isCancelled {
+                phase = previous
+            } else {
+                phase = .degraded
+                errorMessage =
+                    "Подключение к сервису временно недоступно. Последние данные сохранены; повторите проверку подключения."
+            }
+            return false
+        }
+    }
+
     @discardableResult public func stop(grace: Duration = .seconds(10)) async -> Bool {
         guard phase != .stopping else { return false }
         phase = .stopping
@@ -117,7 +154,7 @@ public final class NativeRuntime {
         client = nil
         if let process = child {
             if process.isRunning { process.terminate() }
-            let clock = ContinuousClock()
+            let clock = SuspendingClock()
             let deadline = clock.now.advanced(by: grace)
             while process.isRunning, clock.now < deadline { await pause() }
             if process.isRunning { Darwin.kill(process.processIdentifier, SIGKILL) }
@@ -130,6 +167,7 @@ public final class NativeRuntime {
             }
         }
         child = nil
+        activeConfiguration = nil
         ownsHost = false
         phase = .stopped
         return true

@@ -2,20 +2,24 @@ import LifeTrackerClient
 import SwiftUI
 
 struct DashboardView: View {
+    let refreshToken: UUID
+    let connectionAvailable: Bool
     @State private var workspace: AssessmentWorkspace
     @State private var entering = false
     @State private var dashboard: StateDashboard
     @State private var selected: StateMetric?
     @Environment(\.scenePhase) private var scenePhase
 
-    init(client: LocalAPIClient, workspace: AssessmentWorkspace) {
+    init(client: LocalAPIClient, workspace: AssessmentWorkspace, refreshToken: UUID, connectionAvailable: Bool) {
+        self.refreshToken = refreshToken
+        self.connectionAvailable = connectionAvailable
         _workspace = State(initialValue: workspace)
         _dashboard = State(initialValue: StateDashboard(loader: client))
     }
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { timeline in
-            let current = dashboard.snapshotIsCurrent(at: timeline.date)
+            let current = connectionAvailable && dashboard.snapshotIsCurrent(at: timeline.date)
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     HStack {
@@ -90,6 +94,7 @@ struct DashboardView: View {
         .sheet(isPresented: $entering) { AssessmentEditor(workspace: workspace, record: nil) }
         .onChange(of: workspace.savedCount) { _, _ in Task { await dashboard.refresh() } }
         .frame(minWidth: 760, minHeight: 540)
+        .onChange(of: refreshToken) { _, _ in Task { await dashboard.refresh() } }
         .task {
             while !Task.isCancelled {
                 await dashboard.refresh()

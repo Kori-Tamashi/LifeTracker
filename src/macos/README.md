@@ -65,3 +65,9 @@ CI собирает и проверяет подпись настоящего п
 Фоновая работа здесь означает живой native host после закрытия окна. Telegram, scheduler, inference, sleep/wake reconciliation, восстановление владения после падения desktop и полная R1 lifecycle-приёмка остаются отдельными задачами. Для developer launch можно задать LIFETRACKER_HOST_DLL / LIFETRACKER_DOTNET; tools/run_macos.sh выбирает построенный Debug host. Эти пути не встраиваются в пакет.
 
 LiveRuntimeTests проверяет собственный start → record → stop → restart → retry на настоящем Core из установленного пакета; unit/process tests — присоединение без остановки внешнего процесса, запрет повторного старта, тайм-аут и гонку stop во время probe. Это не UI-клики и не проверка macOS Login Items.
+
+## Следующий срез в develop: wake connection revalidation
+
+Обработчик NSWorkspace.didWakeNotification выполняет authenticated probe, не запускает второй Core и не меняет ownership. Во время recovering/degraded workspace и форма остаются в том же view tree; текущий баланс скрыт до подтверждения подключения. При временном сбое процесс не перезапускается и не завершается, доступна повторная проверка в окне/menu bar. После успеха сводка/история обновляются; запрос refresh, пришедший во время загрузки, выполняется сразу следом, без ожидания следующей минуты. Startup/shutdown deadlines используют активное время SuspendingClock.
+
+Readiness использует отдельную короткую session, а пользовательские API-запросы — обычный timeout. Callback/process tests и live Core revalidation пройдены; реальный OS sleep/GUI ещё не квалифицированы. Scheduler/lease/notification reconciliation не реализованы этим изменением. Эти изменения готовятся в develop и не заменяют установленную beta.1 до нового релиза.

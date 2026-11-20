@@ -9,6 +9,7 @@ import SwiftUI
 private final class DesktopSession {
     let runtime = NativeRuntime()
     var workspace: AssessmentWorkspace?
+    var refreshToken = UUID()
     var error: String?
     var loginStatus = SMAppService.mainApp.status
     private var restored = false
@@ -62,6 +63,14 @@ private final class DesktopSession {
         }
     }
 
+    func reconcileAfterWake() async {
+        guard runtime.phase == .ready || runtime.phase == .degraded else { return }
+        let connected = await runtime.reconcile()
+        guard runtime.phase == .ready || runtime.phase == .degraded else { return }
+        refreshToken = UUID()
+        if connected { await workspace?.loadHistory() }
+    }
+
     func toggleLogin() async {
         do {
             if SMAppService.mainApp.status == .enabled {
@@ -81,6 +90,19 @@ private final class DesktopSession {
 private final class DesktopDelegate: NSObject, NSApplicationDelegate {
     var session: DesktopSession?
     private var quitting = false
+    private var wakeObserver: NSObjectProtocol?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in await self?.session?.reconcileAfterWake() }
+        }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
+    }
 
     func applicationDidBecomeActive(_ notification: Notification) {
         session?.loginStatus = SMAppService.mainApp.status
@@ -111,7 +133,21 @@ struct LifeTrackerApp: App {
         Window("LifeTracker", id: "main") {
             Group {
                 if let client = desktop.runtime.client, let workspace = desktop.workspace {
-                    DashboardView(client: client, workspace: workspace)
+                    VStack(spacing: 0) {
+                        if desktop.runtime.phase == .recovering {
+                            ProgressView("Восстановление подключения…").padding(12)
+                        }
+                        if let error = desktop.runtime.errorMessage {
+                            HStack {
+                                Text(error).foregroundStyle(.orange)
+                                Button("Проверить подключение") { Task { await desktop.reconcileAfterWake() } }
+                                    .disabled(desktop.runtime.phase == .recovering)
+                            }.padding(12)
+                        }
+                        DashboardView(
+                            client: client, workspace: workspace, refreshToken: desktop.refreshToken,
+                            connectionAvailable: desktop.runtime.phase == .ready)
+                    }
                 } else {
                     ConnectionView(desktop: desktop)
                 }
@@ -138,6 +174,9 @@ struct LifeTrackerApp: App {
             Text(desktop.runtime.phase.title)
             if desktop.runtime.phase == .ready, !desktop.runtime.ownsHost {
                 Text("Подключён внешний сервис; он управляется отдельно")
+            }
+            if desktop.runtime.phase == .degraded {
+                Button("Проверить подключение") { Task { await desktop.reconcileAfterWake() } }
             }
             Button("Открыть LifeTracker") {
                 openWindow(id: "main")
@@ -206,6 +245,8 @@ extension RuntimePhase {
         case .stopped: "Сервис остановлен"
         case .starting: "Сервис запускается"
         case .ready: "Сервис работает"
+        case .recovering: "Восстановление подключения"
+        case .degraded: "Подключение недоступно"
         case .stopping: "Сервис останавливается"
         case .failed: "Сервис недоступен"
         }

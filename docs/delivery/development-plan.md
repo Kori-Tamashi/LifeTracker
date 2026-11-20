@@ -61,7 +61,7 @@ S/M/L — относительная инженерная сложность и 
 | D-006.2 | Быстрый частичный ввод и история/исправление; ошибки/повтор; первый synthetic UI test | D-006.1 | M | implemented; real host integration passed; UI E2E pending |
 | D-006.3 | Локальный `.app`, повторяемая установка/обновление, M2 smoke; анимация не заменяет обязательный путь | D-006.2 | M | packaging implemented; visual/M2 acceptance pending Computer Use access |
 | D-007.1 | Menu/autostart, закрытие окна, полная остановка, single instance/native service | M2 + D-004.4 | L | owned native lifecycle implemented; GUI/login approval and crash recovery qualification pending |
-| D-007.2 | Sleep/wake, restart, отложенная очередь, no reminder storm, offline state | D-007.1 | M | planned |
+| D-007.2 | Sleep/wake, restart, отложенная очередь, no reminder storm, offline state | D-007.1 | M | connection revalidation implemented in develop; real sleep/UI, jobs/quota/orphan recovery pending |
 | D-008.1 | Telegram pairing/owner, state read/write, offline/retry/dedup | D-005.3 + D-007.1 | M | planned |
 | D-008.2 | Общий notification scheduler: quota/quiet/dedup, macOS+Telegram delivery | D-007.2 + D-008.1 | M | planned |
 | D-009.1 | Consistent local snapshot, retention/disk, restore в чистый профиль; migration-failure recovery | D-004.4 + D-007.1 | L | planned |

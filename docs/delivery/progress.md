@@ -87,3 +87,11 @@ D-004: реальный SQLite adapter и транзакционные contract 
 Разработка ограничена первой тестируемой вертикалью, без новых модулей. B0 gates отделены от полного R1: согласованы beta metadata, отдельные preferences профиля, инструкция ручного теста, third-party notices и dependency inventory. Release workflow повторяет проверки на точном main SHA, собирает ZIP/evidence/checksums и публикует GitHub prerelease. Существующий тег не перемещается; GUI/login и full R1 gates не выданы за pass.
 
 Docker на локальном стенде доступен; Q-DOCKER-STORAGE не закрыт, B0 остаётся native. Публикация и конечный SHA проверяются в GitHub Releases/Actions, а не объявляются этой записью заранее.
+
+## D-007.2.1: revalidation после wake (develop, не beta.1)
+
+Добавлены recovering/degraded и проверка доступности по NSWorkspace.didWakeNotification. Она не создаёт новый Process, не меняет владение внешним host и сохраняет workspace/pending mutation. Временная ошибка API оставляет живой процесс на месте и показывает повторную проверку; stop/cancellation защищены тем же generation token. Deadline запуска/остановки переведён на SuspendingClock, чтобы системный сон не расходовал активное время ожидания.
+
+После проверки обновляются сводка/история без смены identity окна/редактора. Исправлена потеря refresh во время текущей загрузки: несколько запросов объединяются в один последующий fetch. Короткий timeout readiness больше не переносится на пользовательские операции; временная health-session закрывается после probe.
+
+Локально 27 Swift unit/process tests и две live-интеграции с Core beta.1 прошли; tooling/schema — 45 tests. Unit cases моделируют wake callbacks, временный failure/retry, повторное событие, stop/cancel race и pending refresh. Реальный сон ОС/GUI/editor preservation требует ручной квалификации. Lease/job/notification reconciliation, orphan recovery и полный D-007.2 остаются открытыми. Установленный beta.1 bundle и main/tag не обновлялись этим срезом.
