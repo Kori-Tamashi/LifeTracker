@@ -4,6 +4,10 @@
 
 **Стадия:** проектный baseline1.0 завершён; [вход в пакет проектирования](docs/DESIGN.md). Начата реализация; [текущий прогресс](docs/delivery/progress.md). Реализованы [локальный State API](src/core/LifeTracker.Host/README.md) и [macOS-клиент](src/macos/README.md): персонаж, ввод, история и исправления оценок, локальная упаковка `.app`, управление собственным сервисом и menu bar. Визуальная приёмка и M2 остаются открытыми. Qualification интеграций ещё не выполнена.
 
+## Первая тестовая версия
+
+Тестовая линия — `0.1.0-beta.1`: [установка и первые 10 минут](docs/releases/v0.1.0-beta.1.md), [границы B0](docs/delivery/beta-plan.md). Архив, контрольные суммы и evidence публикуются в [GitHub prerelease](https://github.com/Kori-Tamashi/LifeTracker/releases/tag/v0.1.0-beta.1) только после main release checks. Docker доступен как отдельное размещение в будущем; эта бета использует native Core.
+
 ## Документация
 
 - [Индекс и правила документации](docs/README.md)

@@ -1,0 +1,105 @@
+name: Beta release
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: beta-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  beta-config:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - run: python3 tools/beta_release.py check
+
+  build-beta:
+    if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+    needs: beta-config
+    runs-on: macos-26
+    timeout-minutes: 25
+    env:
+      BETA_LOGS: var/beta-logs
+      BETA_ASSETS: var/beta-assets
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          global-json-file: configs/dotnet/global.json
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.13'
+      - name: Project and tooling gates
+        run: |
+          set -euo pipefail
+          mkdir -p "$BETA_LOGS"
+          python3 -m pip install -r tools/requirements-design.txt
+          python3 tools/check_project.py
+          python3 -m unittest discover -s tests/tools 2>&1 | tee "$BETA_LOGS/tooling.log"
+      - name: Core gates
+        env:
+          LIFETRACKER_CONTRACT_OUTPUT: ${{ runner.temp }}/beta-contracts.json
+        run: |
+          set -euo pipefail
+          sh tools/dotnet.sh restore --locked-mode
+          sh tools/dotnet.sh format --no-restore --verify-no-changes
+          sh tools/dotnet.sh build --no-restore -m:1 -nr:false -p:UseSharedCompilation=false
+          sh tools/dotnet.sh test --no-build --minimum-expected-tests 1 2>&1 | tee "$BETA_LOGS/dotnet.log"
+          python3 tools/validate_runtime_contract.py "$LIFETRACKER_CONTRACT_OUTPUT"
+      - name: Swift gates
+        run: |
+          set -euo pipefail
+          sh tools/format_swift.sh lint
+          sh tools/test_macos.sh 2>&1 | tee "$BETA_LOGS/swift.log"
+      - name: Package and installed runtime gates
+        run: |
+          set -euo pipefail
+          python3 tools/package_macos.py build
+          python3 tools/package_macos.py install var/build/LifeTracker.app --destination "$RUNNER_TEMP/installed/LifeTracker.app"
+          python3 tools/package_macos.py install var/build/LifeTracker.app --destination "$RUNNER_TEMP/installed/LifeTracker.app"
+          python3 tools/package_macos.py verify "$RUNNER_TEMP/installed/LifeTracker.app"
+          python3 tools/smoke_macos_client.py "$RUNNER_TEMP/installed/LifeTracker.app/Contents/Resources/Core/LifeTracker.Host.dll" 2>&1 | tee "$BETA_LOGS/integration.log"
+      - name: Assemble exact-commit beta assets
+        run: python3 tools/beta_release.py bundle --app var/build/LifeTracker.app --logs "$BETA_LOGS" --output "$BETA_ASSETS"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: beta-assets-${{ github.sha }}
+          path: var/beta-assets
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-beta:
+    if: github.ref == 'refs/heads/main'
+    needs: build-beta
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: beta-assets-${{ github.sha }}
+          path: ${{ runner.temp }}/beta-assets
+      - name: Publish prerelease after gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/beta_release.py publish --output "${{ runner.temp }}/beta-assets"

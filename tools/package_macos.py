@@ -13,10 +13,12 @@ import subprocess
 import tempfile
 import uuid
 
+
 ROOT = Path(__file__).resolve().parents[1]
 IDENTIFIER = 'io.github.kori-tamashi.lifetracker'
 EXECUTABLE = 'Contents/MacOS/LifeTrackerDesktop'
 MANIFEST = 'Contents/Resources/package.json'
+NOTICE_FILES = {f'Contents/Resources/ThirdParty/{name}' for name in ['MIT.txt', 'Apache-2.0.txt', 'SQLite.txt', 'NOTICES.txt', 'components.json']}
 FILES = {'Contents/Info.plist', EXECUTABLE, MANIFEST, 'Contents/_CodeSignature/CodeResources'}
 
 
@@ -36,14 +38,14 @@ def verify(bundle):
     if info.get('CFBundleIdentifier') != IDENTIFIER or info.get('CFBundleExecutable') != 'LifeTrackerDesktop':
         raise ValueError('Unexpected application identity')
     manifest = json.loads((bundle / MANIFEST).read_text())
-    if (manifest.get('format') not in (1, 2) or manifest.get('executable') != EXECUTABLE
+    if (manifest.get('format') not in (1, 2, 3) or manifest.get('executable') != EXECUTABLE
             or not isinstance(manifest.get('working_tree_dirty', False), bool)
             or not re.fullmatch(r'[0-9a-f]{40}', manifest.get('source_revision', ''))):
         raise ValueError('Unexpected application manifest')
     core_files = manifest.get('core_files', {})
     if not isinstance(core_files, dict) or (manifest['format'] == 1 and core_files):
         raise ValueError('Unexpected core manifest')
-    if manifest['format'] == 2 and not {
+    if manifest['format'] >= 2 and not {
             'Contents/Resources/Core/LifeTracker.Host.dll',
             'Contents/Resources/Core/LifeTracker.Host.runtimeconfig.json',
             'Contents/Resources/Core/LifeTracker.Host.deps.json'} <= core_files.keys():
@@ -55,9 +57,15 @@ def verify(bundle):
                 or Path(name).suffix not in {'.dll', '.dylib', '.json'}
                 or not re.fullmatch(r'[0-9a-f]{64}', digest)):
             raise ValueError('Invalid core file manifest')
-    if {p.relative_to(bundle).as_posix() for p in entries if p.is_file()} != FILES | core_files.keys():
+    notice_files = manifest.get('notice_files', {})
+    if not isinstance(notice_files, dict) or set(notice_files) != (NOTICE_FILES if manifest['format'] == 3 else set()):
+        raise ValueError('Unexpected third-party notices')
+    for digest in notice_files.values():
+        if not isinstance(digest, str) or not re.fullmatch(r'[0-9a-f]{64}', digest):
+            raise ValueError('Invalid notice digest')
+    if {p.relative_to(bundle).as_posix() for p in entries if p.is_file()} != FILES | core_files.keys() | notice_files.keys():
         raise ValueError('Unexpected or missing application files')
-    for name, digest in core_files.items():
+    for name, digest in (core_files | notice_files).items():
         if hashlib.sha256((bundle / name).read_bytes()).hexdigest() != digest:
             raise ValueError('Core file checksum mismatch')
     if not os.access(bundle / EXECUTABLE, os.X_OK):
@@ -136,7 +144,14 @@ def build(destination):
                     run('codesign', '--force', '--sign', '-', '--timestamp=none', str(target))
         core_files = {p.relative_to(bundle).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in sorted(core.rglob('*')) if p.is_file()}
-        manifest = {'format': 2, 'source_revision': revision, 'working_tree_dirty': dirty,
+        third_party = bundle / 'Contents/Resources/ThirdParty'
+        from collect_notices import collect as collect_notices
+        collect_notices(third_party)
+        notice_files = {p.relative_to(bundle).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                        for p in sorted(third_party.iterdir())}
+        release = json.loads((ROOT / 'configs/releases/beta.json').read_text())
+        manifest = {'format': 3, 'release_version': release['version'], 'release_channel': release['channel'],
+                    'notice_files': notice_files, 'source_revision': revision, 'working_tree_dirty': dirty,
                     'executable': EXECUTABLE, 'core_files': core_files,
                     'requires_runtime': 'Microsoft.AspNetCore.App 10.0', 'architecture': platform.machine()}
         (bundle / MANIFEST).write_text(json.dumps(manifest, indent=2) + '\n')

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.0-beta.1",
+  "channel": "beta",
+  "app_version": "0.1.0",
+  "build_number": "1",
+  "minimum_macos": "26.0",
+  "architecture": "arm64",
+  "notes": "docs/releases/v0.1.0-beta.1.md"
+}
