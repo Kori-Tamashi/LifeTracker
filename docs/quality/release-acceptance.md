@@ -31,7 +31,7 @@
 6. `required-gate`: `if: always()`, проверяет нужные jobs по manifest этапа. failure/cancelled/неожиданный skipped — fail; только заранее документированный нерелевантный scope допускает skip.
 7. `release-acceptance`: release/hotfix workflow, full suite этапа + isolated target Mac AI/energy/disk run, package install/upgrade, licence/SBOM/archive publication. Не запускается на произвольном fork PR.
 
-Это целевая матрица полного R1. Фактически реализованы Project checks, Product checks (core-fast/macos-client/product-checks) и отдельный Beta release для [B0](../delivery/beta-plan.md). Ранний B0 не объявляет весь набор R1 gates пройденным. Добавление runnable product job обязательно в той же задаче, что первый соответствующий код. Нельзя писать `echo tests passed`, suppress errors или `continue-on-error` для обязательного сценария. GitHub remote workflow/branch protections до публикации не проверены.
+Это целевая матрица полного R1. Фактически реализованы Project checks, Product checks (core-fast/macos-client/product-checks) и отдельный Beta release для [B0](../delivery/beta-plan.md). Ранний B0 не объявляет весь набор R1 gates пройденным. Добавление runnable product job обязательно в той же задаче, что первый соответствующий код. Нельзя писать `echo tests passed`, suppress errors или `continue-on-error` для обязательного сценария. Remote workflows выполнялись и проходили в PR; актуальное evidence — [оперативный реестр](../delivery/current-status.md). Branch protection учитывается отдельно в датированном [PM-01 audit](../delivery/ci-gate-audit.md); наличие CI не доказывает server-enforced запрет обхода.
 
 ## Покрытие и качество
 
