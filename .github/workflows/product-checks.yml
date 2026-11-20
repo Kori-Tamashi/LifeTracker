@@ -68,6 +68,8 @@ jobs:
         run: |
           sh tools/dotnet.sh restore --locked-mode
           sh tools/dotnet.sh build --no-restore --configuration Debug
+      - name: SQLite and backup policy tests on macOS
+        run: sh tools/dotnet.sh test --no-build --minimum-expected-tests 1
       - name: Build, verify and update local app package
         run: |
           python3 tools/package_macos.py build

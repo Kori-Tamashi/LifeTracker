@@ -2,19 +2,24 @@ import Foundation
 
 public enum ProfileMaintenanceOperation: Sendable {
     case backup(source: URL, destination: URL)
+    case daily(source: URL, catalog: URL)
     case verify(backup: URL)
     case restore(backup: URL, destination: URL)
 
     var arguments: [String] {
         switch self {
         case .backup(_, let destination): ["backup", destination.path]
+        case .daily(_, let catalog): ["backup-daily", catalog.path]
         case .verify(let backup): ["verify-backup", backup.path]
         case .restore(let backup, let destination): ["restore", backup.path, destination.path]
         }
     }
 
     var source: URL? {
-        if case .backup(let source, _) = self { source } else { nil }
+        switch self {
+        case .backup(let source, _), .daily(let source, _): source
+        default: nil
+        }
     }
 }
 

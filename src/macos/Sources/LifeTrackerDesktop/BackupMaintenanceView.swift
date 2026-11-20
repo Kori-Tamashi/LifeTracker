@@ -22,6 +22,26 @@ struct BackupMaintenanceView: View {
                 Button("Остановить подключение…") { confirmingStop = true }
                     .disabled(desktop.workspace?.saving == true || desktop.runtime.phase == .stopping)
             }
+            Divider()
+            Text("Автокопия при запуске после 09:00 (Москва)").font(.headline)
+            Text(
+                "Семь суточных копий; до 2 ГБ на профиль, резерв места 256 МиБ. Каталог выбирайте локально в var/backups проекта, отдельно от профиля."
+            )
+            .font(.callout).foregroundStyle(.secondary)
+            if let root = desktop.automaticBackupRoot {
+                Text(root.path).font(.caption).textSelection(.enabled)
+                Button("Отключить автокопии") { desktop.configureAutomaticBackup(nil) }
+                    .disabled(desktop.maintenanceBusy)
+            } else {
+                Button("Выбрать каталог и включить…") {
+                    guard let root = chooseDirectory(prompt: "Каталог автокопий") else { return }
+                    desktop.configureAutomaticBackup(root)
+                    message =
+                        "Автокопии включены со следующего запуска профиля. Непрерывная работа через границу суток пока не покрыта."
+                }
+                .disabled(desktop.maintenanceBusy)
+            }
+            Divider()
             Group {
                 Button("Создать копию…") { createBackup() }
                 Button("Проверить копию…") {

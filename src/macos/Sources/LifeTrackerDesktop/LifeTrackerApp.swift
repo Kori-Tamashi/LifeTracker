@@ -10,6 +10,27 @@ final class DesktopSession {
     let runtime = NativeRuntime()
     var workspace: AssessmentWorkspace?
     var maintenanceBusy = false
+    var automaticBackupRoot: URL?
+    private var backupKey: String {
+        Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
+            ? "betaAutomaticBackupRoot" : "automaticBackupRoot"
+    }
+
+    init() {
+        if let path = UserDefaults.standard.string(forKey: backupKey) {
+            automaticBackupRoot = URL(fileURLWithPath: path)
+        }
+    }
+
+    func configureAutomaticBackup(_ root: URL?) {
+        guard !maintenanceBusy else { return }
+        automaticBackupRoot = root
+        if let root {
+            UserDefaults.standard.set(root.path, forKey: backupKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: backupKey)
+        }
+    }
     var refreshToken = UUID()
     var error: String?
     var loginStatus = SMAppService.mainApp.status
@@ -40,6 +61,16 @@ final class DesktopSession {
         error = nil
         workspace = nil
         let command = coreCommand
+        if let catalog = automaticBackupRoot,
+            FileManager.default.fileExists(atPath: root.appendingPathComponent("lifetracker.sqlite").path)
+        {
+            maintenanceBusy = true
+            do { try await command.run(.daily(source: root, catalog: catalog)) } catch {
+                self.error =
+                    "Автокопия при запуске не выполнена. Старые копии сохранены. Проверьте каталог копий, свободное место и остановку других клиентов/Core."
+            }
+            maintenanceBusy = false
+        }
         await runtime.start(
             NativeHostConfiguration(
                 executable: command.executable, arguments: command.hostArguments, root: root, port: port))
@@ -172,6 +203,7 @@ struct LifeTrackerApp: App {
                                     .disabled(desktop.runtime.phase == .recovering)
                             }.padding(12)
                         }
+                        if let error = desktop.error { Text(error).foregroundStyle(.orange).padding(12) }
                         DashboardView(
                             client: client, workspace: workspace, refreshToken: desktop.refreshToken,
                             connectionAvailable: desktop.runtime.phase == .ready)
@@ -270,8 +302,10 @@ private struct ConnectionView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
-            .disabled(desktop.runtime.phase == .starting || desktop.runtime.phase == .stopping)
+            .disabled(
+                desktop.maintenanceBusy || desktop.runtime.phase == .starting || desktop.runtime.phase == .stopping)
             if desktop.runtime.phase == .starting { ProgressView("Запуск локального сервиса…") }
+            if desktop.maintenanceBusy { ProgressView("Проверка резервной копии…") }
             if let error = desktop.error ?? desktop.runtime.errorMessage {
                 Text(error).foregroundStyle(.orange).multilineTextAlignment(.center)
             }
