@@ -13,6 +13,8 @@ Baseline 1.0. Статусы `unqualified/enabled/unavailable/degraded/disabled`
 | Q-DOCKER-STORAGE | Изоляция writer, WAL/backup/restore, native bridge, полный footprint | Native default остаётся; Docker профиль не допускается для профиля |
 | Q-CI-MAC | Clean runner без профиля/секретов, сборка macOS/тестов, бесплатные лимиты | Hosted/native acceptance разделить; никаких небезопасных запусков fork PR на личном Mac |
 
+Подробный [D-001 Screen Time spike](screen-time-spike.md): документальная часть завершена; эксперимент ожидает provisioning prerequisites. Gate остаётся unqualified.
+
 ## Проверка документации 20 ноября 2026 года
 
 - Apple Personal Team требует переустановки после истечения семидневного provisioning. Не выводим из этого доступность всех HealthKit/FamilyControls entitlements. [Apple account](https://developer.apple.com/help/account/basics/about-your-developer-account).

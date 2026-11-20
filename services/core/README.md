@@ -9,8 +9,10 @@ dotnet build services/core/LifeTracker.slnx --no-restore
 dotnet test --solution services/core/LifeTracker.slnx --no-build --minimum-expected-tests 1
 ```
 
-`src/Modules/State` содержит доменную политику, прикладные сценарии и контракты. `IStateRepository` — выходной порт; production-хранилище подключается в D-004. Test double существует только в тестовом проекте и не является доказательством корректности SQLite или конкурентных транзакций. Транспортные DTO и HTTP-маршруты подключаются в D-005.
+`src/Modules/State` содержит доменную политику, прикладные сценарии и контракты. `IStateRepository` — выходной порт; bootstrap новой SQLite-базы реализован в D-004.1; production repository подключается в D-004.2. Test double существует только в тестовом проекте и не является доказательством корректности SQLite или конкурентных транзакций. Транспортные DTO и HTTP-маршруты подключаются в D-005.
 
 Зависимости направлены внутрь: Application → Domain/Contracts/Abstractions; Domain → Kernel. Архитектурные тесты проверяют assembly dependencies и ArchUnitNET bytecode rules. Отдельная заведомо ошибочная fixture доказывает обнаружение запрещённой зависимости. Все тестовые данные синтетические.
 
 Проверки реального адаптера, миграций, UI/E2E и release acceptance добавляются вместе с соответствующими компонентами; этот набор не объявляется полным тестированием будущего продукта.
+
+D-004.1: [граница bootstrap, миграции и проверки](../../docs/architecture/storage/bootstrap.md). Создание существующей базы отклоняется; startup/upgrade и recovery ещё не реализованы.
