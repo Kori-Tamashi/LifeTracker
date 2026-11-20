@@ -42,3 +42,9 @@ Native supervisor реализован в desktop-процессе (NativeRuntim
 Управляемый start проверяет readiness через authenticated State API/rule version, а при уже работающем совместимом host выполняет attach без владения процессом. Полная остановка внешнего host недоступна. Single-writer обеспечивают storage root lock и desktop journal lock; восстановление orphan ownership после падения desktop не реализовано. При неожиданном завершении собственного host показывается failed, а не бесконечный автоматический restart.
 
 Menu bar/close-window/SMAppService включены в код; actual UI/login approval gate открыт до проверки на целевом Mac. Обновление установщика не меняет Login Items самостоятельно. Sleep/wake, lease reconciliation, notification coalescing и shutdown checkpoint для будущих фоновых workers пока не реализованы и не считаются пройденными по Process tests.
+
+### D-007.2.1 — соединение после пробуждения
+
+В develop добавлена revalidation выбранного профиля/порта после workspace wake: recovering → ready либо degraded. Проверка не порождает новый процесс и не восстанавливает владение orphan/external host. Stop инвалидирует generation и не позволяет позднему ответу вернуть ready. UI сохраняет workspace/редактор во время краткого разрыва, обновляет серверный snapshot после wake; cached balance не выдаётся за текущий до revalidation. Таймеры запуска/остановки считают активное время.
+
+Это connection slice, а не закрытие всех sleep/wake gates: jobs, fences, квоты, expired notifications, crash/orphan recovery и реальный target-device sleep/UI test остаются открытыми.

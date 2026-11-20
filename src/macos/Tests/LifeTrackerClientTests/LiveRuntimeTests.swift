@@ -21,6 +21,10 @@ struct LiveRuntimeTests {
             let command = try AssessmentCommand.record(
                 observedAt: .now, values: [.init(metric: .energy, score: 8)], comment: "")
             _ = try await client.submit(command)
+            #expect(await runtime.reconcile())
+            #expect(runtime.phase == .ready && runtime.ownsHost)
+            let beforeStop = try await client.history()
+            #expect(beforeStop.items.count == 1)
             #expect(await runtime.stop())
             await #expect(throws: (any Error).self) { try await client.currentState() }
             await runtime.start(configuration)

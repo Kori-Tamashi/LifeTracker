@@ -13,6 +13,7 @@ public final class StateDashboard {
     public private(set) var state: CurrentState?
     public private(set) var isLoading = false
     public private(set) var errorMessage: String?
+    private var refreshRequested = false
     private let loader: any CurrentStateLoading
 
     public init(loader: any CurrentStateLoading) {
@@ -20,19 +21,26 @@ public final class StateDashboard {
     }
 
     public func refresh() async {
-        guard !isLoading else { return }
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-        do {
-            let next = try await loader.currentState()
-            try Task.checkCancellation()
-            state = next
-        } catch is CancellationError {
-            // Keep the last snapshot; cancellation is not a connection failure.
-        } catch {
-            errorMessage = "Не удалось обновить состояние. Проверьте, что локальный сервис запущен."
+        if isLoading {
+            refreshRequested = true
+            return
         }
+        isLoading = true
+        defer { isLoading = false }
+        repeat {
+            refreshRequested = false
+            errorMessage = nil
+            do {
+                let next = try await loader.currentState()
+                try Task.checkCancellation()
+                state = next
+            } catch is CancellationError {
+                return
+            } catch {
+                if Task.isCancelled { return }
+                errorMessage = "Не удалось обновить состояние. Проверьте, что локальный сервис запущен."
+            }
+        } while refreshRequested && !Task.isCancelled
     }
 
     public func snapshotIsCurrent(at date: Date) -> Bool {
