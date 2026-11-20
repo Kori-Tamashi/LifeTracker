@@ -33,8 +33,8 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 25
     env:
-      BETA_LOGS: ${{ runner.temp }}/beta-logs
-      BETA_ASSETS: ${{ runner.temp }}/beta-assets
+      BETA_LOGS: var/beta-logs
+      BETA_ASSETS: var/beta-assets
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
         with:
@@ -80,7 +80,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: beta-assets-${{ github.sha }}
-          path: ${{ runner.temp }}/beta-assets
+          path: var/beta-assets
           if-no-files-found: error
           retention-days: 1
 
