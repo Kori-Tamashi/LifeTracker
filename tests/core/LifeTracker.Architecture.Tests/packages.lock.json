@@ -314,8 +314,35 @@
       "lifetracker.application.abstractions": {
         "type": "Project"
       },
+      "lifetracker.infrastructure.shared": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "[10.0.15, )",
+          "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )"
+        }
+      },
       "lifetracker.kernel": {
         "type": "Project"
+      },
+      "lifetracker.operations.application": {
+        "type": "Project",
+        "dependencies": {
+          "LifeTracker.Application.Abstractions": "[1.0.0, )",
+          "LifeTracker.Operations.Domain": "[1.0.0, )"
+        }
+      },
+      "lifetracker.operations.domain": {
+        "type": "Project",
+        "dependencies": {
+          "LifeTracker.Kernel": "[1.0.0, )"
+        }
+      },
+      "lifetracker.operations.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "LifeTracker.Infrastructure.Shared": "[1.0.0, )",
+          "LifeTracker.Operations.Application": "[1.0.0, )"
+        }
       },
       "lifetracker.state.application": {
         "type": "Project",
@@ -338,9 +365,8 @@
       "lifetracker.state.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "LifeTracker.State.Application": "[1.0.0, )",
-          "Microsoft.EntityFrameworkCore.Sqlite.Core": "[10.0.15, )",
-          "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )"
+          "LifeTracker.Infrastructure.Shared": "[1.0.0, )",
+          "LifeTracker.State.Application": "[1.0.0, )"
         }
       },
       "Microsoft.EntityFrameworkCore.Sqlite.Core": {

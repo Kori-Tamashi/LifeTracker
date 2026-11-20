@@ -276,6 +276,13 @@
       "lifetracker.application.abstractions": {
         "type": "Project"
       },
+      "lifetracker.infrastructure.shared": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "[10.0.15, )",
+          "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )"
+        }
+      },
       "lifetracker.kernel": {
         "type": "Project"
       },
@@ -300,9 +307,8 @@
       "lifetracker.state.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "LifeTracker.State.Application": "[1.0.0, )",
-          "Microsoft.EntityFrameworkCore.Sqlite.Core": "[10.0.15, )",
-          "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )"
+          "LifeTracker.Infrastructure.Shared": "[1.0.0, )",
+          "LifeTracker.State.Application": "[1.0.0, )"
         }
       },
       "Microsoft.EntityFrameworkCore.Sqlite.Core": {

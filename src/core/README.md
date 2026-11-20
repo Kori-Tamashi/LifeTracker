@@ -16,3 +16,5 @@ dotnet test --solution src/core/LifeTracker.slnx --no-build --minimum-expected-t
 Проверки реального адаптера, миграций, UI/E2E и release acceptance добавляются вместе с соответствующими компонентами; этот набор не объявляется полным тестированием будущего продукта.
 
 D-004.1: [граница bootstrap, миграции и проверки](../../docs/architecture/storage/bootstrap.md). Create не перезаписывает существующую базу; OpenExisting проверяет точную известную схему. Upgrade и recovery ещё не реализованы.
+
+D-004.4: [durable inbox/jobs/outbox](../../docs/architecture/storage/durable-jobs.md). Общий SqliteStore/CoreDbContext — Infrastructure.Shared; State и Operations adapters независимы.

@@ -35,3 +35,11 @@ D-004: реальный SQLite adapter и транзакционные contract 
 Реализован SqliteStateRepository: atomic batch/revision/receipt, profile scope, история, optimistic conflicts и открытие известной существующей схемы без upgrade. Контрактные тесты общие для fake и SQLite; отдельные real-file тесты покрывают rollback/retry/reopen/concurrency и snapshot integrity. Локально пройдены 69 .NET tests, 5 Swift tests и 28 tooling/schema tests, locked restore и обе проверки стиля. Удалённые прогоны фиксируются на head PR; приёмка приложения целиком не объявляется выполненной.
 
 Следующий пакет после gates этого PR — D-004.4 durable inbox/outbox и затем D-005 local API. Schema upgrade/backup/restore и lifecycle ещё не реализованы.
+
+## D-004.4: durable storage primitives
+
+Добавлен модуль Operations и общий Infrastructure.Shared: SQLite store/migration boundary больше не принадлежит State. Inbox acceptance, job/receipt/outbox атомарны; поддержаны claim/lease/heartbeat, fence guard, ограниченные retries, отмена, terminal state и повторное открытие. Изменения State также фиксируют outbox в своей транзакции. Подробная граница и незавершённые host-политики — [durable-jobs](../architecture/storage/durable-jobs.md).
+
+Старые базы с pending migration не обновляются автоматически. Scheduler/delivery loop, fairness, input-revision materialization, ручной retry и lifecycle всё ещё требуют host/use-case реализации. Следующий основной пакет — D-005 local API; R1 не выпущен.
+
+Для D-004.4 локально пройден 101 .NET test (включая State regression), сборка без предупреждений. Старые Swift/tooling проверки не заменяют новый удалённый CI; результат на head PR проверяется перед merge.

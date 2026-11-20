@@ -1,7 +1,11 @@
 using System.Reflection;
 using ArchUnitNET.Loader;
 using LifeTracker.Application.Abstractions;
+using LifeTracker.Infrastructure.Shared;
 using LifeTracker.Kernel;
+using LifeTracker.Operations.Application;
+using LifeTracker.Operations.Domain;
+using LifeTracker.Operations.Infrastructure;
 using LifeTracker.State.Application;
 using LifeTracker.State.Contracts;
 using LifeTracker.State.Domain;
@@ -14,8 +18,8 @@ namespace LifeTracker.Architecture.Tests;
 public sealed class DependencyRules
 {
     private static readonly Assembly[] Production = [typeof(Score).Assembly, typeof(Identifiers).Assembly,
-        typeof(IUtcClock).Assembly, typeof(CurrentState).Assembly, typeof(RecordAssessmentsHandler).Assembly];
-    private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies([.. Production, typeof(StateDbContext).Assembly]).Build();
+        typeof(IUtcClock).Assembly, typeof(CurrentState).Assembly, typeof(RecordAssessmentsHandler).Assembly, typeof(RetryPolicy).Assembly, typeof(IJobQueue).Assembly];
+    private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies([.. Production, typeof(CoreDbContext).Assembly, typeof(SqliteStateRepository).Assembly, typeof(SqliteJobQueue).Assembly]).Build();
 
     [Fact]
     public void DomainCannotDependOnApplicationOrContracts()
@@ -35,6 +39,8 @@ public sealed class DependencyRules
             ["LifeTracker.Application.Abstractions"] = [],
             ["LifeTracker.State.Contracts"] = [],
             ["LifeTracker.State.Domain"] = ["LifeTracker.Kernel"],
+            ["LifeTracker.Operations.Domain"] = ["LifeTracker.Kernel"],
+            ["LifeTracker.Operations.Application"] = ["LifeTracker.Operations.Domain", "LifeTracker.Application.Abstractions"],
             ["LifeTracker.State.Application"] = ["LifeTracker.Kernel", "LifeTracker.Application.Abstractions", "LifeTracker.State.Domain", "LifeTracker.State.Contracts"]
         };
         foreach (var assembly in Production)
@@ -58,8 +64,21 @@ public sealed class DependencyRules
         foreach (var assembly in Production)
         {
             var rule = Types().That().ResideInAssembly(assembly).Should()
-                .NotDependOnAny(Types().That().ResideInAssembly(typeof(StateDbContext).Assembly));
+                .NotDependOnAny(Types().That().ResideInAssembly(typeof(CoreDbContext).Assembly)
+                    .Or().ResideInAssembly(typeof(SqliteStateRepository).Assembly)
+                    .Or().ResideInAssembly(typeof(SqliteJobQueue).Assembly));
             Assert.True(rule.HasNoViolations(Architecture));
+        }
+    }
+
+    [Fact]
+    public void OperationsAndStateAdaptersRemainIndependent()
+    {
+        foreach (var (first, second) in new[] { (typeof(SqliteJobQueue).Assembly, typeof(SqliteStateRepository).Assembly),
+            (typeof(SqliteStateRepository).Assembly, typeof(SqliteJobQueue).Assembly) })
+        {
+            Assert.True(Types().That().ResideInAssembly(first).Should()
+                .NotDependOnAny(Types().That().ResideInAssembly(second)).HasNoViolations(Architecture));
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LifeTracker.Infrastructure.Shared;
 using LifeTracker.Kernel;
 using LifeTracker.State.Application;
 using LifeTracker.State.Contracts;
@@ -8,7 +9,7 @@ using Microsoft.Data.Sqlite;
 namespace LifeTracker.State.Infrastructure;
 
 /// <summary>State persistence only. The store owns the connection and writer lease.</summary>
-public sealed class SqliteStateRepository(NewStateStore store) : IStateRepository
+public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository
 {
     private const string Source = "state.command";
     private sealed record Snapshot(int SchemaVersion, DateTimeOffset ObservedAt, DateTimeOffset OriginalObservedAt,
@@ -55,12 +56,8 @@ public sealed class SqliteStateRepository(NewStateStore store) : IStateRepositor
             correction.Fingerprint, [correction.NewRevision], correction.ExpectedRevision, ct), ct);
     }
 
-    private async Task<T> LockedAsync<T>(Func<Task<T>> action, CancellationToken ct)
-    {
-        await store.AccessGate.WaitAsync(ct);
-        try { return await action(); }
-        finally { store.AccessGate.Release(); }
-    }
+    private Task<T> LockedAsync<T>(Func<Task<T>> action, CancellationToken ct) =>
+        store.WithConnectionAsync(action, ct);
 
     private async Task<AssessmentReceipt?> FindReceiptCoreAsync(Guid profileId, string key, string fingerprint,
         SqliteTransaction? transaction, CancellationToken ct)
@@ -176,6 +173,9 @@ public sealed class SqliteStateRepository(NewStateStore store) : IStateRepositor
             await command.ExecuteNonQueryAsync(ct);
         }
 
+        await SqliteOutbox.AppendAsync(store.Connection, transaction, profileId, "state.changed", commandId.ToString("D"),
+            JsonSerializer.Serialize(new { command_id = commandId, assessments = receipt.Assessments }),
+            revisions.Max(r => r.RecordedAt), ct);
         ct.ThrowIfCancellationRequested();
         await transaction.CommitAsync(ct);
         return receipt;
