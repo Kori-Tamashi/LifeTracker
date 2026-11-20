@@ -2,12 +2,15 @@ import LifeTrackerClient
 import SwiftUI
 
 struct DashboardView: View {
+    @State private var workspace: AssessmentWorkspace
+    @State private var entering = false
     @State private var dashboard: StateDashboard
     @State private var selected: StateMetric?
     @Environment(\.scenePhase) private var scenePhase
 
-    init(loader: any CurrentStateLoading) {
-        _dashboard = State(initialValue: StateDashboard(loader: loader))
+    init(client: LocalAPIClient, workspace: AssessmentWorkspace) {
+        _workspace = State(initialValue: workspace)
+        _dashboard = State(initialValue: StateDashboard(loader: client))
     }
 
     var body: some View {
@@ -21,11 +24,19 @@ struct DashboardView: View {
                             Text("Сводка самооценок и предположений ИИ").foregroundStyle(.secondary)
                         }
                         Spacer()
+                        Button("Отметить состояние", systemImage: "plus") { entering = true }
+                            .disabled(workspace.pending != nil || workspace.saving)
                         Button("Обновить", systemImage: "arrow.clockwise") {
                             Task { await dashboard.refresh() }
                         }
                         .disabled(dashboard.isLoading)
                     }
+                    if workspace.pending != nil {
+                        Text("Есть незавершённая отправка. Повторите её перед новой записью.").foregroundStyle(.orange)
+                        Button("Повторить отправку") { Task { await workspace.retrySave() } }
+                            .disabled(workspace.saving)
+                    }
+                    if let error = workspace.saveError { Text(error).foregroundStyle(.orange) }
                     if let error = dashboard.errorMessage {
                         Label(error, systemImage: "wifi.exclamationmark").foregroundStyle(.orange)
                     }
@@ -61,6 +72,8 @@ struct DashboardView: View {
                     } else if !dashboard.isLoading {
                         Text("Состояние ещё не загружено. Нажмите «Обновить».").foregroundStyle(.secondary)
                     }
+                    Divider()
+                    AssessmentHistory(workspace: workspace)
                 }
                 .padding(32)
             }
@@ -74,7 +87,9 @@ struct DashboardView: View {
                 }
             }
         }
-        .frame(minWidth: 700, minHeight: 540)
+        .sheet(isPresented: $entering) { AssessmentEditor(workspace: workspace, record: nil) }
+        .onChange(of: workspace.savedCount) { _, _ in Task { await dashboard.refresh() } }
+        .frame(minWidth: 760, minHeight: 540)
         .task {
             while !Task.isCancelled {
                 await dashboard.refresh()

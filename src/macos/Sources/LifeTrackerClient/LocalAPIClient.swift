@@ -3,6 +3,8 @@ import Foundation
 public enum LocalAPIError: Error, Sendable {
     case invalidLocalEndpoint
     case missingCredential
+    case invalidAssessment
+    case rejected(Int, String)
     case invalidResponse
     case httpStatus(Int)
 }
@@ -29,7 +31,11 @@ public struct LocalAPIClient: Sendable {
 
     // Internal so transport contract can be verified without a running server.
     func currentStateRequest() -> URLRequest {
-        var request = URLRequest(url: baseURL.appendingPathComponent("state/current"))
+        authorizedRequest(path: "state/current")
+    }
+
+    func authorizedRequest(path: String) -> URLRequest {
+        var request = URLRequest(url: baseURL.appendingPathComponent(path))
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("Bearer \(ownerToken)", forHTTPHeaderField: "Authorization")
@@ -37,9 +43,17 @@ public struct LocalAPIClient: Sendable {
     }
 
     public func currentState() async throws -> CurrentState {
-        let (data, response) = try await session.data(for: currentStateRequest())
+        try CurrentState.decode(await send(currentStateRequest()))
+    }
+
+    func send(_ request: URLRequest) async throws -> Data {
+        let (data, response) = try await session.data(for: request)
         guard let response = response as? HTTPURLResponse else { throw LocalAPIError.invalidResponse }
-        guard response.statusCode == 200 else { throw LocalAPIError.httpStatus(response.statusCode) }
-        return try CurrentState.decode(data)
+        guard response.statusCode == 200 else {
+            struct Failure: Decodable { let code: String }
+            let code = (try? JSONDecoder().decode(Failure.self, from: data).code) ?? "UNKNOWN"
+            throw LocalAPIError.rejected(response.statusCode, code)
+        }
+        return data
     }
 }
