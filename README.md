@@ -8,6 +8,8 @@
 
 Тестовая линия — `0.1.0-beta.1`: [установка и первые 10 минут](docs/releases/v0.1.0-beta.1.md), [границы B0](docs/delivery/beta-plan.md). Архив, контрольные суммы и evidence публикуются в [GitHub prerelease](https://github.com/Kori-Tamashi/LifeTracker/releases/tag/v0.1.0-beta.1) только после main release checks. Docker доступен как отдельное размещение в будущем; эта бета использует native Core.
 
+В develop подготовлен [кандидат beta.2](docs/releases/v0.1.0-beta.2.md) с wake/backup и отдельными настройками профиля. Это кандидат для ручной проверки; ссылка выше остаётся опубликованным beta.1 release.
+
 ## Документация
 
 - [Индекс и правила документации](docs/README.md)

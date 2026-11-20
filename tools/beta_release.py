@@ -37,7 +37,7 @@ def config():
 
 
 def test_evidence(logs):
-    contents = {name: (logs / f'{name}.log').read_text() for name in ['tooling', 'dotnet', 'swift', 'integration']}
+    contents = {name: (logs / f'{name}.log').read_text() for name in ['tooling', 'dotnet', 'swift', 'integration', 'backup']}
     original = contents.copy()
     contents = {name: re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text) for name, text in contents.items()}
     tooling = re.search(r'Ran (\d+) tests?', contents['tooling'])
@@ -57,6 +57,22 @@ def test_evidence(logs):
               'swift': swift_tests('swift'), 'live_integration': swift_tests('integration')}
     if result['live_integration']['skipped']:
         raise ValueError('Live integration must not be skipped')
+    required = {
+        'recordRetryHistoryCorrectionAgainstRealHost',
+        'managedHostStopAndRestartPreserveState',
+        'killedCorePreservesPendingReceiptOnRestart',
+        'stoppingAttachedRuntimeLeavesExternalCoreRunning',
+        'offlineMaintenanceRunnerRestoresProfileAndRefusesLiveWriter',
+        'coordinatedOfflinePausePreservesWorkspacePendingAndRestartsOnFailure',
+    }
+    live_passed = set(re.findall(r'^.*✔ Test ([A-Za-z0-9_]+)\(\) passed after', contents['integration'], re.M))
+    if not required.issubset(live_passed):
+        raise ValueError('Required lifecycle/backup integration evidence missing')
+    backup_marker = 'Offline backup smoke passed: writer/desktop locks, snapshot/verify/restore, receipt replay and corruption refusal.'
+    if backup_marker not in contents['backup'].splitlines():
+        raise ValueError('Offline backup smoke evidence missing')
+    result['required_live_cases'] = sorted(required)
+    result['offline_backup'] = {'passed': True, 'scope': 'synthetic process roundtrip; not GUI/RPO qualification'}
     result['log_sha256'] = {name: hashlib.sha256(text.encode()).hexdigest() for name, text in original.items()}
     return result
 
@@ -83,8 +99,10 @@ def assemble(app, logs, output):
         verify(Path(temporary) / 'LifeTracker.app')
     shutil.copy2(app / 'Contents/Resources/ThirdParty/components.json', output / 'components.json')
     shutil.copy2(ROOT / value['notes'], output / 'TESTING.md')
-    evidence.update({'format': 1, 'version': value['version'], 'source_revision': revision,
-                     'scope': 'B0 early manual-test beta; not full R1 acceptance',
+    evidence.update({'format': 2, 'version': value['version'], 'source_revision': revision,
+                     'scope': 'B1 State/lifecycle/backup manual-test candidate; not full R1 acceptance',
+                     'delivery': 'main prerelease' if os.environ.get('GITHUB_REF') == 'refs/heads/main' else 'candidate artifact only',
+                     'rpo_rto': 'not target-qualified', 'total_disk_budget': 'not qualified',
                      'ui_acceptance': 'pending manual tester', 'login_items': 'not OS-qualified',
                      'runtime': manifest['requires_runtime'], 'architecture': value['architecture'],
                      'minimum_macos': value['minimum_macos'],
@@ -107,6 +125,9 @@ def publish(output):
     evidence = json.loads((output / 'evidence.json').read_text())
     if evidence['source_revision'] != sha or evidence['version'] != value['version']:
         raise ValueError('Release evidence does not match main commit')
+    if (evidence.get('format') != 2 or evidence.get('delivery') != 'main prerelease'
+            or evidence.get('offline_backup', {}).get('passed') is not True):
+        raise ValueError('Candidate assets cannot be published; exact-main backup evidence required')
     expected = {f"LifeTracker-{value['version']}-macos-arm64.zip", 'components.json', 'TESTING.md', 'evidence.json', 'SHA256SUMS.txt'}
     if {p.name for p in output.iterdir()} != expected or any(p.is_symlink() or not p.is_file() for p in output.iterdir()):
         raise ValueError('Unexpected release assets')

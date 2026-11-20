@@ -133,3 +133,9 @@ Desktop opt-in сохраняет локальный каталог и вызы�
 Добавлены московское daily dedup/15min retry и одна desktop polling-задача вне lifetime окна. Tick/wake пропускает busy, внешний host, saving/historyLoading. Workspace блокирует submit и освобождает journal lease через отдельный BackupPausableJournal port; own Core останавливается, выполняется существующий backup CLI, затем Core запускается снова даже после ошибки копии. Client/workspace сохраняются во время нормальной паузы. Reacquire сравнивает pending bytes и fail-closed блокирует запись при коллизии/изменении. Explicit stop выигрывает у отложенного restart.
 
 Локально package build/verify и 6 live Swift/Core cases прошли, включая normal pause/pending receipt replay и restart после existing-destination refusal. Unit cases: Moscow boundary/retry/no catch-up, before-nine success, lease conflict/changed bytes, in-flight mutation barrier, external host refusal и explicit stop race. Полная GUI-form acceptance, реальный OS sleep/RPO/energy, restart-failure draft, desktop orphan и общий footprint не объявляются пройденными. Main/tag и установленная beta.1 не меняются.
+
+## B1: подготовка кандидата beta.2
+
+Release metadata согласованы на beta.2/build2. Preferences папки/порта/автокопий разделены по beta-версии; legacy beta.1 и development keys сохраняются. Release evidence format2 требует шесть конкретных lifecycle/backup live cases и отдельный backup process smoke. Workflow выдаёт candidate artifacts из чистого develop при изменении release metadata, publish остаётся только exact main.
+
+Добавлены инструкция проверки синтетического профиля и явные remaining GUI/OS/RPO/disk/orphan gates. Это подготовка проверяемого кандидата, не main/tag release и не установка поверх beta.1. Автоматическая проверка не подменяет ручной результат. Данные пользователя/копии не публикуются; старые теги/релизные assets сохраняются.

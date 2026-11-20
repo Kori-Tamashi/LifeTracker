@@ -17,3 +17,13 @@
 Docker подтверждён доступным на локальном стенде; B0 использует квалифицированный native host. Доступность Docker сама по себе не закрывает Q-DOCKER-STORAGE и не является поводом менять хранилище перед тестом.
 
 Следующий цикл начинается с результатов ручного теста, исправлений и beta.2, затем D-007.2/backup/Telegram. Полный R1 выпускается только по прежним acceptance gates.
+
+## B1 — кандидат beta.2
+
+После B0 накоплен законченный технический срез lifecycle/backup. [Кандидат beta.2](../releases/v0.1.0-beta.2.md) готовится в develop для конкретной ручной проверки, без публикации main/tag этим пакетом. Новые модули до результатов проверки не добавляются. Текущее config/Info.plist задаёт beta.2/build2; beta.1 остаётся выпущенной/установленной версией.
+
+Candidate workflow на develop запускается только push с изменением release metadata/tools/notes/workflow; выполняет полные gates и выдаёт seven-day Actions artifact. Main publish остаётся отдельным job с exact-main guard. PR в main по-прежнему выполняет build gates. `evidence` format2 требует шесть конкретных live cases и отдельный successful offline backup smoke; scope/manual UI/RPO/disk указаны явно. Чистый SHA/manifest/checksums и защита старого тега сохраняются.
+
+Папка/порт/каталог автокопий beta.2 изолированы от preferences beta.1. На тесте использовать отдельную папку данных, полностью остановив прежнюю версию: общая bundle identity не означает возможность одновременного использования одного порта. Файлы профиля автоматически не переносятся и не удаляются.
+
+Exit технической подготовки: полный candidate workflow, доступный `.app`/ZIP/evidence/TESTING, явный remaining manual checklist. Exit публикации B1 — отдельно: разобранная ручная проверка, устранённые блокирующие дефекты и exact-main release gates. Полный R1 не объявляется принятым.
