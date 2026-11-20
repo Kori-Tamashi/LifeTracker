@@ -22,7 +22,7 @@ def validate(paths):
     text_count = 0
     diagram_count = 0
     forbidden_roots = {'private', 'local', 'var'}
-    secret_suffixes = {'.pem', '.key', '.p12', '.pfx', '.mobileprovision', '.sqlite', '.sqlite3', '.db', '.har'}
+    secret_suffixes = {'.pem', '.key', '.p12', '.pfx', '.mobileprovision', '.sqlite', '.sqlite3', '.db', '.har', '.credential'}
     for rel in paths:
         path = ROOT / rel
         if rel.parts[0] in forbidden_roots or rel.suffix.lower() in secret_suffixes:

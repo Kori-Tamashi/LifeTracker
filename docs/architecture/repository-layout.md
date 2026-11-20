@@ -11,6 +11,7 @@ LifeTracker/
       LifeTracker.Kernel/
       LifeTracker.Application.Abstractions/
       LifeTracker.Infrastructure.Shared/ # SQLite store и общие миграции
+      LifeTracker.Host/             # local HTTP composition/transport
       Modules/State/
         LifeTracker.State.Domain/
         LifeTracker.State.Contracts/

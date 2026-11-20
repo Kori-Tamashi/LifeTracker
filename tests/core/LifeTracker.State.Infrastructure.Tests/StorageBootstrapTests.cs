@@ -47,7 +47,7 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
         Assert.Equal(5000L, await Scalar(store.Connection, "PRAGMA busy_timeout;"));
         Assert.Equal("wal", await Scalar(store.Connection, "PRAGMA journal_mode;"));
         Assert.Equal(1L, await Scalar(store.Connection, "PRAGMA user_version;"));
-        Assert.Equal(2L, await Scalar(store.Connection, "SELECT COUNT(*) FROM __EFMigrationsHistory;"));
+        Assert.Equal(3L, await Scalar(store.Connection, "SELECT COUNT(*) FROM __EFMigrationsHistory;"));
         await Execute(store.Connection, "CREATE VIRTUAL TABLE temp.search_probe USING fts5(body); INSERT INTO search_probe VALUES ('synthetic');");
         Assert.Equal(1L, await Scalar(store.Connection, "SELECT COUNT(*) FROM search_probe WHERE search_probe MATCH 'synthetic';"));
     }

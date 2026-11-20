@@ -24,3 +24,12 @@ public interface IGetCurrentState
 {
     Task<CurrentState> ExecuteAsync(Guid profileId, CancellationToken cancellationToken = default);
 }
+
+public sealed record AssessmentRecord(Guid Id, int Revision, string Metric, decimal Score, DateTimeOffset ObservedAt,
+    string SourceKind, string Status);
+public sealed record AssessmentHistoryPage(IReadOnlyList<AssessmentRecord> Items, string? NextCursor);
+public interface IGetAssessmentHistory
+{
+    Task<AssessmentHistoryPage> ExecuteAsync(Guid profileId, DateTimeOffset? from, DateTimeOffset? to, int limit = 50,
+        string? cursor = null, CancellationToken cancellationToken = default);
+}

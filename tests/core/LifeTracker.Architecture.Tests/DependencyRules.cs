@@ -1,6 +1,7 @@
 using System.Reflection;
 using ArchUnitNET.Loader;
 using LifeTracker.Application.Abstractions;
+using LifeTracker.Host;
 using LifeTracker.Infrastructure.Shared;
 using LifeTracker.Kernel;
 using LifeTracker.Operations.Application;
@@ -19,7 +20,7 @@ public sealed class DependencyRules
 {
     private static readonly Assembly[] Production = [typeof(Score).Assembly, typeof(Identifiers).Assembly,
         typeof(IUtcClock).Assembly, typeof(CurrentState).Assembly, typeof(RecordAssessmentsHandler).Assembly, typeof(RetryPolicy).Assembly, typeof(IJobQueue).Assembly];
-    private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies([.. Production, typeof(CoreDbContext).Assembly, typeof(SqliteStateRepository).Assembly, typeof(SqliteJobQueue).Assembly]).Build();
+    private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies([.. Production, typeof(CoreDbContext).Assembly, typeof(SqliteStateRepository).Assembly, typeof(SqliteJobQueue).Assembly, typeof(LocalApiHost).Assembly]).Build();
 
     [Fact]
     public void DomainCannotDependOnApplicationOrContracts()
@@ -66,7 +67,8 @@ public sealed class DependencyRules
             var rule = Types().That().ResideInAssembly(assembly).Should()
                 .NotDependOnAny(Types().That().ResideInAssembly(typeof(CoreDbContext).Assembly)
                     .Or().ResideInAssembly(typeof(SqliteStateRepository).Assembly)
-                    .Or().ResideInAssembly(typeof(SqliteJobQueue).Assembly));
+                    .Or().ResideInAssembly(typeof(SqliteJobQueue).Assembly)
+                    .Or().ResideInAssembly(typeof(LocalApiHost).Assembly));
             Assert.True(rule.HasNoViolations(Architecture));
         }
     }

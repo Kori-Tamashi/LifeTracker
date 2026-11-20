@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
+    <EmbeddedResource Include="../../../configs/api/routes.json" LogicalName="LifeTracker.Host.Routes.json" />
+  </ItemGroup>
+</Project>
