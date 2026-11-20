@@ -118,4 +118,49 @@ struct LiveRuntimeTests {
         _ = try await stillRunning.currentState()
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["LIFETRACKER_INTEGRATION_URL"] != nil))
+    @MainActor func offlineMaintenanceRunnerRestoresProfileAndRefusesLiveWriter() async throws {
+        let environment = ProcessInfo.processInfo.environment
+        let executable = URL(fileURLWithPath: try #require(environment["LIFETRACKER_INTEGRATION_DOTNET"]))
+        let dll = try #require(environment["LIFETRACKER_INTEGRATION_DLL"])
+        let port = try #require(environment["LIFETRACKER_MANAGED_TEST_PORT"].flatMap(Int.init))
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let source = parent.appendingPathComponent("source")
+        let backup = parent.appendingPathComponent("backup with spaces")
+        let restored = parent.appendingPathComponent("restored")
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let runtime = NativeRuntime()
+        let tool = OfflineProfileMaintenance(executable: executable, hostArguments: [dll])
+        do {
+            await runtime.start(
+                NativeHostConfiguration(executable: executable, arguments: [dll], root: source, port: port))
+            let client = try #require(runtime.client)
+            let command = try AssessmentCommand.record(
+                observedAt: .now, values: [.init(metric: .energy, score: 8)], comment: "")
+            let receipt = try await client.submit(command)
+            await #expect(throws: ProfileMaintenanceError.self) {
+                try await tool.run(.backup(source: source, destination: backup))
+            }
+            #expect(!FileManager.default.fileExists(atPath: backup.path))
+            #expect(await runtime.stop())
+            try await tool.run(.backup(source: source, destination: backup))
+            try await tool.run(.verify(backup: backup))
+            try await tool.run(.restore(backup: backup, destination: restored))
+            await #expect(throws: ProfileMaintenanceError.self) {
+                try await tool.run(.restore(backup: backup, destination: restored))
+            }
+            await runtime.start(
+                NativeHostConfiguration(executable: executable, arguments: [dll], root: restored, port: port))
+            let recovered = try #require(runtime.client)
+            let replay = try await recovered.submit(command)
+            #expect(replay.commandId == receipt.commandId)
+            let history = try await recovered.history()
+            #expect(history.items.count == 1 && history.items.first?.score == 8)
+            #expect(await runtime.stop())
+        } catch {
+            await runtime.stop()
+            throw error
+        }
+    }
+
 }

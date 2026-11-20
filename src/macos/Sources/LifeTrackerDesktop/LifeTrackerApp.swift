@@ -6,9 +6,10 @@ import ServiceManagement
 import SwiftUI
 
 @MainActor @Observable
-private final class DesktopSession {
+final class DesktopSession {
     let runtime = NativeRuntime()
     var workspace: AssessmentWorkspace?
+    var maintenanceBusy = false
     var refreshToken = UUID()
     var error: String?
     var loginStatus = SMAppService.mainApp.status
@@ -35,21 +36,13 @@ private final class DesktopSession {
     }
 
     func start(root: URL, port: Int) async {
-        guard runtime.phase == .stopped || runtime.phase == .failed else { return }
+        guard !maintenanceBusy, runtime.phase == .stopped || runtime.phase == .failed else { return }
         error = nil
         workspace = nil
-        let environment = ProcessInfo.processInfo.environment
-        let candidates = [
-            environment["LIFETRACKER_DOTNET"], "/usr/local/share/dotnet/dotnet", "/opt/homebrew/bin/dotnet",
-            FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".dotnet/dotnet").path,
-        ].compactMap { $0 }
-        let dotnet = candidates.first { FileManager.default.isExecutableFile(atPath: $0) } ?? candidates[0]
-        let host =
-            environment["LIFETRACKER_HOST_DLL"].map { URL(fileURLWithPath: $0) }
-            ?? (Bundle.main.resourceURL ?? Bundle.main.bundleURL).appendingPathComponent("Core/LifeTracker.Host.dll")
+        let command = coreCommand
         await runtime.start(
             NativeHostConfiguration(
-                executable: URL(fileURLWithPath: dotnet), arguments: [host.path], root: root, port: port))
+                executable: command.executable, arguments: command.hostArguments, root: root, port: port))
         guard runtime.phase == .ready, let client = runtime.client else { return }
         do {
             workspace = try AssessmentWorkspace(
@@ -61,6 +54,39 @@ private final class DesktopSession {
             self.error =
                 "Не удалось открыть профиль. Проверьте доступ к папке данных и закройте другой клиент LifeTracker."
         }
+    }
+
+    private var coreCommand: OfflineProfileMaintenance {
+        let environment = ProcessInfo.processInfo.environment
+        let candidates = [
+            environment["LIFETRACKER_DOTNET"], "/usr/local/share/dotnet/dotnet", "/opt/homebrew/bin/dotnet",
+            FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".dotnet/dotnet").path,
+        ].compactMap { $0 }
+        let dotnet = candidates.first { FileManager.default.isExecutableFile(atPath: $0) } ?? candidates[0]
+        let host =
+            environment["LIFETRACKER_HOST_DLL"].map { URL(fileURLWithPath: $0) }
+            ?? (Bundle.main.resourceURL ?? Bundle.main.bundleURL).appendingPathComponent("Core/LifeTracker.Host.dll")
+        return OfflineProfileMaintenance(executable: URL(fileURLWithPath: dotnet), hostArguments: [host.path])
+    }
+
+    var canMaintain: Bool {
+        !maintenanceBusy && !runtime.ownsHost && workspace == nil
+            && (runtime.phase == .stopped || runtime.phase == .failed)
+    }
+
+    func stopForMaintenance() async {
+        guard !maintenanceBusy, workspace?.saving != true else { return }
+        if await runtime.stop() { workspace = nil }
+    }
+
+    func maintain(_ operation: ProfileMaintenanceOperation) async -> Bool {
+        guard canMaintain else { return false }
+        maintenanceBusy = true
+        defer { maintenanceBusy = false }
+        do {
+            try await coreCommand.run(operation)
+            return true
+        } catch { return false }
     }
 
     func reconcileAfterWake() async {
@@ -112,6 +138,7 @@ private final class DesktopDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard let session else { return .terminateNow }
+        guard !session.maintenanceBusy else { return .terminateCancel }
         guard !quitting else { return .terminateLater }
         quitting = true
         Task {
@@ -127,6 +154,7 @@ private final class DesktopDelegate: NSObject, NSApplicationDelegate {
 struct LifeTrackerApp: App {
     @NSApplicationDelegateAdaptor(DesktopDelegate.self) private var delegate
     @State private var desktop = DesktopSession()
+    @State private var showingBackups = false
     @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
@@ -152,6 +180,9 @@ struct LifeTrackerApp: App {
                     ConnectionView(desktop: desktop)
                 }
             }
+            .sheet(isPresented: $showingBackups) {
+                BackupMaintenanceView(desktop: desktop)
+            }
             .onAppear {
                 delegate.session = desktop
                 Task { await desktop.restore() }
@@ -162,6 +193,10 @@ struct LifeTrackerApp: App {
         }
         .defaultSize(width: 980, height: 720)
         .commands {
+            CommandMenu("Профиль") {
+                Button("Резервные копии…") { showingBackups = true }
+                    .disabled(desktop.maintenanceBusy)
+            }
             CommandGroup(replacing: .appTermination) {
                 Button(desktop.runtime.ownsHost ? "Полностью остановить LifeTracker" : "Завершить LifeTracker") {
                     NSApp.terminate(nil)
@@ -182,6 +217,12 @@ struct LifeTrackerApp: App {
                 openWindow(id: "main")
                 NSApp.activate(ignoringOtherApps: true)
             }
+            Button("Резервные копии…") {
+                openWindow(id: "main")
+                NSApp.activate(ignoringOtherApps: true)
+                showingBackups = true
+            }
+            .disabled(desktop.maintenanceBusy)
             Divider()
             Button(desktop.loginStatus == .enabled ? "Отключить запуск при входе" : "Запускать при входе") {
                 Task { await desktop.toggleLogin() }

@@ -113,3 +113,11 @@ Docker на локальном стенде доступен; Q-DOCKER-STORAGE �
 Добавлены две реальные Swift/Core интеграции: SIGKILL собственного дочернего Core, наблюдение failed, restart и повтор сохранённой pending-команды после уже committed receipt без дублирования; stop attached runtime оставляет внешний Core доступным. Harness запускает 4 live tests, managed cases сериализованы из-за общего тестового порта. Production runtime не менялся. Desktop crash/orphan, реальный sleep/login/GUI и crash внутри транзакции не объявляются проверенными.
 
 Локально удалены 16 завершённых веток после проверки дерева и включения remote head в develop; исходные локальные SHA сохранены в refs/archive. Добавлен workflow удаления merged веток с проверкой PR, reachability, текущего SHA и lease. Локальные тесты cleanup проверяют отказ при новом head, open/unmerged PR, fork, постоянных/неподдерживаемых ветках и отсутствии reachability. Remote cleanup выполняется после merge, его результат проверяется отдельно. Main/tag и установленная beta.1 не меняются.
+
+## D-009.1.2a: пользовательский offline backup/restore
+
+В macOS добавлен экран резервных копий: остановка подключения с предупреждением о несохранённой форме, create/verify/restore с выбором каталогов и нового имени. Экран использует отдельный процесс Core CLI без shell. Busy блокирует новый запуск, повторную maintenance и обычный выход; восстановление не заменяет и не переключает текущий профиль автоматически. Внешний host останавливается отдельно, offline writer/desktop locks остаются последней проверкой Core.
+
+Локально 5 live Swift/Core cases passed, включая runner roundtrip/путь с пробелами/отказ live writer и existing destination/receipt replay. Это process evidence, не UI acceptance: панели, release journal, busy/quit, предупреждение о форме и внешний вид остаются not run. Автокопии/retention/disk, desktop orphan и полный R1 не закрыты; beta.1/main/tag не обновляются.
+
+Результат предыдущего PR #18: Product/Project CI successful; cleanup workflow successful, remote inventory main/develop. Завершённая локальная ветка удалена после архивирования SHA.
