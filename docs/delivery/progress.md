@@ -121,3 +121,9 @@ Docker на локальном стенде доступен; Q-DOCKER-STORAGE �
 Локально 5 live Swift/Core cases passed, включая runner roundtrip/путь с пробелами/отказ live writer и existing destination/receipt replay. Это process evidence, не UI acceptance: панели, release journal, busy/quit, предупреждение о форме и внешний вид остаются not run. Автокопии/retention/disk, desktop orphan и полный R1 не закрыты; beta.1/main/tag не обновляются.
 
 Результат предыдущего PR #18: Product/Project CI successful; cleanup workflow successful, remote inventory main/develop. Завершённая локальная ветка удалена после архивирования SHA.
+
+## D-009.1.3a: startup daily snapshots и ротация
+
+Реализован backup-daily: Moscow после 09:00, профильные managed каталоги, одна копия на дату, verify/restore rehearsal до ротации, семь completed снимков. Catalog lease, строгий inventory и повторная проверка перед удалением. Незнакомые/ручные/предмиграционные файлы не удаляются. При low-space/quota/corruption старые копии сохраняются; прерванная после публикации ротация повторяется на той же дате.
+
+Desktop opt-in сохраняет локальный каталог и вызывает CLI до открытия Core/journal; ошибка показана как предупреждение, обычный запуск разрешён. Бюджет managed каталога профиля 2GB и free reserve 256MiB не подменяют общий footprint 10/20GB. Семь новых real-file tests довели .NET suite до 139 pass; CI дополнен .NET policy tests на macOS. Полная RPO/RTO, continuous scheduler, предмиграционные копии и UI acceptance открыты. Beta.1/main/tag не меняются.

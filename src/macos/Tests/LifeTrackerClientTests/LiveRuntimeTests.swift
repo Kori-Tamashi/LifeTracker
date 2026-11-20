@@ -143,6 +143,7 @@ struct LiveRuntimeTests {
             }
             #expect(!FileManager.default.fileExists(atPath: backup.path))
             #expect(await runtime.stop())
+            try await tool.run(.daily(source: source, catalog: parent.appendingPathComponent("daily catalog")))
             try await tool.run(.backup(source: source, destination: backup))
             try await tool.run(.verify(backup: backup))
             try await tool.run(.restore(backup: backup, destination: restored))

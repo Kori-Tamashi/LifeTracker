@@ -42,4 +42,6 @@ HTTP tests используют настоящий Kestrel и синтетиче
 
 ## Offline maintenance
 
-Команды `backup`, `verify-backup`, `restore` работают до запуска HTTP. Состав копии, остановка всех writers, примеры и ограничения описаны в [инструкции](../../../docs/architecture/storage/offline-backup.md). В установленной beta.1 эти команды ещё отсутствуют.
+Команды `backup`, `backup-daily`, `verify-backup`, `restore` работают до запуска HTTP. Состав копии, остановка всех writers, примеры и ограничения описаны в [инструкции](../../../docs/architecture/storage/offline-backup.md). В установленной beta.1 эти команды ещё отсутствуют.
+
+Запусковая автоматика и ограничения ротации: [managed daily backup](../../../docs/architecture/storage/managed-daily-backup.md).

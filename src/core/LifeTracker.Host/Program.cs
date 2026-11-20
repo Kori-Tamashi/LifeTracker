@@ -12,6 +12,11 @@ try
                     ?? throw new InvalidOperationException("Runtime root is required.");
                 await OfflineProfileBackup.CreateAsync(source, destination);
                 break;
+            case ["backup-daily", var catalog]:
+                var dailySource = Environment.GetEnvironmentVariable("LIFETRACKER_RUNTIME_ROOT")
+                    ?? throw new InvalidOperationException("Runtime root is required.");
+                await new ManagedDailyBackup().RunAsync(dailySource, catalog);
+                break;
             case ["verify-backup", var backup]:
                 await OfflineProfileBackup.VerifyAsync(backup);
                 break;

@@ -25,6 +25,16 @@ public static class OfflineProfileBackup
     public sealed record Manifest(int Format, int SchemaVersion, string Scope, Guid ProfileId,
         DateTimeOffset CreatedAt, Dictionary<string, string> Sha256);
 
+    internal static async Task<Guid> InspectProfileAsync(string source, CancellationToken ct)
+    {
+        KnownFiles(source, RuntimeFiles);
+        await using var desktopLease = new FileStream(Path.Combine(source, "desktop-assessment.lock"),
+            FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        await using var store = await SqliteStore.OpenExistingAsync(source, ct);
+        await ProfileCredential.LoadOrCreateAsync(source, create: false, ct);
+        return await ProfileIdAsync(store, ct);
+    }
+
     public static async Task CreateAsync(string sourceRoot, string destination, CancellationToken ct = default)
     {
         var source = Root(sourceRoot);
@@ -192,7 +202,7 @@ public static class OfflineProfileBackup
         }
     }
 
-    private static string Root(string path, int depth = 0)
+    internal static string Root(string path, int depth = 0)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         if (depth > 32) { throw new IOException("Directory link depth exceeded."); }
@@ -220,7 +230,7 @@ public static class OfflineProfileBackup
         return root;
     }
 
-    private static void Separate(string first, string second)
+    internal static void Separate(string first, string second)
     {
         var comparison = OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
             ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;

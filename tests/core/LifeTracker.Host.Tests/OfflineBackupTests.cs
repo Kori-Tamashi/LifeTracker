@@ -178,4 +178,131 @@ public sealed class OfflineBackupTests : IAsyncLifetime
         Assert.False(Directory.Exists(Path.Combine(Profile, "backup")));
         Directory.Delete(alias);
     }
+    private sealed class BackupClock(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
+    }
+
+    private static DateTimeOffset BackupMorning => new(2026, 11, 21, 6, 0, 0, TimeSpan.Zero);
+    private string Catalog => Path.Combine(root, "automatic");
+    private ManagedDailyBackup Daily(DateTimeOffset now, long free = long.MaxValue) =>
+        new(new BackupClock(now), _ => free);
+
+    [Fact]
+    public async Task DailyScheduleUsesMoscowNineAndDoesNotCatchUpMissedDays()
+    {
+        await SeedAsync();
+        Assert.Equal(DailyBackupResult.BeforeSchedule,
+            await Daily(BackupMorning.AddMinutes(-1)).RunAsync(Profile, Catalog, Ct));
+        Assert.False(Directory.Exists(Catalog));
+        Assert.Equal(DailyBackupResult.Created, await new ManagedDailyBackup(new BackupClock(BackupMorning)).RunAsync(Profile, Catalog, Ct));
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        var snapshot = Assert.Single(Directory.GetDirectories(directory));
+        var hashes = Hashes(snapshot);
+        Assert.Equal(DailyBackupResult.AlreadyCurrent, await Daily(BackupMorning.AddHours(1)).RunAsync(Profile, Catalog, Ct));
+        Assert.Equal(hashes.OrderBy(p => p.Key), Hashes(snapshot).OrderBy(p => p.Key));
+        await Daily(BackupMorning.AddDays(4)).RunAsync(Profile, Catalog, Ct);
+        Assert.Equal(2, Directory.GetDirectories(directory).Length);
+    }
+
+    [Fact]
+    public async Task EighthDailySnapshotRotatesOnlyAfterNewSnapshotCanBeRestored()
+    {
+        await SeedAsync();
+        for (var day = 0; day < 8; day++)
+        {
+            Assert.Equal(DailyBackupResult.Created,
+                await Daily(BackupMorning.AddDays(day)).RunAsync(Profile, Catalog, Ct));
+        }
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        var snapshots = Directory.GetDirectories(directory).Order().ToArray();
+        Assert.Equal(7, snapshots.Length);
+        Assert.DoesNotContain(snapshots, path => Path.GetFileName(path) == "daily-2026-11-21");
+        await OfflineProfileBackup.RestoreAsync(snapshots[^1], Restored, Ct);
+        await using var store = await SqliteStore.OpenExistingAsync(Restored, Ct);
+        await using var query = store.Connection.CreateCommand();
+        query.CommandText = "SELECT COUNT(*) FROM observations;";
+        Assert.Equal(1L, await query.ExecuteScalarAsync(Ct));
+    }
+
+    [Fact]
+    public async Task LowSpaceAndUnknownContentsNeverRemoveOldSnapshots()
+    {
+        await SeedAsync();
+        await Daily(BackupMorning).RunAsync(Profile, Catalog, Ct);
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        var snapshot = Assert.Single(Directory.GetDirectories(directory));
+        var hashes = Hashes(snapshot);
+        await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning.AddDays(1), 0).RunAsync(Profile, Catalog, Ct));
+        Assert.Equal(hashes.OrderBy(p => p.Key), Hashes(snapshot).OrderBy(p => p.Key));
+        await File.WriteAllTextAsync(Path.Combine(directory, "manual-or-premigration"), "synthetic", Ct);
+        await Assert.ThrowsAsync<InvalidDataException>(() => Daily(BackupMorning.AddDays(1)).RunAsync(Profile, Catalog, Ct));
+        Assert.Equal(hashes.OrderBy(p => p.Key), Hashes(snapshot).OrderBy(p => p.Key));
+        Assert.Single(Directory.GetDirectories(directory));
+    }
+
+    [Fact]
+    public async Task CatalogQuotaRefusesBeforeAnySnapshotIsDeleted()
+    {
+        await SeedAsync();
+        // A sparse recognized file is enough for conservative preflight, without filling the disk.
+        await using (var file = new FileStream(Path.Combine(Profile, "desktop-pending-assessment.json"), FileMode.CreateNew))
+        {
+            file.SetLength(ManagedDailyBackup.MaximumCatalogBytes);
+        }
+        await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning).RunAsync(Profile, Catalog, Ct));
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        Assert.Empty(Directory.GetDirectories(directory));
+    }
+
+    [Fact]
+    public async Task DailyRefusesLiveWriterAndNestedOrLinkedCatalogs()
+    {
+        await SeedAsync();
+        await using (var store = await SqliteStore.OpenExistingAsync(Profile, Ct))
+        {
+            await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning).RunAsync(Profile, Catalog, Ct));
+        }
+        await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning).RunAsync(Profile, Path.Combine(Profile, "automatic"), Ct));
+        var alias = Path.Combine(root, "alias");
+        Directory.CreateDirectory(Catalog);
+        Directory.CreateSymbolicLink(alias, Catalog);
+        await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning).RunAsync(Profile, alias, Ct));
+    }
+
+    [Fact]
+    public async Task CorruptSnapshotAndCatalogLeaseBlockRotation()
+    {
+        await SeedAsync();
+        await Daily(BackupMorning).RunAsync(Profile, Catalog, Ct);
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        await using (var lease = new FileStream(Path.Combine(directory, ".daily.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning.AddDays(1)).RunAsync(Profile, Catalog, Ct));
+        }
+        var snapshot = Assert.Single(Directory.GetDirectories(directory));
+        await File.WriteAllTextAsync(Path.Combine(snapshot, "owner.credential"), new string('a', 43), Ct);
+        await Assert.ThrowsAsync<InvalidDataException>(() => Daily(BackupMorning.AddDays(1)).RunAsync(Profile, Catalog, Ct));
+        Assert.Single(Directory.GetDirectories(directory));
+    }
+
+    [Fact]
+    public async Task RetryAfterCompletedSnapshotBeforeRotationReconcilesSameDay()
+    {
+        await SeedAsync();
+        await Daily(BackupMorning).RunAsync(Profile, Catalog, Ct);
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        var first = Assert.Single(Directory.GetDirectories(directory));
+        // Model a prior interrupted rotation: all eight snapshots exist and verify successfully.
+        for (var day = 1; day < 8; day++)
+        {
+            var destination = Path.Combine(directory, "daily-" + DateOnly.FromDateTime(BackupMorning.AddDays(day).DateTime).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
+            Directory.CreateDirectory(destination);
+            foreach (var file in Directory.GetFiles(first)) { File.Copy(file, Path.Combine(destination, Path.GetFileName(file))); }
+        }
+        Assert.Equal(DailyBackupResult.AlreadyCurrent, await Daily(BackupMorning.AddDays(7)).RunAsync(Profile, Catalog, Ct));
+        Assert.Equal(7, Directory.GetDirectories(directory).Length);
+        Assert.False(Directory.Exists(first));
+    }
+
 }
