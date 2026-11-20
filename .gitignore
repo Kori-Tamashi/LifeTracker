@@ -17,6 +17,7 @@ node_modules/
 # Credentials and personal exports (synthetic fixtures use text formats)
 *.pem
 *.key
+*.credential
 *.p12
 *.pfx
 *.mobileprovision

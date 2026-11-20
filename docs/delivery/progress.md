@@ -43,3 +43,11 @@ D-004: реальный SQLite adapter и транзакционные contract 
 Старые базы с pending migration не обновляются автоматически. Scheduler/delivery loop, fairness, input-revision materialization, ручной retry и lifecycle всё ещё требуют host/use-case реализации. Следующий основной пакет — D-005 local API; R1 не выпущен.
 
 Для D-004.4 локально пройден 101 .NET test (включая State regression), сборка без предупреждений. Старые Swift/tooling проверки не заменяют новый удалённый CI; результат на head PR проверяется перед merge.
+
+## D-005: локальный API и внутренняя веха M1
+
+Реализован запускаемый [Host](../../src/core/LifeTracker.Host/README.md): loopback, machine owner credential, пять State/capabilities operations, строгий HTTP DTO и typed errors. Остальные 46 нормативных операций возвращают capability unavailable. Cursor history использует commit watermark/HMAC/24h TTL; новые записи и коррекции не меняют начатую выдачу. Общая migration дополнена технической commit sequence, без скрытого upgrade старых баз.
+
+Локально пройдены 121 .NET test и process smoke с настоящим остановленным/повторно запущенным CLI: record → restart → read/retry → correction. Шесть реально полученных ответов соответствуют пяти OpenAPI schemas. Полный проектный набор и удалённый CI проверяются перед merge. Это M1 backend/demo scope, не R1 release и не UI acceptance.
+
+Следующий пакет — D-006 SwiftUI-персонаж, быстрый ввод и история через этот API. Автозапуск/lifecycle, scheduler, backup/restore и квалификация Apple остаются отдельными gates.

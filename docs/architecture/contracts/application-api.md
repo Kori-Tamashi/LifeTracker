@@ -1,6 +1,6 @@
 # API v1 — семантика baseline 1.0
 
-Нормативный машиночитаемый контракт: [openapi.yaml](openapi.yaml), 51 операция, OpenAPI3.0.3. Это проверенный проект интерфейса, не работающий сервер. Внешние DTO не являются Domain/ORM объектами.
+Нормативный машиночитаемый контракт: [openapi.yaml](openapi.yaml), 51 операция, OpenAPI3.0.3. Полный контракт содержит 51 операцию; работающий State-поднабор из пяти операций описан в [host README](../../../src/core/LifeTracker.Host/README.md). Остальные маршруты выключены. Внешние DTO не являются Domain/ORM объектами.
 
 ## Адреса и scope
 
@@ -8,7 +8,7 @@ Native local `http://127.0.0.1:17841/api/v1`, port в install manifest. Machine-
 
 ## Команды
 
-Mutation требует Idempotency-Key8–128 chars. Key scoped на owner+route+semantic operation; одинаковый key/payload возвращает прежний durable receipt, другойpayload —409. Команда содержит client command ID в инфраструктурном envelope; HTTP trace correlation формируется сервером. expected_revision обязателен там, где меняется сущность; settings patch сериализуется под Profile transaction, сервер отвечает текущей revision. Наблюдения будущего времени/некорректного шага/повторного metric внутри одного request отвергаются целиком 422.
+Mutation требует Idempotency-Key8–128 chars. Key scoped на owner+route+semantic operation; одинаковый key/payload возвращает прежний durable receipt, другойpayload —409. В реализованных мутациях X-Command-ID — необязательный UUID клиента; без него ID генерирует сервер. Команда содержит его в инфраструктурном envelope; HTTP trace correlation формируется сервером. expected_revision обязателен там, где меняется сущность; settings patch сериализуется под Profile transaction, сервер отвечает текущей revision. Наблюдения будущего времени/некорректного шага/повторного metric внутри одного request отвергаются целиком 422.
 
 200 — завершённая синхронная команда;202 — durable приём с job_id, не завершённый анализ; ошибка не подтверждает сохранение. Receipt command_id/resource_id/revision/job_id позволяет продолжить после разрыва. JSON sum values — string minor units+currency+scale, timestampISO-8601 UTC. Максимальная длительность voice30min/50MiB, photo20MiB/40MP, text20000chars. Media проверяется по декодированному виду/размеру, а не только MIME/filename; decompress bomb отклоняется до обработки. Raw absolute path в запросе не принимается.
 

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Life Tracker local application API
   version: 1.0.0
-  description: Design baseline, not a running server. /api/v1; single owner. R1 enables
+  description: Full baseline contract; the local State subset is implemented. /api/v1; single owner. R1 enables
     only R1 capabilities; unsupported routes return CAPABILITY_UNAVAILABLE.
 servers:
 - url: http://127.0.0.1:17841/api/v1
@@ -79,6 +79,13 @@ paths:
           type: string
           minLength: 8
           maxLength: 128
+      - name: X-Command-ID
+        in: header
+        required: false
+        description: Optional client command UUID; omitted means server-generated identity.
+        schema:
+          type: string
+          format: uuid
       requestBody:
         required: true
         content:
@@ -243,6 +250,13 @@ paths:
           type: string
           minLength: 8
           maxLength: 128
+      - name: X-Command-ID
+        in: header
+        required: false
+        description: Optional client command UUID; omitted means server-generated identity.
+        schema:
+          type: string
+          format: uuid
       requestBody:
         required: true
         content:

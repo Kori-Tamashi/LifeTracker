@@ -314,6 +314,12 @@
       "lifetracker.application.abstractions": {
         "type": "Project"
       },
+      "lifetracker.host": {
+        "type": "Project",
+        "dependencies": {
+          "LifeTracker.State.Infrastructure": "[1.0.0, )"
+        }
+      },
       "lifetracker.infrastructure.shared": {
         "type": "Project",
         "dependencies": {

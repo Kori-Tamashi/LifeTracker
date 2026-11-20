@@ -32,4 +32,6 @@ Shared contract tests компилируются для test fake и SQLite из
 
 OpenExistingAsync открывает только базу с точным известным набором EF migrations и user_version; не применяет upgrade автоматически. Backup/restore, crash recovery и jobs/outbox остаются отдельными пакетами. Shared semaphore принадлежит store: все repository instances сериализуют доступ к одному connection. Прямой connection — только для bootstrap/композиции/тестов, не для UI или бизнес-логики. Cancellation проверяется до транзакции и commit; SQLite busy wait может занимать заданный timeout.
 
-После D-004.4 текущие SqliteStore/CoreDbContext/SQLite runtime gate находятся в LifeTracker.Infrastructure.Shared. Старые имена NewStateStore/StateDbContext выше описывают исторический срез. Текущая Create применяет две migration; [durable-jobs](durable-jobs.md) описывает новую границу.
+После D-004.4 текущие SqliteStore/CoreDbContext/SQLite runtime gate находятся в LifeTracker.Infrastructure.Shared. Старые имена NewStateStore/StateDbContext выше описывают исторический срез. Срез D-004.4 применяет две migration; [durable-jobs](durable-jobs.md) описывает новую границу.
+
+D-005 добавляет техническую state_commits sequence, текущий Create применяет три migration. API и snapshot history — [ADR-007](../decisions/ADR-007-history-cursors.md). Автоматический upgrade существующей базы по-прежнему не включён.

@@ -213,7 +213,7 @@ public sealed class SqliteRepositoryTests : IAsyncLifetime
         var command = CreateCommand();
         await Assert.ThrowsAsync<SqliteException>(() => RecordAsync(command));
         Assert.Empty(await new SqliteStateRepository(store).GetCurrentAsync(profile, Ct));
-        foreach (var table in new[] { "entities", "revisions", "source_events", "outbox" })
+        foreach (var table in new[] { "entities", "revisions", "source_events", "outbox", "state_commits" })
         {
             await using var count = store.Connection.CreateCommand();
             count.CommandText = $"SELECT COUNT(*) FROM {table};";

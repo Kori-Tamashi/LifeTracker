@@ -9,7 +9,7 @@ using Microsoft.Data.Sqlite;
 namespace LifeTracker.State.Infrastructure;
 
 /// <summary>State persistence only. The store owns the connection and writer lease.</summary>
-public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository
+public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository, IStateHistoryReader
 {
     private const string Source = "state.command";
     private sealed record Snapshot(int SchemaVersion, DateTimeOffset ObservedAt, DateTimeOffset OriginalObservedAt,
@@ -154,6 +154,7 @@ public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository
                 VALUES ($profile,$id,$revision,$recorded,$actor,$status,$reason,$body);
                 INSERT INTO observations(profile_id,entity_id,revision,metric,score_half,observed_ms,source_kind)
                 VALUES ($profile,$id,$revision,$metric,$score,$observed,$source);
+                INSERT INTO state_commits(profile_id,entity_id,revision) VALUES ($profile,$id,$revision);
                 """, transaction, ("$profile", profileId.ToString("D")), ("$id", revision.AssessmentId.ToString("D")),
                 ("$revision", revision.Revision), ("$recorded", revision.RecordedAt.ToUnixTimeMilliseconds()),
                 ("$actor", revision.Source == AssessmentSource.SelfReport ? "owner" : "ai"),
@@ -181,7 +182,7 @@ public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository
         return receipt;
     }
 
-    private async Task<IReadOnlyList<AssessmentRevision>> ReadAsync(Guid profileId, Guid? assessmentId, bool currentOnly, CancellationToken ct)
+    private async Task<IReadOnlyList<AssessmentRevision>> ReadAsync(Guid profileId, Guid? assessmentId, bool currentOnly, CancellationToken ct, long? watermark = null)
     {
         Identifiers.RequireNonEmpty(profileId, nameof(profileId));
         if (assessmentId is not null)
@@ -195,9 +196,11 @@ public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository
             JOIN entities e ON e.profile_id=o.profile_id AND e.id=o.entity_id AND e.kind='observation'
             JOIN revisions r ON r.profile_id=o.profile_id AND r.entity_id=o.entity_id AND r.revision=o.revision
             WHERE o.profile_id=$profile AND ($id IS NULL OR o.entity_id=$id)
-              AND ($current=0 OR o.revision=e.current_revision)
+              AND (($watermark IS NULL AND ($current=0 OR o.revision=e.current_revision))
+                   OR ($watermark IS NOT NULL AND o.revision=(SELECT MAX(c.revision) FROM state_commits c
+                       WHERE c.profile_id=o.profile_id AND c.entity_id=o.entity_id AND c.sequence<=$watermark)))
             ORDER BY o.entity_id,o.revision;
-            """, null, ("$profile", profileId.ToString("D")), ("$id", assessmentId?.ToString("D")), ("$current", currentOnly ? 1 : 0));
+            """, null, ("$profile", profileId.ToString("D")), ("$id", assessmentId?.ToString("D")), ("$current", currentOnly ? 1 : 0), ("$watermark", watermark));
         await using var reader = await command.ExecuteReaderAsync(ct);
         var records = new List<AssessmentRevision>();
         while (await reader.ReadAsync(ct))
@@ -237,6 +240,23 @@ public sealed class SqliteStateRepository(SqliteStore store) : IStateRepository
         }
         return records.AsReadOnly();
     }
+
+    public Task<HistorySnapshot> ReadSnapshotAsync(Guid profileId, long? watermark, CancellationToken ct) =>
+        LockedAsync(async () =>
+        {
+            if (watermark is < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(watermark));
+            }
+
+            if (watermark is null)
+            {
+                await using var command = Command("SELECT COALESCE(MAX(sequence),0) FROM state_commits WHERE profile_id=$profile;", null,
+                    ("$profile", profileId.ToString("D")));
+                watermark = Convert.ToInt64(await command.ExecuteScalarAsync(ct));
+            }
+            return new HistorySnapshot(watermark.Value, await ReadAsync(profileId, null, true, ct, watermark));
+        }, ct);
 
     private SqliteCommand Command(string sql, SqliteTransaction? transaction, params (string Name, object? Value)[] parameters)
     {

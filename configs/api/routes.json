@@ -1,0 +1,206 @@
+[
+  {
+    "path": "/assessments",
+    "method": "POST"
+  },
+  {
+    "path": "/assessments",
+    "method": "GET"
+  },
+  {
+    "path": "/assessments/{id}",
+    "method": "PATCH"
+  },
+  {
+    "path": "/state/current",
+    "method": "GET"
+  },
+  {
+    "path": "/character",
+    "method": "GET"
+  },
+  {
+    "path": "/messages",
+    "method": "POST"
+  },
+  {
+    "path": "/media",
+    "method": "POST"
+  },
+  {
+    "path": "/jobs/{id}",
+    "method": "GET"
+  },
+  {
+    "path": "/jobs/{id}/retry",
+    "method": "POST"
+  },
+  {
+    "path": "/conversations",
+    "method": "GET"
+  },
+  {
+    "path": "/journal",
+    "method": "GET"
+  },
+  {
+    "path": "/extractions/{id}/decision",
+    "method": "POST"
+  },
+  {
+    "path": "/evidence/{id}",
+    "method": "PATCH"
+  },
+  {
+    "path": "/interpretations/{id}/disagreements",
+    "method": "POST"
+  },
+  {
+    "path": "/entities/{id}/explanation",
+    "method": "GET"
+  },
+  {
+    "path": "/people",
+    "method": "GET"
+  },
+  {
+    "path": "/reports/weekly/{week}",
+    "method": "GET"
+  },
+  {
+    "path": "/meals",
+    "method": "POST"
+  },
+  {
+    "path": "/meals",
+    "method": "GET"
+  },
+  {
+    "path": "/budgets/{month}",
+    "method": "GET"
+  },
+  {
+    "path": "/budgets/{month}/plans",
+    "method": "POST"
+  },
+  {
+    "path": "/budgets/{month}/approval",
+    "method": "POST"
+  },
+  {
+    "path": "/budgets/{month}/closing",
+    "method": "POST"
+  },
+  {
+    "path": "/finance/transactions",
+    "method": "GET"
+  },
+  {
+    "path": "/portfolio",
+    "method": "GET"
+  },
+  {
+    "path": "/quests",
+    "method": "GET"
+  },
+  {
+    "path": "/quests/{id}/outcome",
+    "method": "POST"
+  },
+  {
+    "path": "/settings",
+    "method": "GET"
+  },
+  {
+    "path": "/settings",
+    "method": "PATCH"
+  },
+  {
+    "path": "/capabilities",
+    "method": "GET"
+  },
+  {
+    "path": "/imports/health",
+    "method": "POST"
+  },
+  {
+    "path": "/backups",
+    "method": "POST"
+  },
+  {
+    "path": "/backups",
+    "method": "GET"
+  },
+  {
+    "path": "/exports",
+    "method": "POST"
+  },
+  {
+    "path": "/profile/deletion-challenge",
+    "method": "POST"
+  },
+  {
+    "path": "/profile",
+    "method": "DELETE"
+  },
+  {
+    "path": "/runtime/stop",
+    "method": "POST"
+  },
+  {
+    "path": "/events",
+    "method": "GET"
+  },
+  {
+    "path": "/media/{id}",
+    "method": "GET"
+  },
+  {
+    "path": "/artifacts/{id}",
+    "method": "GET"
+  },
+  {
+    "path": "/people/{id}/merge",
+    "method": "POST"
+  },
+  {
+    "path": "/meals/{id}/portion",
+    "method": "PATCH"
+  },
+  {
+    "path": "/finance/transactions/{id}/category",
+    "method": "PATCH"
+  },
+  {
+    "path": "/portfolio/calculations",
+    "method": "POST"
+  },
+  {
+    "path": "/backups/{id}/verify",
+    "method": "POST"
+  },
+  {
+    "path": "/runtime/restore-challenge",
+    "method": "POST"
+  },
+  {
+    "path": "/runtime/restore",
+    "method": "POST"
+  },
+  {
+    "path": "/notifications",
+    "method": "GET"
+  },
+  {
+    "path": "/runtime/status",
+    "method": "GET"
+  },
+  {
+    "path": "/measurements",
+    "method": "GET"
+  },
+  {
+    "path": "/imports/activity",
+    "method": "POST"
+  }
+]

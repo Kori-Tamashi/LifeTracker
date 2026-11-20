@@ -10,5 +10,6 @@
     <ProjectReference Include="../../../src/core/Modules/State/LifeTracker.State.Application/LifeTracker.State.Application.csproj" />
     <ProjectReference Include="../../../src/core/Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
     <ProjectReference Include="../../../src/core/Modules/Operations/LifeTracker.Operations.Infrastructure/LifeTracker.Operations.Infrastructure.csproj" />
+    <ProjectReference Include="../../../src/core/LifeTracker.Host/LifeTracker.Host.csproj" />
   </ItemGroup>
 </Project>

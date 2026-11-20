@@ -85,3 +85,10 @@ class RepositoryLayoutTests(unittest.TestCase):
         for name in ['services/core/Example.cs', 'apps/macos/Package.swift', 'notes.md', 'private/data.json']:
             with self.subTest(name=name):
                 self.assertEqual(1, len(checker.validate_layout([Path(name)])))
+
+
+class CredentialPublicationTests(unittest.TestCase):
+    def test_machine_credential_is_a_forbidden_publication_file(self):
+        errors, _, _ = checker.validate([Path('configs/owner.credential')])
+        self.assertEqual(1, len(errors))
+        self.assertIn('forbidden publication file', errors[0])
