@@ -64,10 +64,12 @@ final class DesktopSession {
         }
     }
 
-    private var backupKey: String {
-        Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
-            ? "betaAutomaticBackupRoot" : "automaticBackupRoot"
+    private var preferenceKeys: RuntimePreferencesKeys {
+        RuntimePreferencesKeys(
+            channel: Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String,
+            version: Bundle.main.infoDictionary?["LifeTrackerReleaseVersion"] as? String)
     }
+    private var backupKey: String { preferenceKeys.backup }
 
     init() {
         if let path = UserDefaults.standard.string(forKey: backupKey) {
@@ -90,14 +92,8 @@ final class DesktopSession {
     var error: String?
     var loginStatus = SMAppService.mainApp.status
     private var restored = false
-    private var rootKey: String {
-        Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
-            ? "betaRuntimeRoot" : "runtimeRoot"
-    }
-    private var portKey: String {
-        Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
-            ? "betaRuntimePort" : "runtimePort"
-    }
+    private var rootKey: String { preferenceKeys.root }
+    private var portKey: String { preferenceKeys.port }
 
     func restore() async {
         guard !restored else { return }

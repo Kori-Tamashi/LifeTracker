@@ -24,7 +24,13 @@ class BetaEvidenceTests(unittest.TestCase):
         self.write('tooling', 'Ran 37 tests in 0.5s\n\nOK\n')
         self.write('dotnet', 'Test run summary: Passed!\n  total: 121\n  failed: 0\n  succeeded: 121\n')
         self.write('swift', '\x1b[32m✔\x1b[0m Test sample() passed after 0.1 seconds.\n➜ Test live() skipped.\n✔ Suite Example passed after 1s.\n✔ Test run with 2 tests passed after 1s.\n')
-        self.write('integration', '✔ Test live() passed after 1 seconds.\n✔ Test run with 1 test passed after 1s.\n')
+        self.integration = ''.join('✔ Test ' + name + '() passed after 1s.\n' for name in [
+            'recordRetryHistoryCorrectionAgainstRealHost', 'managedHostStopAndRestartPreserveState',
+            'killedCorePreservesPendingReceiptOnRestart', 'stoppingAttachedRuntimeLeavesExternalCoreRunning',
+            'offlineMaintenanceRunnerRestoresProfileAndRefusesLiveWriter',
+            'coordinatedOfflinePausePreservesWorkspacePendingAndRestartsOnFailure']) + '✔ Test run with 6 tests passed after 1s.\n'
+        self.write('integration', self.integration)
+        self.write('backup', 'Offline backup smoke passed: writer/desktop locks, snapshot/verify/restore, receipt replay and corruption refusal.\n')
 
     def write(self, name, content):
         (self.logs / (name + '.log')).write_text(content)
@@ -33,14 +39,23 @@ class BetaEvidenceTests(unittest.TestCase):
         result = BETA.test_evidence(self.logs)
         self.assertEqual(result['dotnet']['passed'], 121)
         self.assertEqual(result['swift'], {'passed': 1, 'skipped': 1})
-        self.assertEqual(result['live_integration'], {'passed': 1, 'skipped': 0})
+        self.assertEqual(result['live_integration'], {'passed': 6, 'skipped': 0})
 
     def test_skipped_live_or_failed_core_cannot_be_release_evidence(self):
         self.write('integration', '➜ Test live() skipped.\n✔ Test run with 1 test passed after 1s.\n')
         with self.assertRaises(ValueError):
             BETA.test_evidence(self.logs)
-        self.write('integration', '✔ Test live() passed after 1s.\n✔ Test run with 1 test passed after 1s.\n')
+        self.write('integration', self.integration)
         self.write('dotnet', 'total: 121\nfailed: 1\n')
+        with self.assertRaises(ValueError):
+            BETA.test_evidence(self.logs)
+
+    def test_missing_backup_or_required_lifecycle_case_refuses_evidence(self):
+        self.write('backup', 'process started but no successful roundtrip\n')
+        with self.assertRaises(ValueError):
+            BETA.test_evidence(self.logs)
+        self.write('backup', 'Offline backup smoke passed: writer/desktop locks, snapshot/verify/restore, receipt replay and corruption refusal.\n')
+        self.write('integration', self.integration.replace('✔ Test coordinatedOfflinePausePreservesWorkspacePendingAndRestartsOnFailure() passed after 1s.\n', ''))
         with self.assertRaises(ValueError):
             BETA.test_evidence(self.logs)
 
@@ -65,11 +80,25 @@ class BetaEvidenceTests(unittest.TestCase):
         version = BETA.config()['version']
         for name, content in {f'LifeTracker-{version}-macos-arm64.zip': b'synthetic archive',
                               'components.json': b'{}', 'TESTING.md': b'synthetic instructions',
-                              'evidence.json': json.dumps({'version': version, 'source_revision': 'a' * 40}).encode()}.items():
+                              'evidence.json': json.dumps({'format': 2, 'delivery': 'main prerelease', 'offline_backup': {'passed': True},
+                                                         'version': version, 'source_revision': 'a' * 40}).encode()}.items():
             (self.output / name).write_bytes(content)
         (self.output / 'SHA256SUMS.txt').write_text(''.join(
             hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + p.name + '\n'
             for p in self.output.iterdir() if p.is_file()))
+
+    def test_candidate_assets_cannot_be_published_even_if_source_matches_main(self):
+        self.assets()
+        evidence = json.loads((self.output / 'evidence.json').read_text())
+        evidence['delivery'] = 'candidate artifact only'
+        (self.output / 'evidence.json').write_text(json.dumps(evidence))
+        with patch.dict(os.environ, {'GITHUB_REF': 'refs/heads/main', 'GITHUB_REPOSITORY': BETA.REPOSITORY,
+                                     'GITHUB_SHA': 'a' * 40}), patch.object(BETA, 'run') as mutate, \
+                patch.object(BETA.subprocess, 'run') as gh:
+            with self.assertRaises(ValueError):
+                BETA.publish(self.output)
+            mutate.assert_not_called()
+            gh.assert_not_called()
 
     def test_existing_tag_is_never_moved_to_new_source(self):
         self.assets()
