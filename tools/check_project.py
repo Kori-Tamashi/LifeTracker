@@ -35,8 +35,10 @@ def validate(paths):
             errors.append(f'{rel}: tracked file missing from worktree')
             continue
         if path.is_symlink():
-            errors.append(f'{rel}: review symlink before publication')
-            continue
+            allowed = {Path('src/.editorconfig'), Path('tests/.editorconfig')}
+            if rel not in allowed or path.readlink() != Path('../configs/.editorconfig'):
+                errors.append(f'{rel}: review symlink before publication')
+                continue
         if rel.suffix.lower() not in {'.md', '.puml', '.bpmn', '.svg', '.py', '.mjs', '.sql', '.yml', '.yaml', '.json', '.toml', '.cs', '.csproj', '.props', '.slnx', '.swift', '.sh'}:
             continue
         try:
@@ -74,10 +76,9 @@ def validate(paths):
 
 def validate_layout(paths):
     roots = {'docs', 'src', 'configs', 'tests', 'tools', '.github'}
-    entrypoints = {'README.md', 'AGENTS.md', '.gitignore', '.editorconfig',
-                   'global.json', 'Directory.Build.props', 'Directory.Packages.props'}
+    entrypoints = {'README.md', '.gitignore'}
     return [f'{rel}: unsupported top-level location; use docs/src/configs/tests/tools'
-            for rel in paths if (len(rel.parts) == 1 and rel.name not in entrypoints)
+            for rel in paths if rel.name == 'AGENTS.md' or (len(rel.parts) == 1 and rel.name not in entrypoints)
             or (len(rel.parts) > 1 and rel.parts[0] not in roots)]
 
 

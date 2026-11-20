@@ -77,9 +77,14 @@ class RepositoryLayoutTests(unittest.TestCase):
             Path('docs/design.md'), Path('configs/swift-format.json'), Path('tests/core/Contract.cs'),
             Path('tools/check_project.py'), Path('.github/workflows/check.yml')]))
 
-    def test_tool_discovery_entrypoints_are_allowed(self):
-        self.assertEqual([], checker.validate_layout([Path('global.json'), Path('.editorconfig'),
-            Path('Directory.Build.props'), Path('Directory.Packages.props'), Path('README.md')]))
+    def test_configs_are_explicit_and_root_is_minimal(self):
+        self.assertEqual([], checker.validate_layout([Path('configs/dotnet/global.json'),
+            Path('configs/.editorconfig'), Path('configs/dotnet/Directory.Build.props'),
+            Path('configs/dotnet/Directory.Packages.props'), Path('README.md'), Path('.gitignore')]))
+        for name in ['global.json', '.editorconfig', 'Directory.Build.props', 'Directory.Packages.props',
+                     'AGENTS.md', 'docs/AGENTS.md']:
+            with self.subTest(name=name):
+                self.assertEqual(1, len(checker.validate_layout([Path(name)])))
 
     def test_old_product_roots_and_arbitrary_root_files_are_rejected(self):
         for name in ['services/core/Example.cs', 'apps/macos/Package.swift', 'notes.md', 'private/data.json']:
@@ -92,3 +97,20 @@ class CredentialPublicationTests(unittest.TestCase):
         errors, _, _ = checker.validate([Path('configs/owner.credential')])
         self.assertEqual(1, len(errors))
         self.assertIn('forbidden publication file', errors[0])
+
+
+class ConfigurationLinkTests(unittest.TestCase):
+    def test_only_reviewed_configuration_links_are_allowed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            previous = checker.ROOT
+            checker.ROOT = Path(temporary)
+            try:
+                (checker.ROOT / 'configs').mkdir()
+                (checker.ROOT / 'configs/.editorconfig').write_text('root = true\n')
+                (checker.ROOT / 'src').mkdir()
+                (checker.ROOT / 'src/.editorconfig').symlink_to('../configs/.editorconfig')
+                self.assertEqual([], checker.validate([Path('src/.editorconfig')])[0])
+                (checker.ROOT / 'src/other.config').symlink_to('../configs/.editorconfig')
+                self.assertTrue(checker.validate([Path('src/other.config')])[0])
+            finally:
+                checker.ROOT = previous

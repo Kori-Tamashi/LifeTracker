@@ -1,7 +1,10 @@
 # Общая конфигурация
 
-- dotnet/Directory.Build.props — общие параметры компиляции/анализа.
+- dotnet/global.json — SDK и Microsoft.Testing.Platform runner.
+- dotnet/Directory.Build.props — общая компиляция/анализ.
 - dotnet/Directory.Packages.props — центральные версии NuGet.
-- swift-format.json — общий профиль Swift formatter.
+- .editorconfig — единый профиль редактора/форматтера; src/tests содержат относительные ссылки на него.
+- swift-format.json — профиль Swift formatter.
+- api/routes.json — генерируемый перечень маршрутов OpenAPI.
 
-Корневые global.json и .editorconfig остаются в точках обнаружения инструментами. Root Directory.*.props — только MSBuild imports. GitHub требует workflows в .github/workflows; SwiftPM требует Package.swift в корне своего пакета. Реальные секреты и настройки конкретной установки здесь не размещаются.
+Вход для .NET CLI: `sh tools/dotnet.sh {restore|build|format|test|run} [options]`. Wrapper запускает CLI из каталога SDK config и передаёт MSBuild paths через окружение. Он работает независимо от исходного cwd. Корневые props/global.json/.editorconfig не используются; AGENTS.md не публикуется. Реальные секреты и настройки установки здесь не размещаются.

@@ -5,8 +5,8 @@
 Из корня репозитория:
 
 ```sh
-dotnet restore src/core/LifeTracker.slnx --locked-mode
-LIFETRACKER_RUNTIME_ROOT="$PWD/var/profile" dotnet run --no-restore --project src/core/LifeTracker.Host --no-launch-profile
+sh tools/dotnet.sh restore --locked-mode
+LIFETRACKER_RUNTIME_ROOT="$PWD/var/profile" sh tools/dotnet.sh run --no-restore --no-launch-profile
 ```
 
 Runtime-root должен быть абсолютным и находиться вне отслеживаемых исходников. Для первого запуска используйте новый каталог. Порт можно задать через LIFETRACKER_PORT; значение 0 предназначено для тестов с автоматически выбранным свободным портом. Остановка — Ctrl-C; lifecycle/menu/autostart остаются D-007.

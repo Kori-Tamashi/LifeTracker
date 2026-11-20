@@ -4,17 +4,17 @@
 
 ## Автоматически проверяется
 
-- `.editorconfig`: четыре пробела для C#/Swift/Python, два для JSON/YAML/JS/XML; финальная строка, LF, trailing whitespace. Отдельные native formatters могут учитывать языковые исключения.
+- `configs/.editorconfig`: единый профиль, подключённый относительными ссылками в src/tests (четыре пробела для C#/Swift/Python, два для JSON/YAML/JS/XML; LF, braces и namespace для C#). Swift дополнительно использует свой native formatter. Корневого .editorconfig нет.
 - C#: file-scoped namespace, явные braces, Nullable, warnings-as-errors и EnforceCodeStyleInBuild. `dotnet format` проверяет whitespace/style/analyzers; architecture tests запрещают зависимости внутренних слоёв от Infrastructure. Числа денег/времени хранятся согласно контрактам, без неявного перевода в float.
 - Swift: профиль configs/swift-format.json и `swift-format lint --strict` в macOS CI. Используется форматтер установленного Apple toolchain; его обновление требует осознанной проверки форматирования. UI не повторяет вычисления бизнес-правил ядра.
 - Python/JS/SQL tooling следует соглашениям существующих файлов и проходит поведенческие проверки; автоматический formatter/linter всего tooling пока не подключён. Общая EditorConfig не выдаётся за статический анализ всех языков.
 
 ```sh
-dotnet format src/core/LifeTracker.slnx --no-restore --verify-no-changes
+sh tools/dotnet.sh format --no-restore --verify-no-changes
 sh tools/format_swift.sh lint
 ```
 
-Для исправления: та же dotnet-команда без verify flag; `sh tools/format_swift.sh format`. NuGet версии — configs/dotnet/Directory.Packages.props, транзитивные версии — checked-in lock files. Root MSBuild imports распространяются и на src, и на tests.
+Для исправления: та же dotnet-команда без verify flag; `sh tools/format_swift.sh format`. NuGet версии — configs/dotnet/Directory.Packages.props, транзитивные версии — checked-in lock files. tools/dotnet.sh задаёт явные пути MSBuild для src и tests; корневых imports нет.
 
 ## Проверяется при review и тестировании
 
