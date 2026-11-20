@@ -1,6 +1,6 @@
 import Foundation
 
-public enum StateMetric: String, Decodable, Sendable {
+public enum StateMetric: String, Codable, CaseIterable, Sendable {
     case energy, mood, anxiety
     case physicalWellbeing = "physical_wellbeing"
 }
@@ -34,6 +34,12 @@ public struct CurrentState: Decodable, Sendable {
     public let ruleVersion: String
 
     public static func decode(_ data: Data) throws -> CurrentState {
+        try StateJSON.decoder().decode(Self.self, from: data)
+    }
+}
+
+enum StateJSON {
+    static func decoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .custom { value in
@@ -48,6 +54,6 @@ public struct CurrentState: Decodable, Sendable {
             }
             return date
         }
-        return try decoder.decode(Self.self, from: data)
+        return decoder
     }
 }

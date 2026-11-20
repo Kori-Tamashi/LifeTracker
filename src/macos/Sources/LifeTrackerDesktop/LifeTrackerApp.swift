@@ -5,6 +5,7 @@ import SwiftUI
 @main
 struct LifeTrackerApp: App {
     private let client: LocalAPIClient?
+    private let workspace: AssessmentWorkspace?
 
     init() {
         let environment = ProcessInfo.processInfo.environment
@@ -15,22 +16,32 @@ struct LifeTrackerApp: App {
         if let token, let number = Int(port), (1...65535).contains(number),
             let url = URL(string: "http://127.0.0.1:\(number)/api/v1")
         {
-            client = try? LocalAPIClient(
+            let configured = try? LocalAPIClient(
                 baseURL: url, ownerToken: token.trimmingCharacters(in: .whitespacesAndNewlines))
+            client = configured
+            if let configured, let root {
+                workspace = try? AssessmentWorkspace(
+                    service: configured, journal: FilePendingAssessmentJournal(runtimeRoot: URL(fileURLWithPath: root)))
+            } else {
+                workspace = nil
+            }
         } else {
             client = nil
+            workspace = nil
         }
     }
 
     var body: some Scene {
-        WindowGroup("LifeTracker") {
-            if let client {
-                DashboardView(loader: client)
+        Window("LifeTracker", id: "main") {
+            if let client, let workspace {
+                DashboardView(client: client, workspace: workspace)
             } else {
                 ContentUnavailableView(
                     "Нет подключения к локальному сервису",
                     systemImage: "desktopcomputer.trianglebadge.exclamationmark",
-                    description: Text("Запустите сервис и приложение с одним LIFETRACKER_RUNTIME_ROOT.")
+                    description: Text(
+                        "Запустите сервис и одно окно приложения с общим LIFETRACKER_RUNTIME_ROOT. Если подключение не восстановилось, проверьте доступность каталога данных."
+                    )
                 )
                 .frame(minWidth: 700, minHeight: 540)
             }

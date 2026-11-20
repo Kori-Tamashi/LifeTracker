@@ -58,6 +58,15 @@ jobs:
         run: sh tools/format_swift.sh lint
       - name: Build and test native client package
         run: sh tools/test_macos.sh
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: configs/dotnet/global.json
+      - name: Build real host for Swift integration
+        run: |
+          sh tools/dotnet.sh restore --locked-mode
+          sh tools/dotnet.sh build --no-restore --configuration Debug
+      - name: Swift client with real host
+        run: python3 tools/smoke_macos_client.py src/core/LifeTracker.Host/bin/Debug/net10.0/LifeTracker.Host.dll
 
   product-checks:
     if: always()

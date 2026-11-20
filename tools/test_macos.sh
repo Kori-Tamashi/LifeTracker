@@ -12,7 +12,7 @@ case "$developer_dir" in
       -Xswiftc -F -Xswiftc "$frameworks" \
       -Xlinker -F -Xlinker "$frameworks" \
       -Xlinker -rpath -Xlinker "$frameworks" \
-      -Xlinker -rpath -Xlinker "$runtime"
+      -Xlinker -rpath -Xlinker "$runtime" "$@"
     ;;
-  *) swift test --package-path src/macos ;;
+  *) swift test --package-path src/macos "$@" ;;
 esac
