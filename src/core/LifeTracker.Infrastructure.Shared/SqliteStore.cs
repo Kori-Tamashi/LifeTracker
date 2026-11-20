@@ -1,27 +1,34 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace LifeTracker.State.Infrastructure;
+namespace LifeTracker.Infrastructure.Shared;
 
 /// <summary>Owns the writer lease and a qualified connection.
 /// Existing stores are opened only at the exact known schema; upgrades require separate recovery safeguards.</summary>
-public sealed class NewStateStore : IAsyncDisposable
+public sealed class SqliteStore : IAsyncDisposable
 {
     private readonly FileStream writerLease;
-    internal SemaphoreSlim AccessGate { get; } = new(1, 1);
+    private readonly SemaphoreSlim accessGate = new(1, 1);
+
+    public async Task<T> WithConnectionAsync<T>(Func<Task<T>> action, CancellationToken ct)
+    {
+        await accessGate.WaitAsync(ct);
+        try { return await action(); }
+        finally { accessGate.Release(); }
+    }
     public SqliteConnection Connection { get; }
     public string RuntimeVersion { get; }
 
-    private NewStateStore(FileStream lease, SqliteConnection connection, string version) =>
+    private SqliteStore(FileStream lease, SqliteConnection connection, string version) =>
         (writerLease, Connection, RuntimeVersion) = (lease, connection, version);
 
-    public static Task<NewStateStore> CreateAsync(string runtimeRoot, CancellationToken ct = default) =>
+    public static Task<SqliteStore> CreateAsync(string runtimeRoot, CancellationToken ct = default) =>
         OpenCoreAsync(runtimeRoot, create: true, ct);
 
-    public static Task<NewStateStore> OpenExistingAsync(string runtimeRoot, CancellationToken ct = default) =>
+    public static Task<SqliteStore> OpenExistingAsync(string runtimeRoot, CancellationToken ct = default) =>
         OpenCoreAsync(runtimeRoot, create: false, ct);
 
-    private static async Task<NewStateStore> OpenCoreAsync(string runtimeRoot, bool create, CancellationToken ct)
+    private static async Task<SqliteStore> OpenCoreAsync(string runtimeRoot, bool create, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runtimeRoot);
         ct.ThrowIfCancellationRequested();
@@ -71,8 +78,8 @@ public sealed class NewStateStore : IAsyncDisposable
                 command.CommandText = "PRAGMA synchronous=FULL;";
                 await command.ExecuteNonQueryAsync(ct);
             }
-            var options = new DbContextOptionsBuilder<StateDbContext>().UseSqlite(connection).Options;
-            await using (var context = new StateDbContext(options))
+            var options = new DbContextOptionsBuilder<CoreDbContext>().UseSqlite(connection).Options;
+            await using (var context = new CoreDbContext(options))
             {
                 if (create)
                 {
@@ -111,7 +118,7 @@ public sealed class NewStateStore : IAsyncDisposable
                     throw new InvalidOperationException("Store integrity check failed.");
                 }
             }
-            return new NewStateStore(lease, connection, version);
+            return new SqliteStore(lease, connection, version);
         }
         catch
         {

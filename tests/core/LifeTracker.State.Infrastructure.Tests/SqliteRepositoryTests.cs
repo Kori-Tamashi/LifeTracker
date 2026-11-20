@@ -1,4 +1,5 @@
 using LifeTracker.Application.Abstractions;
+using LifeTracker.Infrastructure.Shared;
 using LifeTracker.State.Application;
 using LifeTracker.State.Contracts;
 using LifeTracker.State.Domain;
@@ -14,7 +15,7 @@ public sealed class SqliteRepositoryContract : StateRepositoryContract
     protected override async ValueTask<Scope> CreateAsync()
     {
         var root = Path.Combine(Path.GetTempPath(), "lifetracker-synthetic-" + Guid.NewGuid().ToString("N"));
-        var store = await NewStateStore.CreateAsync(root, Ct);
+        var store = await SqliteStore.CreateAsync(root, Ct);
         var profile = Guid.NewGuid();
         await using var command = store.Connection.CreateCommand();
         command.CommandText = "INSERT INTO profiles(id) VALUES ($id);";
@@ -32,7 +33,7 @@ public sealed class SqliteRepositoryTests : IAsyncLifetime
 {
     private readonly string root = Path.Combine(Path.GetTempPath(), "lifetracker-synthetic-" + Guid.NewGuid().ToString("N"));
     private readonly Guid profile = Guid.NewGuid();
-    private NewStateStore store = null!;
+    private SqliteStore store = null!;
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
     private static readonly DateTimeOffset Now = DateTimeOffset.Parse("2026-01-15T12:00:00.1234567Z");
     private sealed class Clock : IUtcClock { public DateTimeOffset UtcNow => Now; }
@@ -43,7 +44,7 @@ public sealed class SqliteRepositoryTests : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        store = await NewStateStore.CreateAsync(root, Ct);
+        store = await SqliteStore.CreateAsync(root, Ct);
         await ExecuteAsync("INSERT INTO profiles(id) VALUES ($id);", ("$id", profile.ToString("D")));
     }
     public async ValueTask DisposeAsync()
@@ -72,7 +73,7 @@ public sealed class SqliteRepositoryTests : IAsyncLifetime
         var command = CreateCommand();
         var first = await RecordAsync(command);
         await store.DisposeAsync();
-        store = await NewStateStore.OpenExistingAsync(root, Ct);
+        store = await SqliteStore.OpenExistingAsync(root, Ct);
         var retry = await RecordAsync(command);
         Assert.Equal(first.CommandId, retry.CommandId);
         Assert.Equal(first.Assessments.ToArray(), retry.Assessments.ToArray());
@@ -158,7 +159,7 @@ public sealed class SqliteRepositoryTests : IAsyncLifetime
     {
         await ExecuteAsync("PRAGMA user_version=99;");
         await store.DisposeAsync();
-        await Assert.ThrowsAsync<NotSupportedException>(() => NewStateStore.OpenExistingAsync(root, Ct));
+        await Assert.ThrowsAsync<NotSupportedException>(() => SqliteStore.OpenExistingAsync(root, Ct));
     }
     [Fact]
     public async Task CommandIdentityCannotBeReusedUnderAnotherKey()
@@ -192,6 +193,34 @@ public sealed class SqliteRepositoryTests : IAsyncLifetime
         await Assert.ThrowsAsync<ArgumentException>(() => repository.CorrectAsync(
             new(profile, Guid.NewGuid(), "synthetic-invalid-correction", "synthetic-fingerprint", 1, invalid), Ct));
         Assert.Equal(1, (await repository.GetAsync(profile, id, Ct))!.Revision);
+    }
+
+    [Fact]
+    public async Task StateChangeAndReceiptProduceOneOutboxEventOnRetry()
+    {
+        var command = CreateCommand();
+        await RecordAsync(command);
+        await RecordAsync(command);
+        await using var query = store.Connection.CreateCommand();
+        query.CommandText = "SELECT COUNT(*) FROM outbox WHERE topic='state.changed';";
+        Assert.Equal(1L, await query.ExecuteScalarAsync(Ct));
+    }
+
+    [Fact]
+    public async Task OutboxFailureRollsBackStateRevisionAndReceipt()
+    {
+        await ExecuteAsync("CREATE TRIGGER synthetic_outbox_failure BEFORE INSERT ON outbox BEGIN SELECT RAISE(ABORT,'synthetic failure'); END;");
+        var command = CreateCommand();
+        await Assert.ThrowsAsync<SqliteException>(() => RecordAsync(command));
+        Assert.Empty(await new SqliteStateRepository(store).GetCurrentAsync(profile, Ct));
+        foreach (var table in new[] { "entities", "revisions", "source_events", "outbox" })
+        {
+            await using var count = store.Connection.CreateCommand();
+            count.CommandText = $"SELECT COUNT(*) FROM {table};";
+            Assert.Equal(0L, await count.ExecuteScalarAsync(Ct));
+        }
+        await ExecuteAsync("DROP TRIGGER synthetic_outbox_failure;");
+        Assert.Equal(2, (await RecordAsync(command)).Assessments.Count);
     }
 
 }

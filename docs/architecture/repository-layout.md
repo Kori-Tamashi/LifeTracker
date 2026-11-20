@@ -10,11 +10,13 @@ LifeTracker/
       LifeTracker.slnx
       LifeTracker.Kernel/
       LifeTracker.Application.Abstractions/
+      LifeTracker.Infrastructure.Shared/ # SQLite store и общие миграции
       Modules/State/
         LifeTracker.State.Domain/
         LifeTracker.State.Contracts/
         LifeTracker.State.Application/
-        LifeTracker.State.Infrastructure/Migrations/
+        LifeTracker.State.Infrastructure/
+      Modules/Operations/          # Domain/Application/Infrastructure
     macos/
       Package.swift
       Sources/LifeTrackerClient/
@@ -29,7 +31,7 @@ LifeTracker/
   .github/workflows/            # обязательное место GitHub Actions
 ```
 
-SwiftPM `Tests` остаётся внутри Swift package по его стандартному соглашению. Будущие iPhone/inference/host/канальные компоненты добавляются внутри `src` при реализации; миграции принадлежат Infrastructure своего модуля. Transport contracts располагаются в Contracts или в проектной документации, а не в дополнительном корневом каталоге. Границы Clean Architecture определяются зависимостями сборок и тестами, а не названием верхнего каталога.
+SwiftPM `Tests` остаётся внутри Swift package по его стандартному соглашению. Будущие iPhone/inference/host/канальные компоненты добавляются внутри `src` при реализации; общие миграции находятся в Infrastructure.Shared; модульные persistence adapters остаются в Infrastructure своего модуля. Transport contracts располагаются в Contracts или в проектной документации, а не в дополнительном корневом каталоге. Границы Clean Architecture определяются зависимостями сборок и тестами, а не названием верхнего каталога.
 
 `global.json`, `.editorconfig`, `.gitignore`, `Directory.Build.props`, `Directory.Packages.props` — корневые точки автоматического обнаружения инструментами. Два MSBuild-файла содержат только import настроек из configs/dotnet. README и AGENTS остаются корневыми входами для пользователя и агента. Baseline перенесён в docs/DESIGN.md. Настройки запуска/упаковки при появлении относятся к configs, исполняемый tooling — к tools.
 

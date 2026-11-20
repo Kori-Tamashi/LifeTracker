@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using LifeTracker.Infrastructure.Shared;
 using LifeTracker.State.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -39,14 +40,14 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
     [Fact]
     public async Task FreshFileUsesQualifiedNativeRuntimeAndDurabilityPragmas()
     {
-        await using var store = await NewStateStore.CreateAsync(root, Ct);
+        await using var store = await SqliteStore.CreateAsync(root, Ct);
         Assert.True(Version.Parse(store.RuntimeVersion) >= SqliteRuntime.MinimumVersion);
         Assert.Equal(1L, await Scalar(store.Connection, "PRAGMA foreign_keys;"));
         Assert.Equal(2L, await Scalar(store.Connection, "PRAGMA synchronous;"));
         Assert.Equal(5000L, await Scalar(store.Connection, "PRAGMA busy_timeout;"));
         Assert.Equal("wal", await Scalar(store.Connection, "PRAGMA journal_mode;"));
         Assert.Equal(1L, await Scalar(store.Connection, "PRAGMA user_version;"));
-        Assert.Equal(1L, await Scalar(store.Connection, "SELECT COUNT(*) FROM __EFMigrationsHistory;"));
+        Assert.Equal(2L, await Scalar(store.Connection, "SELECT COUNT(*) FROM __EFMigrationsHistory;"));
         await Execute(store.Connection, "CREATE VIRTUAL TABLE temp.search_probe USING fts5(body); INSERT INTO search_probe VALUES ('synthetic');");
         Assert.Equal(1L, await Scalar(store.Connection, "SELECT COUNT(*) FROM search_probe WHERE search_probe MATCH 'synthetic';"));
     }
@@ -61,12 +62,12 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
     [Fact]
     public async Task SecondWriterIsRefusedAndExistingDatabaseNeverTruncated()
     {
-        await using (var store = await NewStateStore.CreateAsync(root, Ct))
+        await using (var store = await SqliteStore.CreateAsync(root, Ct))
         {
             await Execute(store.Connection, "INSERT INTO profiles(id) VALUES ('synthetic-profile');");
-            await Assert.ThrowsAnyAsync<IOException>(() => NewStateStore.CreateAsync(root, Ct));
+            await Assert.ThrowsAnyAsync<IOException>(() => SqliteStore.CreateAsync(root, Ct));
         }
-        await Assert.ThrowsAnyAsync<IOException>(() => NewStateStore.CreateAsync(root, Ct));
+        await Assert.ThrowsAnyAsync<IOException>(() => SqliteStore.CreateAsync(root, Ct));
         await using var reopened = new SqliteConnection(new SqliteConnectionStringBuilder
         { DataSource = Path.Combine(root, "lifetracker.sqlite"), Pooling = false, ForeignKeys = true }.ToString());
         await reopened.OpenAsync(Ct);
@@ -77,17 +78,17 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
     [Fact]
     public async Task RelativePathAndPreCancelledRequestDoNotCreateFiles()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => NewStateStore.CreateAsync("relative-root", Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => SqliteStore.CreateAsync("relative-root", Ct));
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => NewStateStore.CreateAsync(root, cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => SqliteStore.CreateAsync(root, cancellation.Token));
         Assert.False(Directory.Exists(root));
     }
 
     [Fact]
     public async Task DeferredIdentityAndRevisionAreCommittedTogether()
     {
-        await using var store = await NewStateStore.CreateAsync(root, Ct);
+        await using var store = await SqliteStore.CreateAsync(root, Ct);
         await Execute(store.Connection, """
             BEGIN IMMEDIATE;
             INSERT INTO profiles(id) VALUES ('synthetic-profile');
@@ -103,7 +104,7 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
     [Fact]
     public async Task ConstraintsRejectForeignProfileInvalidScoreAndSecondActiveProfile()
     {
-        await using var store = await NewStateStore.CreateAsync(root, Ct);
+        await using var store = await SqliteStore.CreateAsync(root, Ct);
         await Execute(store.Connection, """
             INSERT INTO profiles(id) VALUES ('synthetic-profile');
             BEGIN IMMEDIATE;
@@ -132,8 +133,8 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
         await using var connection = new SqliteConnection($"Data Source={Path.Combine(root, "failure.sqlite")};Pooling=False;Foreign Keys=True");
         await connection.OpenAsync(Ct);
         await Execute(connection, "CREATE TABLE observations(existing_marker INTEGER); INSERT INTO observations VALUES (42);");
-        var options = new DbContextOptionsBuilder<StateDbContext>().UseSqlite(connection).Options;
-        await using var context = new StateDbContext(options);
+        var options = new DbContextOptionsBuilder<CoreDbContext>().UseSqlite(connection).Options;
+        await using var context = new CoreDbContext(options);
         await Assert.ThrowsAsync<SqliteException>(() => context.Database.MigrateAsync(Ct));
         Assert.Equal(42L, await Scalar(connection, "SELECT existing_marker FROM observations;"));
         Assert.Equal(0L, await Scalar(connection, "SELECT COUNT(*) FROM sqlite_master WHERE name='profiles';"));
@@ -143,7 +144,7 @@ public sealed class StorageBootstrapTests : IAsyncLifetime
     [Fact]
     public async Task AppliedSubsetExactlyMatchesNormativeTableAndIndexDefinitions()
     {
-        await using var store = await NewStateStore.CreateAsync(root, Ct);
+        await using var store = await SqliteStore.CreateAsync(root, Ct);
         var baseline = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Fixtures/schema-v1.sql"), Ct);
         foreach (var name in new[] { "profiles", "entities", "revisions", "source_events", "observations", "one_active_profile", "observations_selection" })
         {

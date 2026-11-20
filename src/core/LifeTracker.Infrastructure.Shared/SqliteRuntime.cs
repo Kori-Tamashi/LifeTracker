@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace LifeTracker.State.Infrastructure;
+namespace LifeTracker.Infrastructure.Shared;
 
 public static class SqliteRuntime
 {

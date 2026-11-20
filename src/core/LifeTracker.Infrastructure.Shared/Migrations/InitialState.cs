@@ -2,16 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace LifeTracker.State.Infrastructure.Migrations;
+namespace LifeTracker.Infrastructure.Shared.Migrations;
 
-[DbContext(typeof(StateDbContext))]
+[DbContext(typeof(CoreDbContext))]
 [Migration("202611200001_InitialState")]
 public sealed class InitialState : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         using var stream = typeof(InitialState).Assembly.GetManifestResourceStream(
-            "LifeTracker.State.Infrastructure.Migrations.InitialState.sql")
+            "LifeTracker.Infrastructure.Shared.Migrations.InitialState.sql")
             ?? throw new InvalidOperationException("Migration resource is missing.");
         using var reader = new StreamReader(stream);
         migrationBuilder.Sql(reader.ReadToEnd());
@@ -24,8 +24,8 @@ public sealed class InitialState : Migration
         modelBuilder.HasAnnotation("ProductVersion", "10.0.15");
 }
 
-[DbContext(typeof(StateDbContext))]
-public sealed class StateDbContextModelSnapshot : ModelSnapshot
+[DbContext(typeof(CoreDbContext))]
+public sealed class CoreDbContextModelSnapshot : ModelSnapshot
 {
     protected override void BuildModel(ModelBuilder modelBuilder) =>
         modelBuilder.HasAnnotation("ProductVersion", "10.0.15");
