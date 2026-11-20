@@ -34,6 +34,27 @@ private final class FailingJournal: PendingAssessmentJournal {
     func clear() throws {}
 }
 
+private actor BackupBlockedService: AssessmentServicing {
+    private var entered = false
+    private var entryWaiter: CheckedContinuation<Void, Never>?
+    private var submitWaiter: CheckedContinuation<Void, Never>?
+    func submit(_ command: AssessmentCommand) async throws -> AssessmentReceipt {
+        entered = true
+        entryWaiter?.resume()
+        entryWaiter = nil
+        await withCheckedContinuation { submitWaiter = $0 }
+        return AssessmentReceipt(commandId: command.id, status: "completed")
+    }
+    func history(cursor: String?) async throws -> AssessmentPage { AssessmentPage(items: [], nextCursor: nil) }
+    func waitForSubmit() async {
+        if !entered { await withCheckedContinuation { entryWaiter = $0 } }
+    }
+    func release() {
+        submitWaiter?.resume()
+        submitWaiter = nil
+    }
+}
+
 struct AssessmentTests {
     private func command() throws -> AssessmentCommand {
         try .record(
@@ -173,4 +194,25 @@ struct AssessmentTests {
         try Data("invalid".utf8).write(to: root.appendingPathComponent("desktop-pending-assessment.json"))
         #expect(throws: (any Error).self) { try journal.load() }
     }
+    @Test @MainActor func backupCannotReleaseJournalDuringInFlightSubmission() async throws {
+        let root = try temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let journal = try FilePendingAssessmentJournal(runtimeRoot: root)
+        let service = BackupBlockedService()
+        let workspace = try AssessmentWorkspace(service: service, journal: journal)
+        let command = try command()
+        let submission = Task { await workspace.save(command) }
+        await service.waitForSubmit()
+        #expect(workspace.saving)
+        #expect(throws: LocalAPIError.self) { try workspace.beginBackupPause() }
+        #expect(throws: LocalAPIError.self) { _ = try FilePendingAssessmentJournal(runtimeRoot: root) }
+        await service.release()
+        await submission.value
+        #expect(!workspace.saving && workspace.pending == nil)
+        try workspace.beginBackupPause()
+        await workspace.save(command)
+        #expect(workspace.pending == nil && workspace.savedCount == 1)
+        try workspace.endBackupPause()
+    }
+
 }

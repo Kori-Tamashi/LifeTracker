@@ -13,6 +13,7 @@
 | D-007.2.2a | SIGKILL собственного Core → failed → restart; pending/receipt replay без дубля; stop внешнего подключения не завершает host; live Swift/host CI | 0,75; ориентир 0,5–1,0, доступен существующий host/harness | частичный замер 55s; полный итог unknown | unknown; исправлен Swift Testing macro | CI отдельно | Local live pass; CI pending |
 | D-009.1.2a | Offline UI: остановка подключения, CLI create/verify/restore в новый каталог, busy/quit gate; live runner roundtrip | 1,0; ориентир 0,75–1,5; CLI готов, GUI acceptance отдельно | 201s измеренного active до CI; итог пока открыт | 0 в измеренном интервале | CI отдельно | Local build/process pass; UI not run |
 | D-009.1.3a | После 09:00 Moscow: запусковая копия, verify/rehearsal, retain 7, отказ low-space/quota без удаления старых; desktop opt-in | 1,5; ориентир 1–2,5; reuse offline CLI, без online backup/RPO gate | 347s измеренного active до публикации; итог открыт | unknown; Swift catch shadowing исправлен | CI отдельно | 139 .NET/local Swift pass; UI not run |
+| D-009.1.3b | Live desktop tick/wake: блокировка submit, journal lease pause/resume, own Core stop/backup/restart, тот же workspace; retry/coalescing | 2,0; диапазон 1,5–3; без online API, GUI acceptance отдельно | 398s measured active до публикации; итог открыт | unknown; исправлен частичный script edit | CI отдельно | 33 regular + 6 live Swift pass; UI not run |
 | История до PM-02 | [progress](progress.md) | unknown | unknown | unknown | unknown | По фактическим evidence, без EVM |
 
 Следующая запись — D-007.2.2 после декомпозиции. Для интервалов в той же записи указывать UTC start/end, тип active/wait, измеренную длительность; прерванный или неполный замер не исправлять догадкой. PM-02 меняет процесс учёта и не включён в пилот с ретроспективной оценкой.
@@ -50,3 +51,7 @@ D-009.1.2a: active 2026-11-20 21:46:41–21:50:02 UTC = 201s (реализаци
 D-009.1.3a: начало active 2026-11-20 21:57:03 UTC. Предварительный просмотр требований вне замера. Пакет не включает предмиграционные копии, непрерывный scheduler и весь footprint приложения.
 
 D-009.1.3a: active 2026-11-20 21:57:03–22:02:50 UTC = 347s (реализация, review, документация и активная локальная проверка). Rework: исправлено обращение к self.error в catch, отдельный интервал не измерен. Публикация/CI/завершение после границы отдельно, полный AC пока unknown; исходная оценка 1,5 ч сохранена.
+
+D-009.1.3b: active start 2026-11-20 22:11:46 UTC. Предварительное чтение вне замера. Критерии: deterministic schedule/lease collision/mutation guard и real process pause/restore/replay, UI identity проверяется отдельно.
+
+D-009.1.3b: active 2026-11-20 22:11:46–22:18:24 UTC = 398s; реализация, review, локальная проверка и документация. Исправлена неполная автоматическая правка NativeRuntime (substring mismatch), отдельное rework-время не измерено. Публикация/последующая доработка/CI вне этого интервала, полный AC unknown. Исходная оценка 2,0 ч сохранена.

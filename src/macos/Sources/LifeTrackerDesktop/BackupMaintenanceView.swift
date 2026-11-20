@@ -23,7 +23,7 @@ struct BackupMaintenanceView: View {
                     .disabled(desktop.workspace?.saving == true || desktop.runtime.phase == .stopping)
             }
             Divider()
-            Text("Автокопия при запуске после 09:00 (Москва)").font(.headline)
+            Text("Суточная автокопия после 09:00 (Москва)").font(.headline)
             Text(
                 "Семь суточных копий; до 2 ГБ на профиль, резерв места 256 МиБ. Каталог выбирайте локально в var/backups проекта, отдельно от профиля."
             )
@@ -37,7 +37,7 @@ struct BackupMaintenanceView: View {
                     guard let root = chooseDirectory(prompt: "Каталог автокопий") else { return }
                     desktop.configureAutomaticBackup(root)
                     message =
-                        "Автокопии включены со следующего запуска профиля. Непрерывная работа через границу суток пока не покрыта."
+                        "Автокопии включены. При работе собственного Core проверка выполняется раз в минуту и после пробуждения. На время копии отправка приостанавливается; форма сохраняется."
                 }
                 .disabled(desktop.maintenanceBusy)
             }

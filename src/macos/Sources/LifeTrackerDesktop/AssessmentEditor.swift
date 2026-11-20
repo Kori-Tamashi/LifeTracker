@@ -54,7 +54,7 @@ struct AssessmentEditor: View {
                     Button("Сохранить") { save() }.keyboardShortcut(.defaultAction)
                 }
             }
-            .disabled(workspace.saving)
+            .disabled(workspace.saving || workspace.backupPaused)
         }
         .padding(28).frame(width: 620)
         .onAppear {

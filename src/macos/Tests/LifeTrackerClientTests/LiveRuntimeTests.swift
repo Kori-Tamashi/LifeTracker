@@ -164,4 +164,54 @@ struct LiveRuntimeTests {
         }
     }
 
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["LIFETRACKER_INTEGRATION_URL"] != nil))
+    @MainActor func coordinatedOfflinePausePreservesWorkspacePendingAndRestartsOnFailure() async throws {
+        let environment = ProcessInfo.processInfo.environment
+        let executable = URL(fileURLWithPath: try #require(environment["LIFETRACKER_INTEGRATION_DOTNET"]))
+        let dll = try #require(environment["LIFETRACKER_INTEGRATION_DLL"])
+        let port = try #require(environment["LIFETRACKER_MANAGED_TEST_PORT"].flatMap(Int.init))
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let root = parent.appendingPathComponent("source")
+        let backup = parent.appendingPathComponent("snapshot")
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let runtime = NativeRuntime()
+        do {
+            await runtime.start(
+                NativeHostConfiguration(executable: executable, arguments: [dll], root: root, port: port))
+            let client = try #require(runtime.client)
+            let command = try AssessmentCommand.record(
+                observedAt: .now, values: [.init(metric: .energy, score: 8)], comment: "")
+            let journal = try FilePendingAssessmentJournal(runtimeRoot: root)
+            try journal.store(command)
+            _ = try await client.submit(command)
+            let workspace = try AssessmentWorkspace(service: client, journal: journal)
+            try workspace.beginBackupPause()
+            #expect(workspace.backupPaused && workspace.pending?.id == command.id)
+            await workspace.retrySave()
+            #expect(workspace.pending?.id == command.id && workspace.savedCount == 0)
+            let tool = OfflineProfileMaintenance(executable: executable, hostArguments: [dll])
+            try await runtime.withOfflinePause {
+                #expect(runtime.client != nil && runtime.phase == .recovering)
+                try await tool.run(.backup(source: root, destination: backup))
+            }
+            try workspace.endBackupPause()
+            #expect(runtime.phase == .ready && runtime.ownsHost && !workspace.backupPaused)
+            // The same workspace still uses its original client and journal after Core replacement.
+            await workspace.retrySave()
+            #expect(workspace.pending == nil && workspace.savedCount == 1)
+            #expect(workspace.records.count == 1)
+            try workspace.beginBackupPause()
+            await #expect(throws: ProfileMaintenanceError.self) {
+                try await runtime.withOfflinePause { try await tool.run(.backup(source: root, destination: backup)) }
+            }
+            try workspace.endBackupPause()
+            #expect(runtime.phase == .ready && runtime.ownsHost && !workspace.backupPaused)
+            _ = try await client.currentState()
+            #expect(await runtime.stop())
+        } catch {
+            await runtime.stop()
+            throw error
+        }
+    }
+
 }
