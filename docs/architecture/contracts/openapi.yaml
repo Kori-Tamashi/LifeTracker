@@ -1,0 +1,5105 @@
+openapi: 3.0.3
+info:
+  title: Life Tracker local application API
+  version: 1.0.0
+  description: Full baseline contract; the local State subset is implemented. /api/v1; single owner. R1 enables
+    only R1 capabilities; unsupported routes return CAPABILITY_UNAVAILABLE.
+servers:
+- url: http://127.0.0.1:17841/api/v1
+  description: Native baseline; port configurable by local manifest
+security:
+- OwnerToken: []
+paths:
+  /assessments:
+    post:
+      operationId: RecordAssessment
+      tags:
+      - assessments
+      description: RecordAssessment
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      - name: X-Command-ID
+        in: header
+        required: false
+        description: Optional client command UUID; omitted means server-generated identity.
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentCreate'
+    get:
+      operationId: GetAssessmentHistory
+      tags:
+      - assessments
+      description: GetAssessmentHistory
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /assessments/{id}:
+    patch:
+      operationId: ReviseAssessment
+      tags:
+      - assessments
+      description: ReviseAssessment
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      - name: X-Command-ID
+        in: header
+        required: false
+        description: Optional client command UUID; omitted means server-generated identity.
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentRevise'
+  /state/current:
+    get:
+      operationId: GetCurrentState
+      tags:
+      - state
+      description: GetCurrentState
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentState'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /character:
+    get:
+      operationId: GetCharacter
+      tags:
+      - character
+      description: GetCharacter
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /messages:
+    post:
+      operationId: AcceptMessage
+      tags:
+      - messages
+      description: Exactly one of text or media_id; assignment of role/profile by
+        trusted adapter only. Audio max30min/50MiB; text max20000 chars.
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+  /media:
+    post:
+      operationId: UploadMedia
+      tags:
+      - media
+      description: Durable media upload; image max20MiB/40MP, audio max50MiB/30min.
+        Reject unsupported type before acknowledging.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaReceipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+  /jobs/{id}:
+    get:
+      operationId: GetJob
+      tags:
+      - jobs
+      description: GetJob
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+  /jobs/{id}/retry:
+    post:
+      operationId: RetryJob
+      tags:
+      - jobs
+      description: RetryJob
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /conversations:
+    get:
+      operationId: ListConversations
+      tags:
+      - conversations
+      description: ListConversations
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+  /journal:
+    get:
+      operationId: BrowseJournal
+      tags:
+      - journal
+      description: BrowseJournal
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /extractions/{id}/decision:
+    post:
+      operationId: DecideExtraction
+      tags:
+      - extractions
+      description: DecideExtraction
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractionDecision'
+  /evidence/{id}:
+    patch:
+      operationId: ReviseEvidence
+      tags:
+      - evidence
+      description: ReviseEvidence
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceRevise'
+  /interpretations/{id}/disagreements:
+    post:
+      operationId: AddDisagreement
+      tags:
+      - interpretations
+      description: AddDisagreement
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Disagreement'
+  /entities/{id}/explanation:
+    get:
+      operationId: GetExplanation
+      tags:
+      - entities
+      description: GetExplanation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Explanation'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+  /people:
+    get:
+      operationId: ListPeople
+      tags:
+      - people
+      description: ListPeople
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+  /reports/weekly/{week}:
+    get:
+      operationId: GetWeeklyReport
+      tags:
+      - reports
+      description: GetWeeklyReport
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: week
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+  /meals:
+    post:
+      operationId: RecordMeal
+      tags:
+      - meals
+      description: RecordMeal
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealCreate'
+    get:
+      operationId: ListMeals
+      tags:
+      - meals
+      description: ListMeals
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /budgets/{month}:
+    get:
+      operationId: GetBudget
+      tags:
+      - budgets
+      description: GetBudget
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetReport'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+  /budgets/{month}/plans:
+    post:
+      operationId: ProposeBudget
+      tags:
+      - budgets
+      description: ProposeBudget
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetPlan'
+  /budgets/{month}/approval:
+    post:
+      operationId: ApproveBudget
+      tags:
+      - budgets
+      description: ApproveBudget
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /budgets/{month}/closing:
+    post:
+      operationId: CloseMonth
+      tags:
+      - budgets
+      description: CloseMonth
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /finance/transactions:
+    get:
+      operationId: ListTransactions
+      tags:
+      - finance
+      description: ListTransactions
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /portfolio:
+    get:
+      operationId: GetPortfolio
+      tags:
+      - portfolio
+      description: GetPortfolio
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioReport'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /quests:
+    get:
+      operationId: GetQuests
+      tags:
+      - quests
+      description: GetQuests
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /quests/{id}/outcome:
+    post:
+      operationId: RecordQuestOutcome
+      tags:
+      - quests
+      description: RecordQuestOutcome
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestOutcome'
+  /settings:
+    get:
+      operationId: GetSettings
+      tags:
+      - settings
+      description: GetSettings
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      operationId: UpdateSettings
+      tags:
+      - settings
+      description: UpdateSettings
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingsUpdate'
+  /capabilities:
+    get:
+      operationId: GetCapabilities
+      tags:
+      - capabilities
+      description: GetCapabilities
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capabilities'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /imports/health:
+    post:
+      operationId: IngestHealthBatch
+      tags:
+      - imports
+      description: IngestHealthBatch
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthBatch'
+      security:
+      - BridgeToken: []
+      servers:
+      - url: https://lifetracker.local:17842/api/v1
+        description: Optional local paired bridge endpoint; discovery resolves actual
+          LAN host, certificate pin required.
+  /backups:
+    post:
+      operationId: CreateBackup
+      tags:
+      - backups
+      description: CreateBackup
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+    get:
+      operationId: ListBackups
+      tags:
+      - backups
+      description: ListBackups
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /exports:
+    post:
+      operationId: ExportProfile
+      tags:
+      - exports
+      description: ExportProfile
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /profile/deletion-challenge:
+    post:
+      operationId: CreateDeletionChallenge
+      tags:
+      - profile
+      description: CreateDeletionChallenge
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletionChallenge'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /profile:
+    delete:
+      operationId: DeleteProfile
+      tags:
+      - profile
+      description: DeleteProfile
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Confirmation'
+  /runtime/stop:
+    post:
+      operationId: StopRuntime
+      tags:
+      - runtime
+      description: Privileged local desktop command only. Not exposed via Telegram
+        or iPhone; stops core after durable receipt and controlled shutdown.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /events:
+    get:
+      operationId: SubscribeEvents
+      tags:
+      - events
+      description: SSE Last-Event-ID cursor; ordered outbox sequence, no private payload
+        in event names. Retained 24h; expired cursor triggers full snapshot reload.
+      responses:
+        '200':
+          description: Status events
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /media/{id}:
+    get:
+      operationId: GetMedia
+      tags:
+      - media
+      description: GetMedia
+      responses:
+        '200':
+          description: Owner-authorized managed file; no arbitrary path input
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+  /artifacts/{id}:
+    get:
+      operationId: DownloadArtifact
+      tags:
+      - artifacts
+      description: DownloadArtifact
+      responses:
+        '200':
+          description: Owner-authorized managed file; no arbitrary path input
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+  /people/{id}/merge:
+    post:
+      operationId: MergePerson
+      tags:
+      - people
+      description: MergePerson
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonMerge'
+  /meals/{id}/portion:
+    patch:
+      operationId: ReviseMealPortion
+      tags:
+      - meals
+      description: ReviseMealPortion
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortionRevision'
+  /finance/transactions/{id}/category:
+    patch:
+      operationId: ReviseTransactionCategory
+      tags:
+      - finance
+      description: ReviseTransactionCategory
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRevision'
+  /portfolio/calculations:
+    post:
+      operationId: RecalculatePortfolio
+      tags:
+      - portfolio
+      description: RecalculatePortfolio
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /backups/{id}/verify:
+    post:
+      operationId: VerifyBackup
+      tags:
+      - backups
+      description: VerifyBackup
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /runtime/restore-challenge:
+    post:
+      operationId: CreateRestoreChallenge
+      tags:
+      - runtime
+      description: CreateRestoreChallenge
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletionChallenge'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /runtime/restore:
+    post:
+      operationId: RestoreProfile
+      tags:
+      - runtime
+      description: RestoreProfile
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreCommand'
+  /notifications:
+    get:
+      operationId: ListNotifications
+      tags:
+      - notifications
+      description: ListNotifications
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationRecordPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /runtime/status:
+    get:
+      operationId: GetRuntimeStatus
+      tags:
+      - runtime
+      description: GetRuntimeStatus
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /measurements:
+    get:
+      operationId: GetMeasurements
+      tags:
+      - assessments
+      description: Imported Health/Screen Time observations with source units and
+        time coverage, not self-assessment scores.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeasurementPage'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 512
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date-time
+  /imports/activity:
+    post:
+      operationId: IngestActivityBatch
+      tags:
+      - imports
+      description: Qualified native source adapter only; never invented productivity
+        classification.
+      responses:
+        '202':
+          description: Durable acceptance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Owner authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Revision or idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Semantic validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency or capability unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Valid credential lacks scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityBatch'
+      security:
+      - OwnerToken: []
+components:
+  securitySchemes:
+    OwnerToken:
+      type: http
+      scheme: bearer
+      description: Machine-generated local credential; no user password UI. Bridge
+        credential separately scoped to health import.
+    BridgeToken:
+      type: http
+      scheme: bearer
+      description: Local-paired device credential scoped to Health import only; LAN
+        endpoint uses TLS and pairing public-key pin, disabled unless qualified.
+  schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          enum:
+          - VALIDATION_ERROR
+          - REVISION_CONFLICT
+          - IDEMPOTENCY_CONFLICT
+          - SOURCE_UNAVAILABLE
+          - PROCESSING_UNAVAILABLE
+          - DISK_LIMIT
+          - NOT_AUTHORIZED
+          - CANCELLED
+          - CAPABILITY_UNAVAILABLE
+          - NOT_FOUND
+        message: &id004
+          type: string
+        correlation_id: &id002
+          type: string
+          format: uuid
+      required:
+      - code
+      - message
+      - correlation_id
+    Metric:
+      type: string
+      enum:
+      - energy
+      - mood
+      - anxiety
+      - physical_wellbeing
+    AssessmentValue:
+      type: object
+      additionalProperties: false
+      properties:
+        metric:
+          $ref: '#/components/schemas/Metric'
+        score:
+          type: number
+          minimum: 0
+          maximum: 10
+          multipleOf: 0.5
+      required:
+      - metric
+      - score
+    AssessmentCreate:
+      type: object
+      additionalProperties: false
+      properties:
+        observed_at: &id001
+          type: string
+          format: date-time
+        values:
+          type: array
+          minItems: 1
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/AssessmentValue'
+        comment:
+          type: string
+          maxLength: 2000
+      required:
+      - observed_at
+      - values
+    AssessmentRevise:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: &id003
+          type: integer
+          minimum: 1
+        observed_at: *id001
+        score:
+          type: number
+          minimum: 0
+          maximum: 10
+          multipleOf: 0.5
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+      - expected_revision
+      - observed_at
+      - score
+      - reason
+    Receipt:
+      type: object
+      additionalProperties: false
+      properties:
+        command_id: *id002
+        status:
+          type: string
+          enum:
+          - accepted
+          - completed
+        resource_id: *id002
+        revision: *id003
+        job_id: *id002
+      required:
+      - command_id
+      - status
+    SelectedMetric:
+      type: object
+      additionalProperties: false
+      properties:
+        metric:
+          $ref: '#/components/schemas/Metric'
+        score:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 10
+        source_kind:
+          type: string
+          enum:
+          - self_report
+          - ai_estimate
+          - unknown
+        observed_at:
+          type: string
+          format: date-time
+          nullable: true
+        revision_id:
+          type: string
+          nullable: true
+        fresh:
+          type: boolean
+      required:
+      - metric
+      - score
+      - source_kind
+      - fresh
+    CurrentState:
+      type: object
+      additionalProperties: false
+      properties:
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/SelectedMetric'
+          minItems: 4
+          maxItems: 4
+        balance:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 10
+        level:
+          type: string
+          enum:
+          - undefined
+          - attention
+          - satisfactory
+          - good
+          - excellent
+        computed_at: *id001
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+        rule_version: *id004
+      required:
+      - metrics
+      - balance
+      - level
+      - computed_at
+      - rule_version
+    GameAttribute:
+      type: object
+      additionalProperties: false
+      properties:
+        name: *id004
+        value:
+          type: integer
+          minimum: 0
+          maximum: 100
+      required:
+      - name
+      - value
+    Character:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          $ref: '#/components/schemas/CurrentState'
+        game_enabled:
+          type: boolean
+        xp:
+          type: integer
+          minimum: 0
+          nullable: true
+        level:
+          type: integer
+          minimum: 1
+          nullable: true
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameAttribute'
+        effects:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      required:
+      - state
+      - game_enabled
+      - attributes
+      - effects
+    Job:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - retry_wait
+          - completed
+          - failed
+          - cancelled
+        stage: *id004
+        attempt:
+          type: integer
+          minimum: 0
+        error:
+          $ref: '#/components/schemas/Error'
+        result_id: *id002
+      required:
+      - id
+      - state
+      - stage
+      - attempt
+    MessageCreate:
+      type: object
+      additionalProperties: false
+      properties:
+        conversation_id: *id002
+        text:
+          type: string
+          minLength: 1
+          maxLength: 20000
+        media_id: *id002
+    MediaReceipt:
+      type: object
+      additionalProperties: false
+      properties:
+        media_id: *id002
+        bytes:
+          type: integer
+          minimum: 1
+        sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+      - media_id
+      - bytes
+      - sha256
+    ExtractionDecision:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id003
+        decision:
+          type: string
+          enum:
+          - confirm
+          - edit
+          - reject
+        edited_candidates:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      required:
+      - expected_revision
+      - decision
+    EvidenceRevise:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id003
+        replacement:
+          type: string
+          maxLength: 20000
+        reason:
+          type: string
+          minLength: 1
+      required:
+      - expected_revision
+      - replacement
+      - reason
+    Disagreement:
+      type: object
+      additionalProperties: false
+      properties:
+        revision: *id003
+        note:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - revision
+      - note
+    Explanation:
+      type: object
+      additionalProperties: false
+      properties:
+        entity_id: *id002
+        revision: *id003
+        status:
+          type: string
+          enum:
+          - current
+          - stale
+          - historical
+        summary: *id004
+        basis:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        rule_version: *id004
+      required:
+      - entity_id
+      - revision
+      - status
+      - summary
+      - basis
+    Settings:
+      type: object
+      additionalProperties: false
+      properties:
+        timezone:
+          type: string
+          enum:
+          - Europe/Moscow
+        auto_confirm:
+          type: boolean
+        telegram_enabled:
+          type: boolean
+        recovery_mode:
+          type: boolean
+        recovery_until:
+          type: string
+          format: date-time
+          nullable: true
+        revision: &id008
+          type: integer
+          minimum: 1
+      required:
+      - revision
+      - timezone
+      - auto_confirm
+      - telegram_enabled
+      - recovery_mode
+    MealCreate:
+      type: object
+      additionalProperties: false
+      properties:
+        observed_at: *id001
+        media_id: *id002
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - observed_at
+      - media_id
+    Money:
+      type: object
+      additionalProperties: false
+      properties:
+        minor_units:
+          type: string
+          pattern: ^-?[0-9]+$
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+        scale:
+          type: integer
+          minimum: 0
+          maximum: 8
+      required:
+      - minor_units
+      - currency
+      - scale
+    BudgetLine:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        kind:
+          type: string
+          enum:
+          - income
+          - obligation
+          - spending
+          - savings
+        category: *id004
+        amount:
+          $ref: '#/components/schemas/Money'
+        percent_basis_points:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        due_date:
+          type: string
+          format: date
+      required:
+      - id
+      - kind
+      - category
+      - amount
+    BudgetPlan:
+      type: object
+      additionalProperties: false
+      properties:
+        month:
+          type: string
+          pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
+        currency:
+          type: string
+          enum:
+          - RUB
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetLine'
+      required:
+      - month
+      - currency
+      - lines
+    RevisionCommand:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id003
+      required:
+      - expected_revision
+    QuestOutcome:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id003
+        outcome:
+          type: string
+          enum:
+          - completed
+          - skipped
+          - unknown
+          - paused
+        observed_at: *id001
+        reason: *id004
+      required:
+      - expected_revision
+      - outcome
+      - observed_at
+    Capability:
+      type: object
+      additionalProperties: false
+      properties:
+        name: *id004
+        status:
+          type: string
+          enum:
+          - unqualified
+          - enabled
+          - unavailable
+          - degraded
+          - disabled
+        last_success_at:
+          type: string
+          format: date-time
+          nullable: true
+        reason_code: *id004
+      required:
+      - name
+      - status
+    HealthBatch:
+      type: object
+      additionalProperties: false
+      properties:
+        batch_id: *id002
+        checkpoint: *id004
+        samples:
+          type: array
+          maxItems: 1000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              external_id: *id004
+              metric:
+                type: string
+                enum:
+                - sleep
+                - steps
+                - workout
+                - resting_heart_rate
+              start_at: *id001
+              end_at: *id001
+              value:
+                type: number
+              unit: *id004
+              source_device: *id004
+            required:
+            - external_id
+            - metric
+            - start_at
+            - end_at
+            - unit
+      required:
+      - batch_id
+      - samples
+    Confirmation:
+      type: object
+      additionalProperties: false
+      properties:
+        confirmation_token:
+          type: string
+          minLength: 16
+      required:
+      - confirmation_token
+    Page:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntitySummary'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    Report:
+      type: object
+      additionalProperties: false
+      properties:
+        coverage:
+          type: string
+          enum:
+          - complete
+          - partial
+          - unavailable
+          - ambiguous
+        generated_at: *id001
+        data:
+          type: object
+          additionalProperties: true
+        input_revisions:
+          type: array
+          items: *id004
+      required:
+      - coverage
+      - generated_at
+      - data
+      - input_revisions
+    DeletionChallenge:
+      type: object
+      additionalProperties: false
+      properties:
+        confirmation_token:
+          type: string
+          minLength: 16
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - confirmation_token
+      - expires_at
+    PersonMerge:
+      type: object
+      additionalProperties: false
+      properties:
+        target_id: &id006
+          type: string
+          format: uuid
+        expected_revision: &id005
+          type: integer
+          minimum: 1
+        reason:
+          type: string
+          minLength: 1
+      required:
+      - target_id
+      - expected_revision
+      - reason
+    PortionRevision:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id005
+        portion_grams:
+          type: number
+          exclusiveMinimum: true
+          minimum: 0
+          maximum: 10000
+        ingredients:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              food_catalog_id: &id007
+                type: string
+              grams:
+                type: number
+                minimum: 0
+            required:
+            - food_catalog_id
+            - grams
+      required:
+      - expected_revision
+      - portion_grams
+    CategoryRevision:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id005
+        category:
+          type: string
+          minLength: 1
+        reason:
+          type: string
+          minLength: 1
+      required:
+      - expected_revision
+      - category
+      - reason
+    RestoreCommand:
+      type: object
+      additionalProperties: false
+      properties:
+        backup_id: *id006
+        confirmation_token:
+          type: string
+          minLength: 16
+      required:
+      - backup_id
+      - confirmation_token
+    EntitySummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id006
+        revision: *id005
+        kind: *id007
+        summary: *id007
+        observed_at:
+          type: string
+          format: date-time
+          nullable: true
+        status: *id007
+      required:
+      - id
+      - revision
+      - kind
+      - status
+    Capabilities:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capability'
+      required:
+      - items
+    AssessmentRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: &id009
+          type: string
+          format: uuid
+        revision: *id008
+        metric:
+          $ref: '#/components/schemas/Metric'
+        score:
+          type: number
+          minimum: 0
+          maximum: 10
+          multipleOf: 0.5
+        observed_at: &id011
+          type: string
+          format: date-time
+        source_kind:
+          type: string
+          enum:
+          - self_report
+          - ai_estimate
+        status: &id010
+          type: string
+      required:
+      - id
+      - revision
+      - metric
+      - score
+      - observed_at
+      - source_kind
+      - status
+    JournalRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        summary: *id010
+        observed_at: *id011
+        conversation_id: *id009
+        person_ids:
+          type: array
+          items: *id009
+        status: *id010
+      required:
+      - id
+      - revision
+      - summary
+      - status
+    ConversationRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        title: *id010
+        opened_at: *id011
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - revision
+      - opened_at
+    PersonRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        display_name: *id010
+        aliases:
+          type: array
+          items: *id010
+      required:
+      - id
+      - revision
+      - display_name
+      - aliases
+    NutrientRange:
+      type: object
+      additionalProperties: false
+      properties:
+        min:
+          type: number
+          minimum: 0
+        max:
+          type: number
+          minimum: 0
+        unit: *id010
+      required:
+      - min
+      - max
+      - unit
+    MealRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        name: *id010
+        observed_at: *id011
+        portion_grams:
+          type: number
+          nullable: true
+        calories:
+          $ref: '#/components/schemas/NutrientRange'
+        protein:
+          $ref: '#/components/schemas/NutrientRange'
+        fat:
+          $ref: '#/components/schemas/NutrientRange'
+        carbohydrates:
+          $ref: '#/components/schemas/NutrientRange'
+        estimate_status:
+          type: string
+          enum:
+          - unknown
+          - estimated
+          - confirmed_portion
+        assumptions:
+          type: array
+          items: *id010
+        media_id: *id009
+      required:
+      - id
+      - revision
+      - name
+      - observed_at
+      - estimate_status
+      - assumptions
+    TransactionRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        occurred_at: *id011
+        account_id: *id009
+        amount:
+          $ref: '#/components/schemas/Money'
+        status:
+          type: string
+          enum:
+          - pending
+          - posted
+          - reversed
+          - unresolved
+        kind: *id010
+        category: *id010
+        source_revision: *id010
+      required:
+      - id
+      - revision
+      - occurred_at
+      - account_id
+      - amount
+      - status
+      - kind
+    QuestRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        title: *id010
+        start_at: *id011
+        end_at: *id011
+        load_points:
+          type: integer
+          minimum: 1
+          maximum: 3
+        optional:
+          type: boolean
+        outcome:
+          type: string
+          enum:
+          - assigned
+          - active
+          - completed
+          - skipped
+          - unknown
+          - paused
+          - excused
+          - cancelled
+        rule_version: *id010
+      required:
+      - id
+      - revision
+      - title
+      - start_at
+      - end_at
+      - load_points
+      - optional
+      - outcome
+      - rule_version
+    BackupRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        state:
+          type: string
+          enum:
+          - building
+          - completed
+          - failed
+          - verified
+        created_at: *id011
+        schema_version:
+          type: integer
+          minimum: 1
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - state
+      - created_at
+      - schema_version
+    NotificationRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        kind:
+          type: string
+          enum:
+          - reminder
+          - finance
+          - reply
+        reason_code: *id010
+        expires_at: *id011
+        deliveries:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              channel:
+                type: string
+                enum:
+                - macos
+                - telegram
+              status:
+                type: string
+                enum:
+                - pending
+                - sending
+                - delivered
+                - ambiguous
+                - failed
+                - expired
+            required:
+            - channel
+            - status
+      required:
+      - id
+      - kind
+      - reason_code
+      - expires_at
+      - deliveries
+    MeasurementRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id009
+        revision: *id008
+        metric:
+          type: string
+          enum:
+          - sleep
+          - steps
+          - workout
+          - resting_heart_rate
+          - screen_time
+        start_at: *id011
+        end_at: *id011
+        value:
+          type: string
+          nullable: true
+        unit: *id010
+        source_device: *id010
+        category: *id010
+      required:
+      - id
+      - revision
+      - metric
+      - start_at
+      - end_at
+      - value
+      - unit
+    AssessmentRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssessmentRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    JournalRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    ConversationRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    PersonRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    MealRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    TransactionRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    QuestRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    BackupRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackupRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    NotificationRecordPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    MeasurementPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeasurementRecord'
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - next_cursor
+    ActivityBatch:
+      type: object
+      additionalProperties: false
+      properties:
+        batch_id: *id009
+        checkpoint: *id010
+        samples:
+          type: array
+          maxItems: 1000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              external_id: *id010
+              start_at: *id011
+              end_at: *id011
+              seconds:
+                type: integer
+                minimum: 0
+              category: *id010
+              application_ref: *id010
+              source_device: *id010
+            required:
+            - external_id
+            - start_at
+            - end_at
+            - seconds
+            - category
+      required:
+      - batch_id
+      - samples
+    BudgetReport:
+      type: object
+      additionalProperties: false
+      properties:
+        month: *id010
+        plan_revision: *id008
+        coverage:
+          type: string
+          enum:
+          - complete
+          - partial
+          - unavailable
+        cash_available:
+          $ref: '#/components/schemas/Money'
+        free_now:
+          $ref: '#/components/schemas/Money'
+        plan_remainder:
+          $ref: '#/components/schemas/Money'
+        daily_guide:
+          $ref: '#/components/schemas/Money'
+        savings:
+          $ref: '#/components/schemas/Money'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetLine'
+        issues:
+          type: array
+          items: *id010
+        calculation_id: *id009
+      required:
+      - month
+      - coverage
+      - lines
+      - issues
+    Position:
+      type: object
+      additionalProperties: false
+      properties:
+        instrument_id: *id009
+        quantity:
+          type: string
+        quantity_scale:
+          type: integer
+          minimum: 0
+          maximum: 12
+        market_value:
+          $ref: '#/components/schemas/Money'
+        realized_pnl:
+          $ref: '#/components/schemas/Money'
+        unrealized_pnl:
+          $ref: '#/components/schemas/Money'
+        coverage:
+          type: string
+          enum:
+          - complete
+          - partial
+          - unavailable
+      required:
+      - instrument_id
+      - quantity
+      - quantity_scale
+      - coverage
+    ReturnCalculation:
+      type: object
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+          enum:
+          - TWR
+          - ModifiedDietz
+          - XIRR
+        value_decimal:
+          type: string
+          nullable: true
+        coverage:
+          type: string
+          enum:
+          - complete
+          - partial
+          - unavailable
+          - ambiguous
+        run_id: *id009
+      required:
+      - method
+      - value_decimal
+      - coverage
+      - run_id
+    PortfolioReport:
+      type: object
+      additionalProperties: false
+      properties:
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        returns:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnCalculation'
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Money'
+        withheld_taxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Money'
+        coverage:
+          type: string
+          enum:
+          - complete
+          - partial
+          - unavailable
+        observed_at: *id011
+        issues:
+          type: array
+          items: *id010
+      required:
+      - positions
+      - returns
+      - fees
+      - withheld_taxes
+      - coverage
+      - observed_at
+      - issues
+    SettingsUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision: *id008
+        values:
+          $ref: '#/components/schemas/SettingsValues'
+      required:
+      - expected_revision
+      - values
+    SettingsValues:
+      type: object
+      additionalProperties: false
+      properties:
+        timezone:
+          type: string
+          enum:
+          - Europe/Moscow
+        auto_confirm:
+          type: boolean
+        telegram_enabled:
+          type: boolean
+        recovery_mode:
+          type: boolean
+        recovery_until:
+          type: string
+          format: date-time
+          nullable: true

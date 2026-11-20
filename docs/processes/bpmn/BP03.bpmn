@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='utf-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="BP03_Definitions" targetNamespace="https://lifetracker.local/processes" exporter="LifeTracker process builder" exporterVersion="0.1">
+  <bpmn:process id="BP03" name="Исправление факта и зависимых выводов" isExecutable="false">
+    <bpmn:documentation>Design model; proposed rules; algorithms ALG-04</bpmn:documentation>
+    <bpmn:laneSet id="BP03_LaneSet">
+      <bpmn:lane id="BP03_Lane0" name="Владелец">
+        <bpmn:flowNodeRef>BP03_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_edit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_conflict</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="BP03_Lane1" name="Ядро">
+        <bpmn:flowNodeRef>BP03_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_current</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_commit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_rebuild</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_effects</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP03_index</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="BP03_s" name="Ошибка факта обнаружена">
+      <bpmn:outgoing>BP03_F1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="BP03_edit" name="Исправить факт / причину">
+      <bpmn:incoming>BP03_F1</bpmn:incoming>
+      <bpmn:incoming>BP03_F6</bpmn:incoming>
+      <bpmn:outgoing>BP03_F2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="BP03_check" name="Проверить expected revision">
+      <bpmn:incoming>BP03_F2</bpmn:incoming>
+      <bpmn:outgoing>BP03_F3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="BP03_current" name="Версия актуальна?" gatewayDirection="Diverging" default="BP03_F5">
+      <bpmn:incoming>BP03_F3</bpmn:incoming>
+      <bpmn:outgoing>BP03_F4</bpmn:outgoing>
+      <bpmn:outgoing>BP03_F5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="BP03_conflict" name="Просмотреть конфликт версий">
+      <bpmn:incoming>BP03_F5</bpmn:incoming>
+      <bpmn:outgoing>BP03_F6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="BP03_commit" name="Новая ревизия и stale связей">
+      <bpmn:incoming>BP03_F4</bpmn:incoming>
+      <bpmn:outgoing>BP03_F7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BP03_rebuild" name="Пересчитать граф зависимостей">
+      <bpmn:incoming>BP03_F7</bpmn:incoming>
+      <bpmn:outgoing>BP03_F8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BP03_effects" name="Компенсировать игровые эффекты">
+      <bpmn:incoming>BP03_F8</bpmn:incoming>
+      <bpmn:outgoing>BP03_F9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BP03_index" name="Обновить индекс и объяснения">
+      <bpmn:incoming>BP03_F9</bpmn:incoming>
+      <bpmn:outgoing>BP03_F10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="BP03_e" name="История и результат доступны">
+      <bpmn:incoming>BP03_F10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="BP03_F1" sourceRef="BP03_s" targetRef="BP03_edit" />
+    <bpmn:sequenceFlow id="BP03_F2" sourceRef="BP03_edit" targetRef="BP03_check" />
+    <bpmn:sequenceFlow id="BP03_F3" sourceRef="BP03_check" targetRef="BP03_current" />
+    <bpmn:sequenceFlow id="BP03_F4" sourceRef="BP03_current" targetRef="BP03_commit" name="да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">да</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="BP03_F5" sourceRef="BP03_current" targetRef="BP03_conflict" name="нет" />
+    <bpmn:sequenceFlow id="BP03_F6" sourceRef="BP03_conflict" targetRef="BP03_edit" name="повтор с новой версией" />
+    <bpmn:sequenceFlow id="BP03_F7" sourceRef="BP03_commit" targetRef="BP03_rebuild" />
+    <bpmn:sequenceFlow id="BP03_F8" sourceRef="BP03_rebuild" targetRef="BP03_effects" />
+    <bpmn:sequenceFlow id="BP03_F9" sourceRef="BP03_effects" targetRef="BP03_index" />
+    <bpmn:sequenceFlow id="BP03_F10" sourceRef="BP03_index" targetRef="BP03_e" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BP03_Diagram">
+    <bpmndi:BPMNPlane id="BP03_Plane" bpmnElement="BP03">
+      <bpmndi:BPMNShape id="BP03_Lane0_DI" bpmnElement="BP03_Lane0" isHorizontal="true">
+        <dc:Bounds x="20" y="80" width="1991.0" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_Lane1_DI" bpmnElement="BP03_Lane1" isHorizontal="true">
+        <dc:Bounds x="20" y="240" width="1991.0" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_s_DI" bpmnElement="BP03_s">
+        <dc:Bounds x="273.0" y="128.0" width="38" height="38" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="228.0" y="173.0" width="128" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_edit_DI" bpmnElement="BP03_edit">
+        <dc:Bounds x="420.0" y="112.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_check_DI" bpmnElement="BP03_check">
+        <dc:Bounds x="625.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_current_DI" bpmnElement="BP03_current" isMarkerVisible="true">
+        <dc:Bounds x="881.0" y="281.0" width="52" height="52" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="836.0" y="340.0" width="142" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_conflict_DI" bpmnElement="BP03_conflict">
+        <dc:Bounds x="830.0" y="112.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_commit_DI" bpmnElement="BP03_commit">
+        <dc:Bounds x="1035.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_rebuild_DI" bpmnElement="BP03_rebuild">
+        <dc:Bounds x="1240.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_effects_DI" bpmnElement="BP03_effects">
+        <dc:Bounds x="1445.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_index_DI" bpmnElement="BP03_index">
+        <dc:Bounds x="1650.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP03_e_DI" bpmnElement="BP03_e">
+        <dc:Bounds x="1913.0" y="128.0" width="38" height="38" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1868.0" y="173.0" width="128" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BP03_F1_DI" bpmnElement="BP03_F1">
+        <di:waypoint x="311.0" y="147.0" />
+        <di:waypoint x="420.0" y="147.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F2_DI" bpmnElement="BP03_F2">
+        <di:waypoint x="574.0" y="147.0" />
+        <di:waypoint x="598.0" y="147.0" />
+        <di:waypoint x="598.0" y="307.0" />
+        <di:waypoint x="625.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F3_DI" bpmnElement="BP03_F3">
+        <di:waypoint x="779.0" y="307.0" />
+        <di:waypoint x="881.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F4_DI" bpmnElement="BP03_F4">
+        <di:waypoint x="933.0" y="307.0" />
+        <di:waypoint x="1035.0" y="307.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="937.0" y="283.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F5_DI" bpmnElement="BP03_F5">
+        <di:waypoint x="907.0" y="281.0" />
+        <di:waypoint x="907.0" y="257.0" />
+        <di:waypoint x="806.0" y="257.0" />
+        <di:waypoint x="806.0" y="147.0" />
+        <di:waypoint x="830.0" y="147.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="911.0" y="257.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F6_DI" bpmnElement="BP03_F6">
+        <di:waypoint x="984.0" y="147.0" />
+        <di:waypoint x="1008.0" y="147.0" />
+        <di:waypoint x="1008.0" y="104.0" />
+        <di:waypoint x="396.0" y="104.0" />
+        <di:waypoint x="396.0" y="147.0" />
+        <di:waypoint x="420.0" y="147.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="988.0" y="123.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F7_DI" bpmnElement="BP03_F7">
+        <di:waypoint x="1189.0" y="307.0" />
+        <di:waypoint x="1240.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F8_DI" bpmnElement="BP03_F8">
+        <di:waypoint x="1394.0" y="307.0" />
+        <di:waypoint x="1445.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F9_DI" bpmnElement="BP03_F9">
+        <di:waypoint x="1599.0" y="307.0" />
+        <di:waypoint x="1650.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP03_F10_DI" bpmnElement="BP03_F10">
+        <di:waypoint x="1804.0" y="307.0" />
+        <di:waypoint x="1828.0" y="307.0" />
+        <di:waypoint x="1828.0" y="147.0" />
+        <di:waypoint x="1913.0" y="147.0" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

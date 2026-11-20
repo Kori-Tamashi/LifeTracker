@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/Modules/" />
+  <Folder Name="/Modules/Operations/">
+    <Project Path="Modules/Operations/LifeTracker.Operations.Application/LifeTracker.Operations.Application.csproj" />
+    <Project Path="Modules/Operations/LifeTracker.Operations.Domain/LifeTracker.Operations.Domain.csproj" />
+    <Project Path="Modules/Operations/LifeTracker.Operations.Infrastructure/LifeTracker.Operations.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Modules/State/" />
+  <Folder Name="/src/">
+    <Project Path="LifeTracker.Application.Abstractions/LifeTracker.Application.Abstractions.csproj" />
+    <Project Path="LifeTracker.Kernel/LifeTracker.Kernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/State/">
+    <Project Path="Modules/State/LifeTracker.State.Application/LifeTracker.State.Application.csproj" />
+    <Project Path="Modules/State/LifeTracker.State.Contracts/LifeTracker.State.Contracts.csproj" />
+    <Project Path="Modules/State/LifeTracker.State.Domain/LifeTracker.State.Domain.csproj" />
+    <Project Path="Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="../../tests/core/LifeTracker.Architecture.Tests/LifeTracker.Architecture.Tests.csproj" />
+    <Project Path="../../tests/core/LifeTracker.State.Application.Tests/LifeTracker.State.Application.Tests.csproj" />
+    <Project Path="../../tests/core/LifeTracker.State.Domain.Tests/LifeTracker.State.Domain.Tests.csproj" />
+    <Project Path="../../tests/core/LifeTracker.State.Infrastructure.Tests/LifeTracker.State.Infrastructure.Tests.csproj" />
+  </Folder>
+  <Project Path="../../tests/core/LifeTracker.Host.Tests/LifeTracker.Host.Tests.csproj" />
+  <Project Path="../../tests/core/LifeTracker.Operations.Tests/LifeTracker.Operations.Tests.csproj" />
+  <Project Path="LifeTracker.Host/LifeTracker.Host.csproj" />
+  <Project Path="LifeTracker.Infrastructure.Shared/LifeTracker.Infrastructure.Shared.csproj" />
+</Solution>

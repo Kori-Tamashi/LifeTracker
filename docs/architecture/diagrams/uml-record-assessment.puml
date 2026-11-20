@@ -1,0 +1,30 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title UML sequence — record assessment / R1
+actor Owner
+participant "macOS / Telegram adapter" as UI
+participant "RecordAssessment use case" as UC
+participant "State policy" as Policy
+database "Store + Outbox" as DB
+participant "CurrentState query" as Query
+Owner -> UI : Submit partial scores + observed_at
+UI -> UC : Command with idempotency key
+UC -> Policy : Validate range, step, time
+alt invalid
+ Policy --> UC : Validation error
+ UC --> UI : Rejected, no write
+else valid
+ UC -> DB : Atomic: deduplicate + revisions + outbox
+ DB --> UC : Durable result / prior receipt
+ UC --> UI : Completed, revision IDs
+ UI -> Query : GetCurrentState
+ Query -> DB : Current active revisions
+ DB --> Query : Assessments and provenance
+ Query -> Policy : Select sources at now, calculate minimum
+ Policy --> Query : Values + balance/undefined + expiry
+ Query --> UI : View DTO with sources
+ UI --> Owner : Updated character
+end
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title C4 L1 — Life Tracker / System Context (baseline 1.0)
+left to right direction
+actor "Owner" as owner
+rectangle "Life Tracker\nLocal life tracking system / baseline 1.0" as system <<Software System>>
+rectangle "Telegram\nMessaging service" as tg <<External System>>
+rectangle "Apple ecosystem\nHealth / Screen Time" as apple <<External System>>
+rectangle "T-Bank\nFinancial sources" as bank <<External System>>
+rectangle "Steam\nLater stage" as steam <<External System>>
+owner --> system : Assessments, diary, reviews
+owner --> tg : Messages and media
+system --> tg : Receive messages / deliver replies
+system --> apple : Authorized data access (unverified)
+system --> bank : Read data (unverified)
+system ..> steam : Read gaming activity (future)
+note bottom of system
+No cloud inference.
+External API feasibility is not confirmed.
+end note
+@enduml

@@ -1,0 +1,224 @@
+<?xml version='1.0' encoding='utf-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="BP07_Definitions" targetNamespace="https://lifetracker.local/processes" exporter="LifeTracker process builder" exporterVersion="0.1">
+  <bpmn:process id="BP07" name="Резервирование и проверка восстановления" isExecutable="false">
+    <bpmn:documentation>Design model; proposed rules; algorithms ALG-10</bpmn:documentation>
+    <bpmn:laneSet id="BP07_LaneSet">
+      <bpmn:lane id="BP07_Lane0" name="Планировщик">
+        <bpmn:flowNodeRef>BP07_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_fail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_e</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_warn</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="BP07_Lane1" name="Ядро">
+        <bpmn:flowNodeRef>BP07_preflight</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_ok</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_restored</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_rotation</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="BP07_Lane2" name="Хранилище">
+        <bpmn:flowNodeRef>BP07_snapshot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BP07_restore</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="BP07_s" name="Срок копии / миграция">
+      <bpmn:outgoing>BP07_F1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="BP07_preflight" name="Проверить место и media pin">
+      <bpmn:incoming>BP07_F1</bpmn:incoming>
+      <bpmn:outgoing>BP07_F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BP07_snapshot" name="Сделать snapshot БД + медиа">
+      <bpmn:incoming>BP07_F2</bpmn:incoming>
+      <bpmn:outgoing>BP07_F3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BP07_validate" name="Проверить manifest / hashes">
+      <bpmn:incoming>BP07_F3</bpmn:incoming>
+      <bpmn:outgoing>BP07_F4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="BP07_ok" name="Копия целостна?" gatewayDirection="Diverging" default="BP07_F6">
+      <bpmn:incoming>BP07_F4</bpmn:incoming>
+      <bpmn:outgoing>BP07_F5</bpmn:outgoing>
+      <bpmn:outgoing>BP07_F6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="BP07_fail" name="Ошибка: старые копии сохранены">
+      <bpmn:incoming>BP07_F6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="BP07_complete" name="Пометить completed">
+      <bpmn:incoming>BP07_F5</bpmn:incoming>
+      <bpmn:outgoing>BP07_F7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BP07_restore" name="Тест restore в отдельный каталог">
+      <bpmn:incoming>BP07_F7</bpmn:incoming>
+      <bpmn:outgoing>BP07_F8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="BP07_restored" name="Restore успешен?" gatewayDirection="Diverging" default="BP07_F10">
+      <bpmn:incoming>BP07_F8</bpmn:incoming>
+      <bpmn:outgoing>BP07_F9</bpmn:outgoing>
+      <bpmn:outgoing>BP07_F10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="BP07_rotation" name="Ротация и освобождение pin">
+      <bpmn:incoming>BP07_F9</bpmn:incoming>
+      <bpmn:outgoing>BP07_F11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="BP07_e" name="Копия готова">
+      <bpmn:incoming>BP07_F11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="BP07_warn" name="Копия не допущена к ротации">
+      <bpmn:incoming>BP07_F10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="BP07_F1" sourceRef="BP07_s" targetRef="BP07_preflight" />
+    <bpmn:sequenceFlow id="BP07_F2" sourceRef="BP07_preflight" targetRef="BP07_snapshot" />
+    <bpmn:sequenceFlow id="BP07_F3" sourceRef="BP07_snapshot" targetRef="BP07_validate" />
+    <bpmn:sequenceFlow id="BP07_F4" sourceRef="BP07_validate" targetRef="BP07_ok" />
+    <bpmn:sequenceFlow id="BP07_F5" sourceRef="BP07_ok" targetRef="BP07_complete" name="да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">да</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="BP07_F6" sourceRef="BP07_ok" targetRef="BP07_fail" name="нет" />
+    <bpmn:sequenceFlow id="BP07_F7" sourceRef="BP07_complete" targetRef="BP07_restore" />
+    <bpmn:sequenceFlow id="BP07_F8" sourceRef="BP07_restore" targetRef="BP07_restored" />
+    <bpmn:sequenceFlow id="BP07_F9" sourceRef="BP07_restored" targetRef="BP07_rotation" name="да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">да</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="BP07_F10" sourceRef="BP07_restored" targetRef="BP07_warn" name="нет" />
+    <bpmn:sequenceFlow id="BP07_F11" sourceRef="BP07_rotation" targetRef="BP07_e" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BP07_Diagram">
+    <bpmndi:BPMNPlane id="BP07_Plane" bpmnElement="BP07">
+      <bpmndi:BPMNShape id="BP07_Lane0_DI" bpmnElement="BP07_Lane0" isHorizontal="true">
+        <dc:Bounds x="20" y="80" width="2196.0" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_Lane1_DI" bpmnElement="BP07_Lane1" isHorizontal="true">
+        <dc:Bounds x="20" y="240" width="2196.0" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_Lane2_DI" bpmnElement="BP07_Lane2" isHorizontal="true">
+        <dc:Bounds x="20" y="400" width="2196.0" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_s_DI" bpmnElement="BP07_s">
+        <dc:Bounds x="273.0" y="128.0" width="38" height="38" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="228.0" y="173.0" width="128" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_preflight_DI" bpmnElement="BP07_preflight">
+        <dc:Bounds x="420.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_snapshot_DI" bpmnElement="BP07_snapshot">
+        <dc:Bounds x="625.0" y="432.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_validate_DI" bpmnElement="BP07_validate">
+        <dc:Bounds x="830.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_ok_DI" bpmnElement="BP07_ok" isMarkerVisible="true">
+        <dc:Bounds x="1086.0" y="281.0" width="52" height="52" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1041.0" y="340.0" width="142" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_fail_DI" bpmnElement="BP07_fail">
+        <dc:Bounds x="1298.0" y="128.0" width="38" height="38" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1253.0" y="173.0" width="128" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_complete_DI" bpmnElement="BP07_complete">
+        <dc:Bounds x="1240.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_restore_DI" bpmnElement="BP07_restore">
+        <dc:Bounds x="1445.0" y="432.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_restored_DI" bpmnElement="BP07_restored" isMarkerVisible="true">
+        <dc:Bounds x="1701.0" y="281.0" width="52" height="52" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1656.0" y="340.0" width="142" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_rotation_DI" bpmnElement="BP07_rotation">
+        <dc:Bounds x="1855.0" y="272.0" width="154" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_e_DI" bpmnElement="BP07_e">
+        <dc:Bounds x="2118.0" y="128.0" width="38" height="38" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2073.0" y="173.0" width="128" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BP07_warn_DI" bpmnElement="BP07_warn">
+        <dc:Bounds x="1913.0" y="128.0" width="38" height="38" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1868.0" y="173.0" width="128" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BP07_F1_DI" bpmnElement="BP07_F1">
+        <di:waypoint x="311.0" y="147.0" />
+        <di:waypoint x="335.0" y="147.0" />
+        <di:waypoint x="335.0" y="307.0" />
+        <di:waypoint x="420.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F2_DI" bpmnElement="BP07_F2">
+        <di:waypoint x="574.0" y="307.0" />
+        <di:waypoint x="598.0" y="307.0" />
+        <di:waypoint x="598.0" y="467.0" />
+        <di:waypoint x="625.0" y="467.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F3_DI" bpmnElement="BP07_F3">
+        <di:waypoint x="779.0" y="467.0" />
+        <di:waypoint x="803.0" y="467.0" />
+        <di:waypoint x="803.0" y="307.0" />
+        <di:waypoint x="830.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F4_DI" bpmnElement="BP07_F4">
+        <di:waypoint x="984.0" y="307.0" />
+        <di:waypoint x="1086.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F5_DI" bpmnElement="BP07_F5">
+        <di:waypoint x="1138.0" y="307.0" />
+        <di:waypoint x="1240.0" y="307.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1142.0" y="283.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F6_DI" bpmnElement="BP07_F6">
+        <di:waypoint x="1112.0" y="281.0" />
+        <di:waypoint x="1112.0" y="147.0" />
+        <di:waypoint x="1298.0" y="147.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1116.0" y="257.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F7_DI" bpmnElement="BP07_F7">
+        <di:waypoint x="1394.0" y="307.0" />
+        <di:waypoint x="1418.0" y="307.0" />
+        <di:waypoint x="1418.0" y="467.0" />
+        <di:waypoint x="1445.0" y="467.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F8_DI" bpmnElement="BP07_F8">
+        <di:waypoint x="1599.0" y="467.0" />
+        <di:waypoint x="1623.0" y="467.0" />
+        <di:waypoint x="1623.0" y="307.0" />
+        <di:waypoint x="1701.0" y="307.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F9_DI" bpmnElement="BP07_F9">
+        <di:waypoint x="1753.0" y="307.0" />
+        <di:waypoint x="1855.0" y="307.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1757.0" y="283.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F10_DI" bpmnElement="BP07_F10">
+        <di:waypoint x="1727.0" y="281.0" />
+        <di:waypoint x="1727.0" y="147.0" />
+        <di:waypoint x="1913.0" y="147.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1731.0" y="257.0" width="140" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BP07_F11_DI" bpmnElement="BP07_F11">
+        <di:waypoint x="2009.0" y="307.0" />
+        <di:waypoint x="2033.0" y="307.0" />
+        <di:waypoint x="2033.0" y="147.0" />
+        <di:waypoint x="2118.0" y="147.0" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

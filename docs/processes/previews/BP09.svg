@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2026" height="625" viewBox="0 0 2026 625" role="img">
+<title>Закрытие месяца и поздняя корректировка</title>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#334155"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<text x="22" y="30" font-family="Arial, sans-serif" font-size="21" font-weight="bold">BP09 — Закрытие месяца и поздняя корректировка</text>
+<text x="22" y="55" font-family="Arial, sans-serif" font-size="13" fill="#475569">BPMN 2.0 • проект • ALG-06</text>
+<rect x="20" y="80" width="1986" height="160" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="20" y="80" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="150" font-family="Arial, sans-serif" font-size="14">Планировщик</text>
+<rect x="20" y="240" width="1986" height="160" fill="#fff" stroke="#cbd5e1"/>
+<rect x="20" y="240" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="310" font-family="Arial, sans-serif" font-size="14">Финансовое ядро</text>
+<rect x="20" y="400" width="1986" height="160" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="20" y="400" width="175" height="160" fill="#e2e8f0" stroke="#cbd5e1"/>
+<text x="32" y="470" font-family="Arial, sans-serif" font-size="14">Владелец</text>
+<polyline points="311.0,147.0 335.0,147.0 335.0,307.0 420.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="574.0,307.0 676.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="728.0,307.0 752.0,307.0 752.0,257.0 1011.0,257.0 1011.0,307.0 1035.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="732.0" y="297.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">да</text>
+<polyline points="702.0,281.0 702.0,257.0 806.0,257.0 806.0,307.0 830.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="706.0" y="271.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">нет</text>
+<polyline points="984.0,307.0 1008.0,307.0 1008.0,147.0 1093.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1189.0,307.0 1291.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1317.0,333.0 1317.0,467.0 1445.0,467.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="1376.0" y="353.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">да</text>
+<polyline points="1317.0,281.0 1317.0,257.0 1421.0,257.0 1421.0,307.0 1445.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="1321.0" y="271.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">нет</text>
+<polyline points="1599.0,467.0 1623.0,467.0 1623.0,307.0 1650.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<text x="1603.0" y="457.0" font-family="Arial, sans-serif" font-size="11" fill="#334155">решение / сохранить дефицит</text>
+<polyline points="1599.0,307.0 1650.0,307.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<polyline points="1804.0,307.0 1828.0,307.0 1828.0,147.0 1913.0,147.0" fill="none" stroke="#334155" stroke-width="1.4" marker-end="url(#arrow)"/>
+<circle cx="292.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="1.5"/>
+<text x="292.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Новый месяц / late</text>
+<text x="292.0" y="199.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">operation</text>
+<rect x="420.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="428.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="497.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Получить версии и</text>
+<text x="497.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">сверку</text>
+<polygon points="702.0,281.0 728.0,307.0 702.0,333.0 676.0,307.0" fill="#fef3c7" stroke="#0f172a"/><path d="M696.0 301.0 L708.0 313.0 M708.0 301.0 L696.0 313.0" stroke="#0f172a" stroke-width="2"/>
+<text x="702.0" y="350.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Данные полны и свежи?</text>
+<rect x="830.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="838.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="907.0" y="311.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Сохранить provisional</text>
+<circle cx="1112.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="3.5"/>
+<text x="1112.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Ожидание данных</text>
+<rect x="1035.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1043.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">R</text>
+<text x="1112.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Рассчитать остаток без</text>
+<text x="1112.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">дублей</text>
+<polygon points="1317.0,281.0 1343.0,307.0 1317.0,333.0 1291.0,307.0" fill="#fef3c7" stroke="#0f172a"/><path d="M1311.0 301.0 L1323.0 313.0 M1323.0 301.0 L1311.0 313.0" stroke="#0f172a" stroke-width="2"/>
+<text x="1317.0" y="350.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Есть дефицит?</text>
+<rect x="1445.0" y="432.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1453.0" y="447.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">U</text>
+<text x="1522.0" y="463.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Рассмотреть покрытие</text>
+<text x="1522.0" y="479.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">дефицита</text>
+<rect x="1445.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1453.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">R</text>
+<text x="1522.0" y="311.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Учётный резерв копилки</text>
+<rect x="1650.0" y="272.0" width="154" height="70" rx="9" fill="#eff6ff" stroke="#334155"/>
+<text x="1658.0" y="287.0" font-family="Arial, sans-serif" font-size="11" fill="#64748b">S</text>
+<text x="1727.0" y="303.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Closing / delta</text>
+<text x="1727.0" y="319.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">restatement</text>
+<circle cx="1932.0" cy="147.0" r="18" fill="#fff" stroke="#0f172a" stroke-width="3.5"/>
+<text x="1932.0" y="183.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">История месяца</text>
+<text x="1932.0" y="199.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">согласована</text>
+<text x="22" y="613" font-family="Arial, sans-serif" font-size="12" fill="#64748b">U — user task; S — service task; R — business rule task. Полная BPMN-семантика и DI — в .bpmn.</text>
+</svg>

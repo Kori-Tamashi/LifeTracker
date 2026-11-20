@@ -1,0 +1,787 @@
+{
+  "baseline": "1.0",
+  "cases": [
+    {
+      "id": "TC-STA-SCORE",
+      "requirements": [
+        "FR-STA-001",
+        "FR-STA-002",
+        "FR-STA-003",
+        "FR-STA-004",
+        "FR-STA-005",
+        "FR-STA-006",
+        "FR-STA-007",
+        "FR-STA-008"
+      ],
+      "given": "Пустой профиль и форма",
+      "when": "Ввести часть шкал, значение21/полубаллы или допустимые7.5",
+      "then": "Невалидное отклонено без записи; частичные валидные сохраняются без стирания остальных.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-STA-TTL",
+      "requirements": [
+        "FR-STA-001",
+        "FR-STA-002",
+        "FR-STA-003",
+        "FR-STA-004",
+        "FR-STA-005",
+        "FR-STA-006",
+        "FR-STA-007",
+        "FR-STA-008"
+      ],
+      "given": "Ручная запись6 и ИИ8, разные timestamps",
+      "when": "Прочитать состояние перед и ровно после6h",
+      "then": "До TTL ручная6, после TTL свежая ИИ8 с пометкой; без обоих unknown.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-STA-BALANCE",
+      "requirements": [
+        "FR-STA-001",
+        "FR-STA-002",
+        "FR-STA-003",
+        "FR-STA-004",
+        "FR-STA-005",
+        "FR-STA-006",
+        "FR-STA-007",
+        "FR-STA-008"
+      ],
+      "given": "Набор8/7.5/anxiety2/physical9",
+      "when": "Рассчитать состояние и крайние пороги6/7.5/9",
+      "then": "Минимум7.5, good; границы уровней корректны, неполный наборnull.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-STA-REVISION",
+      "requirements": [
+        "FR-STA-001",
+        "FR-STA-002",
+        "FR-STA-003",
+        "FR-STA-004",
+        "FR-STA-005",
+        "FR-STA-006",
+        "FR-STA-007",
+        "FR-STA-008"
+      ],
+      "given": "Две правки одной исходной версии",
+      "when": "Отправить обе с expected_revision1",
+      "then": "Только первая committed; вторая conflict, история и current pointer согласованы.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-CHR-UNKNOWN",
+      "requirements": [
+        "FR-CHR-001",
+        "FR-CHR-002",
+        "FR-CHR-003"
+      ],
+      "given": "Первый запуск без событий",
+      "when": "Открыть персонажа",
+      "then": "Нейтральный герой и unknown, без выдуманных health/XP; источник и время видны.",
+      "status": "planned",
+      "levels": [
+        "contract",
+        "ui_e2e"
+      ]
+    },
+    {
+      "id": "TC-CHR-UI",
+      "requirements": [
+        "FR-CHR-001",
+        "FR-CHR-002",
+        "FR-CHR-003"
+      ],
+      "given": "Профиль с synthetic оценками",
+      "when": "Выбрать характеристику и вернуться",
+      "then": "Переход в историю/основания, клавиатура/VoiceOver доступны, анимация не блокирует ввод.",
+      "status": "planned",
+      "levels": [
+        "contract",
+        "ui_e2e"
+      ]
+    },
+    {
+      "id": "TC-DIA-VOICE",
+      "requirements": [
+        "FR-DIA-001",
+        "FR-DIA-002",
+        "FR-DIA-003",
+        "FR-DIA-004",
+        "FR-DIA-005",
+        "FR-DIA-006",
+        "FR-DIA-007",
+        "FR-DIA-008",
+        "FR-DIA-009",
+        "FR-DIA-010"
+      ],
+      "given": "Минутное synthetic audio, работающий qualified local bundle",
+      "when": "Отправить и дождаться анализа",
+      "then": "Durable receipt, содержательный локальный ответ, summary/records с источниками; промежуточное не называется записанным.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-DIA-ACCEPT",
+      "requirements": [
+        "FR-DIA-001",
+        "FR-DIA-002",
+        "FR-DIA-003",
+        "FR-DIA-004",
+        "FR-DIA-005",
+        "FR-DIA-006",
+        "FR-DIA-007",
+        "FR-DIA-008",
+        "FR-DIA-009",
+        "FR-DIA-010"
+      ],
+      "given": "Autoconfirm выключен/включён, valid+invalid candidates",
+      "when": "Завершить extraction и принять/отклонить",
+      "then": "Pending не в RAG; autoconfirm принимает только валидное, hypothesis не становится self_report.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-DIA-PERSON",
+      "requirements": [
+        "FR-DIA-001",
+        "FR-DIA-002",
+        "FR-DIA-003",
+        "FR-DIA-004",
+        "FR-DIA-005",
+        "FR-DIA-006",
+        "FR-DIA-007",
+        "FR-DIA-008",
+        "FR-DIA-009",
+        "FR-DIA-010"
+      ],
+      "given": "Повтор эпизода, отрицание и два человека с одинаковым именем",
+      "when": "Извлечь и построить вывод",
+      "then": "Нет двойного evidence/ложного собственного действия/молчаливого merge; общий вывод только при пороге.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-DIA-CORRECTION",
+      "requirements": [
+        "FR-DIA-001",
+        "FR-DIA-002",
+        "FR-DIA-003",
+        "FR-DIA-004",
+        "FR-DIA-005",
+        "FR-DIA-006",
+        "FR-DIA-007",
+        "FR-DIA-008",
+        "FR-DIA-009",
+        "FR-DIA-010"
+      ],
+      "given": "Вывод и индекс по старому факту",
+      "when": "Исправить fact, затем задать вопрос RAG",
+      "then": "Старый выводstale, не в активном контексте; новые версии с основаниями и историей; disagreement отдельно.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-DIA-ROLE",
+      "requirements": [
+        "FR-DIA-001",
+        "FR-DIA-002",
+        "FR-DIA-003",
+        "FR-DIA-004",
+        "FR-DIA-005",
+        "FR-DIA-006",
+        "FR-DIA-007",
+        "FR-DIA-008",
+        "FR-DIA-009",
+        "FR-DIA-010"
+      ],
+      "given": "Текст/фото с попыткой сменить policy и запросом диагноза",
+      "when": "Обработать диалог",
+      "then": "Нет исполнения команд/диагноза/глобального вердикта; корректная роль и возможность остановить расспросы.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-DIA-VIEWS",
+      "requirements": [
+        "FR-DIA-001",
+        "FR-DIA-002",
+        "FR-DIA-003",
+        "FR-DIA-004",
+        "FR-DIA-005",
+        "FR-DIA-006",
+        "FR-DIA-007",
+        "FR-DIA-008",
+        "FR-DIA-009",
+        "FR-DIA-010"
+      ],
+      "given": "Лента, календарь и отчёт с неполной неделей",
+      "when": "Переключить представление",
+      "then": "Те же source revisions, пропуски явно показаны, нет ложного полного покрытия.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-FOOD-UNCERTAIN",
+      "requirements": [
+        "FR-FOOD-001",
+        "FR-FOOD-002",
+        "FR-FOOD-003"
+      ],
+      "given": "Фото без точного веса/масла и недоступный каталог",
+      "when": "Распознать и уточнить",
+      "then": "Не более2 вопросов; при нехватке блюдо без КБЖУ, не выдуманные точные числа.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-FOOD-PORTION",
+      "requirements": [
+        "FR-FOOD-001",
+        "FR-FOOD-002",
+        "FR-FOOD-003"
+      ],
+      "given": "Известные synthetic ingredients и порции",
+      "when": "Исправить массу в2 раза",
+      "then": "Те же meal ID и новая revision, диапазон пересчитан, без двойного приёма/эффекта.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-FIN-GATE",
+      "requirements": [
+        "FR-FIN-001",
+        "FR-FIN-002",
+        "FR-FIN-003",
+        "FR-FIN-004",
+        "FR-FIN-005",
+        "FR-FIN-006"
+      ],
+      "given": "Источник не qualified или outage",
+      "when": "Открыть бюджет/импорт",
+      "then": "Unavailable/degraded без ручной подмены, не ложные реальные суммы; R3 не выпускается.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-FIN-IMPORT",
+      "requirements": [
+        "FR-FIN-001",
+        "FR-FIN-002",
+        "FR-FIN-003",
+        "FR-FIN-004",
+        "FR-FIN-005",
+        "FR-FIN-006"
+      ],
+      "given": "Повторные pending/posted, transfer/refund",
+      "when": "Импортировать batch дважды",
+      "then": "Нет двойных доходов/расходов, checkpoint после durable commit, неизвестная категория не алкоголь по догадке.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-FIN-FRESH",
+      "requirements": [
+        "FR-FIN-001",
+        "FR-FIN-002",
+        "FR-FIN-003",
+        "FR-FIN-004",
+        "FR-FIN-005",
+        "FR-FIN-006"
+      ],
+      "given": "Квалифицированный источник, активный Mac",
+      "when": "Пройти5h окно и восстановить после сбоя",
+      "then": "Успешное обновление либо явный stale/error, no-data не нулевые расходы.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-BUD-PLAN",
+      "requirements": [
+        "FR-BUD-001",
+        "FR-BUD-002",
+        "FR-BUD-003",
+        "FR-BUD-004",
+        "FR-BUD-005",
+        "FR-BUD-006",
+        "FR-BUD-007",
+        "FR-BUD-008"
+      ],
+      "given": "План100000, статья20%, факт80000",
+      "when": "Применить факт и proposal",
+      "then": "Статья20000 до принятия нового плана; нет изменения approved без подтверждения.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-BUD-RESERVE",
+      "requirements": [
+        "FR-BUD-001",
+        "FR-BUD-002",
+        "FR-BUD-003",
+        "FR-BUD-004",
+        "FR-BUD-005",
+        "FR-BUD-006",
+        "FR-BUD-007",
+        "FR-BUD-008"
+      ],
+      "given": "Obligation reserve1000 и покупка на1000",
+      "when": "Оплатить обязательство",
+      "then": "Cash уменьшен один раз, reserve закрыт, free_now не уменьшен дважды.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-BUD-CLOSING",
+      "requirements": [
+        "FR-BUD-001",
+        "FR-BUD-002",
+        "FR-BUD-003",
+        "FR-BUD-004",
+        "FR-BUD-005",
+        "FR-BUD-006",
+        "FR-BUD-007",
+        "FR-BUD-008"
+      ],
+      "given": "Закрытый месяц, late refund и backing savings",
+      "when": "Пересчитать closing",
+      "then": "Restatement и delta, не второй перенос копилки; FX missing=incomplete; deficit не тайное списание.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-CRD-CREDIT",
+      "requirements": [
+        "FR-CRD-001"
+      ],
+      "given": "Кредитный лимит, purchase1000, payoff1000 и fee10",
+      "when": "Построить бюджет/ledger",
+      "then": "Expense1010, payoff не покупка, лимит не доход, due warnings без повторов.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-INV-POSITION",
+      "requirements": [
+        "FR-INV-001"
+      ],
+      "given": "Сделки, split, дивиденд, fee/tax и closing positions",
+      "when": "Сверить и рассчитать",
+      "then": "Количество согласовано или coveragepartial; gross/withheld/net раздельно, buy не consumer expense.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-INV-RETURN",
+      "requirements": [
+        "FR-INV-001"
+      ],
+      "given": "Нет quote/cost basis/flow valuation и несколько XIRR roots",
+      "when": "Рассчитать отчёт",
+      "then": "Missing=unknown, approximate Dietz помечен, ambiguous MWR не произвольный процент; метод/input versions доступны.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-QST-LOAD",
+      "requirements": [
+        "FR-QST-001",
+        "FR-QST-002",
+        "FR-QST-003",
+        "FR-QST-004",
+        "FR-QST-005"
+      ],
+      "given": "ИИ предлагает5 задач и medical/purchase action, recovery",
+      "when": "Назначить задания",
+      "then": "Rule engine отсекает недопустимое, caps соблюдены, при recovery0 required и≤1 optional.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-QST-OUTCOME",
+      "requirements": [
+        "FR-QST-001",
+        "FR-QST-002",
+        "FR-QST-003",
+        "FR-QST-004",
+        "FR-QST-005"
+      ],
+      "given": "Один success, два подтверждённых skips, no-data и techfailure",
+      "when": "Применить эффекты",
+      "then": "Success10XP/+1, штраф со2го skip≤5; unknown/сбой не штраф; XP не отнимается.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-QST-REVISE",
+      "requirements": [
+        "FR-QST-001",
+        "FR-QST-002",
+        "FR-QST-003",
+        "FR-QST-004",
+        "FR-QST-005"
+      ],
+      "given": "Повтор и correction completed→skipped→completed",
+      "when": "Переобработать outcome",
+      "then": "Один исходный эффект, compensating reversals, проекция без повторной награды и скрытой потери истории.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-QST-SCHEDULE",
+      "requirements": [
+        "FR-QST-001",
+        "FR-QST-002",
+        "FR-QST-003",
+        "FR-QST-004",
+        "FR-QST-005"
+      ],
+      "given": "Зарядка без времени и сон23:59/00:00",
+      "when": "Сверить факты с расписанием",
+      "then": "Факт зарядки достаточен; 23:59 подходит, ровно00:00 нет; late evidence пересчитывает.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NOT-QUOTA",
+      "requirements": [
+        "FR-NOT-001"
+      ],
+      "given": "Конкурентные triggers, два канала, restart",
+      "when": "Отправить4 reminders за день",
+      "then": "≤3 logical events, каналы не удваивают квоту; persisted счётчик, одинreason.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NOT-QUIET",
+      "requirements": [
+        "FR-NOT-001"
+      ],
+      "given": "22–09, asleep, expired и актуальные triggers",
+      "when": "Проснуться и доставить",
+      "then": "Expired удалены, актуальные объединены, no proactive ночью, ответы владельцу разрешены.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-BOT-OWNER",
+      "requirements": [
+        "FR-BOT-001"
+      ],
+      "given": "Связанный владелец и чужой sender",
+      "when": "Вызватьstate/voice/budget/quests по release manifest",
+      "then": "Чужой не получает данных; только выпущенные capabilities; concise push без сумм/выводов.",
+      "status": "planned",
+      "levels": [
+        "contract",
+        "ui_e2e"
+      ]
+    },
+    {
+      "id": "TC-BOT-OFFLINE",
+      "requirements": [
+        "FR-BOT-001"
+      ],
+      "given": "Mac off и duplicate update после старта",
+      "when": "Принимать обновления",
+      "then": "Нет ложного облачного ответа/гарантии beyond server retention; receipt после local commit.",
+      "status": "planned",
+      "levels": [
+        "contract",
+        "ui_e2e"
+      ]
+    },
+    {
+      "id": "TC-UI-APP",
+      "requirements": [
+        "FR-UI-001"
+      ],
+      "given": "Установленная personal macOS сборка",
+      "when": "Открыть/закрыть окно/Stop",
+      "then": "UI usable, фон остаётся после окна, Stop останавливает только owned компоненты.",
+      "status": "planned",
+      "levels": [
+        "contract",
+        "ui_e2e"
+      ]
+    },
+    {
+      "id": "TC-LIFE-WAKE",
+      "requirements": [
+        "FR-LIFE-001"
+      ],
+      "given": "Active lease и сохранённая квота",
+      "when": "Kill/restart/sleep/wake",
+      "then": "Истёкший worker не commit после fence, jobs восстановлены, quotas не сброшены, no notification storm.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-LOCAL",
+      "requirements": [
+        "NFR-001"
+      ],
+      "given": "Clean synthetic профиль и monitored network",
+      "when": "Пройти сценарии state/AI/bot",
+      "then": "ИИ не отправляет данные внешней модели; Telegram/source исключения явны; secret refs не в prompts/logs.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-LATENCY",
+      "requirements": [
+        "NFR-002"
+      ],
+      "given": "20 минутных synthetic audio, pinned qualified bundle",
+      "when": "Измеритьwarm/cold,p50/p95",
+      "then": "p95≤15s и для warm, и для cold при установленных весах; иначе Q-AI gate fail, processing receipt не counted.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-DISK",
+      "requirements": [
+        "NFR-003"
+      ],
+      "given": "Installed package+models+profile+copies и near-full диск",
+      "when": "Загрузить большойmedia/model",
+      "then": "Лимит10/20GB учтён полностью, уникальные данные/последняя копия не удалены скрыто.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-DURABLE",
+      "requirements": [
+        "NFR-004"
+      ],
+      "given": "Сбой до/послеcommit и competing lease",
+      "when": "Повторить приём/обработку",
+      "then": "Тот жеreceipt, без дубля, stale inference result отклонён.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-RESTORE",
+      "requirements": [
+        "NFR-005"
+      ],
+      "given": "Completed backup с уникальнымиmedia и failed migration",
+      "when": "Restore в отдельныйкаталог",
+      "then": "Hashes/FKs/versions проверены, исходный профиль не изменён до switch, модели/index восстанавливаемые.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-ENERGY",
+      "requirements": [
+        "NFR-006"
+      ],
+      "given": "Нетjobs/UIзакрыт и батарея",
+      "when": "Наблюдатьidle10min и interactive request",
+      "then": "CPU/RAM gates, фоновый AI отложен, интерактивная задача не потеряна.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-ACCESS",
+      "requirements": [
+        "NFR-007"
+      ],
+      "given": "Учётная записьMac, owner token, bridge token",
+      "when": "Запроситьscope вне прав",
+      "then": "Нет отдельного userpassword, чужойchat/bridge не читаетдневник, local credential не опубликован.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-ARCH",
+      "requirements": [
+        "NFR-008"
+      ],
+      "given": "Сборка с намеренно нарушенной dependency в fixture",
+      "when": "Запуститьarchitecture suite",
+      "then": "Forbidden imports/cycles fail; реальные адаптеры и fakes проходят contract suite.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-COVERAGE",
+      "requirements": [
+        "NFR-009"
+      ],
+      "given": "Код этапа, corpus и coverage/mutation reports",
+      "when": "Запуститьполнуюприёмку",
+      "then": "Targets выполнены, no hidden skipped; design tests не подменяют product tests.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "TC-NFR-CI",
+      "requirements": [
+        "NFR-010"
+      ],
+      "given": "Required job failed/cancelled/skipped и release SHA",
+      "when": "Выполнитьrequired-gate",
+      "then": "Gate fail и релиз blocked; valid stage evidence включает clean build/install/restore.",
+      "status": "planned",
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    }
+  ]
+}

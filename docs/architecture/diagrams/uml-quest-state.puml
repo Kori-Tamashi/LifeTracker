@@ -1,0 +1,26 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title UML state — quest occurrence (R4 proposal)
+[*] --> Assigned : validated AI candidate
+Assigned --> Active : window starts
+Assigned --> Cancelled : invalid assignment / schedule revision
+Active --> Completed : accepted evidence of completion
+Active --> Paused : illness / rest policy
+Paused --> Active : resume within valid window
+Paused --> Excused : window ends during valid pause
+Active --> NoData : deadline, no reliable outcome
+Active --> Skipped : explicit accepted non-completion
+NoData --> Completed : late evidence
+NoData --> Skipped : explicit clarification
+Skipped --> Completed : corrected evidence, compensate prior effect
+Completed --> [*]
+Cancelled --> [*]
+Excused --> [*]
+note right of NoData
+NoData is not failure.
+No penalty for technical failure.
+Rewards / decay follow BR-06 baseline.
+end note
+@enduml

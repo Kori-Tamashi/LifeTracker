@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../../src/core/LifeTracker.Host/LifeTracker.Host.csproj" />
+    <None Include="../../../configs/api/routes.json" Link="Fixtures/routes.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

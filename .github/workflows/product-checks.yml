@@ -1,0 +1,88 @@
+name: Product checks
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main, 'feature/**', 'release/**', 'hotfix/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-fast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: configs/dotnet/global.json
+      - name: Restore locked dependencies
+        run: sh tools/dotnet.sh restore --locked-mode
+      - name: Check formatting
+        run: sh tools/dotnet.sh format --no-restore --verify-no-changes
+      - name: Build with analyzers
+        run: sh tools/dotnet.sh build --no-restore --configuration Debug
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Install contract validators
+        run: python3 -m pip install -r tools/requirements-design.txt
+      - name: Check API route manifest
+        run: python3 tools/build_api_manifest.py --check
+      - name: Domain, application, architecture and HTTP tests
+        env:
+          LIFETRACKER_CONTRACT_OUTPUT: ${{ runner.temp }}/lifetracker-api-contract.json
+        run: sh tools/dotnet.sh test --no-build --configuration Debug --minimum-expected-tests 1
+
+      - name: Validate actual HTTP responses against OpenAPI
+        run: python3 tools/validate_runtime_contract.py "${{ runner.temp }}/lifetracker-api-contract.json"
+      - name: Process restart smoke
+        run: python3 tools/smoke_local_api.py src/core/LifeTracker.Host/bin/Debug/net10.0/LifeTracker.Host.dll
+
+  macos-client:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Lint Swift style
+        run: sh tools/format_swift.sh lint
+      - name: Build and test native client package
+        run: sh tools/test_macos.sh
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: configs/dotnet/global.json
+      - name: Build real host for Swift integration
+        run: |
+          sh tools/dotnet.sh restore --locked-mode
+          sh tools/dotnet.sh build --no-restore --configuration Debug
+      - name: Build, verify and update local app package
+        run: |
+          python3 tools/package_macos.py build
+          python3 tools/package_macos.py verify var/build/LifeTracker.app
+          python3 tools/package_macos.py install var/build/LifeTracker.app --destination "$RUNNER_TEMP/installed/LifeTracker.app"
+          python3 tools/package_macos.py install var/build/LifeTracker.app --destination "$RUNNER_TEMP/installed/LifeTracker.app"
+          python3 tools/package_macos.py verify "$RUNNER_TEMP/installed/LifeTracker.app"
+      - name: Swift client and owned lifecycle with packaged host
+        run: python3 tools/smoke_macos_client.py "$RUNNER_TEMP/installed/LifeTracker.app/Contents/Resources/Core/LifeTracker.Host.dll"
+
+  product-checks:
+    if: always()
+    needs: [core-fast, macos-client]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require all product checks
+        env:
+          CORE_RESULT: ${{ needs.core-fast.result }}
+          MAC_RESULT: ${{ needs.macos-client.result }}
+        run: test "$CORE_RESULT" = success && test "$MAC_RESULT" = success

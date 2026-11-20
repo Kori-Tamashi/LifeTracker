@@ -1,0 +1,38 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+title UML sequence — voice / durable async processing
+actor Owner
+participant "Channel adapter" as Channel
+participant "AcceptMessage" as Accept
+participant "Media Store" as Media
+database "Inbox / Jobs / Outbox" as DB
+participant "Worker" as Worker
+participant "Local inference" as AI
+participant "Journal / State / Insights" as Domain
+Owner -> Channel : Voice message
+Channel -> Accept : Source ID + media
+Accept -> Media : Durable file
+Media --> Accept : Media reference
+Accept -> DB : Transaction: inbox + job + receipt
+DB --> Accept : Commit
+Accept --> Channel : Durable receipt
+Channel --> Owner : Accepted / processing
+Worker -> DB : Claim lease
+DB --> Worker : Job + input versions
+Worker -> AI : Speech / extraction request
+AI --> Worker : Structured candidates + evidence
+Worker -> Domain : Validate candidates + current revisions
+alt auto-confirm enabled
+ Domain -> DB : Transaction: accepted records + next outbox + job complete
+else confirmation required
+ Domain -> DB : Transaction: pending extraction + job complete
+end
+Worker --> Channel : Result / confirmation prompt
+Channel --> Owner : Response + processing status
+note over Worker, DB
+Inference runs outside DB transaction.
+Stale lease / input revision cannot commit.
+end note
+@enduml

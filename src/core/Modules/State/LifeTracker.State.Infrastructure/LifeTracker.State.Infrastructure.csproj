@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../LifeTracker.State.Application/LifeTracker.State.Application.csproj" />
+    <ProjectReference Include="../../../LifeTracker.Infrastructure.Shared/LifeTracker.Infrastructure.Shared.csproj" />
+  </ItemGroup>
+</Project>
