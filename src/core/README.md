@@ -1,12 +1,12 @@
 # Переносимое ядро
 
-.NET 10; точный SDK и test runner — в корневом `global.json`, версии NuGet — в `configs/dotnet/Directory.Packages.props`, транзитивные зависимости — в `packages.lock.json` каждого проекта. xUnit v3 работает через Microsoft.Testing.Platform, не через VSTest.
+.NET 10; точный SDK и test runner — в `configs/dotnet/global.json`, версии NuGet — в `configs/dotnet/Directory.Packages.props`, транзитивные зависимости — в `packages.lock.json` каждого проекта. xUnit v3 работает через Microsoft.Testing.Platform, не через VSTest.
 
 ```sh
-dotnet restore src/core/LifeTracker.slnx --locked-mode
-dotnet format src/core/LifeTracker.slnx --no-restore --verify-no-changes
-dotnet build src/core/LifeTracker.slnx --no-restore
-dotnet test --solution src/core/LifeTracker.slnx --no-build --minimum-expected-tests 1
+sh tools/dotnet.sh restore --locked-mode
+sh tools/dotnet.sh format --no-restore --verify-no-changes
+sh tools/dotnet.sh build --no-restore
+sh tools/dotnet.sh test --no-build --minimum-expected-tests 1
 ```
 
 `src/Modules/State` содержит доменную политику, прикладные сценарии и контракты. `IStateRepository` — выходной порт; bootstrap новой SQLite-базы реализован в D-004.1; production repository реализован в D-004.2/004.3. Test double существует только в тестовом проекте; общий контракт запускается также на реальном SQLite. Транспортные DTO и HTTP-маршруты подключаются в D-005.

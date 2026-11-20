@@ -23,13 +23,13 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
-          global-json-file: global.json
+          global-json-file: configs/dotnet/global.json
       - name: Restore locked dependencies
-        run: dotnet restore src/core/LifeTracker.slnx --locked-mode
+        run: sh tools/dotnet.sh restore --locked-mode
       - name: Check formatting
-        run: dotnet format src/core/LifeTracker.slnx --no-restore --verify-no-changes
+        run: sh tools/dotnet.sh format --no-restore --verify-no-changes
       - name: Build with analyzers
-        run: dotnet build src/core/LifeTracker.slnx --no-restore --configuration Debug
+        run: sh tools/dotnet.sh build --no-restore --configuration Debug
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.13'
@@ -40,7 +40,7 @@ jobs:
       - name: Domain, application, architecture and HTTP tests
         env:
           LIFETRACKER_CONTRACT_OUTPUT: ${{ runner.temp }}/lifetracker-api-contract.json
-        run: dotnet test --solution src/core/LifeTracker.slnx --no-build --configuration Debug --minimum-expected-tests 1
+        run: sh tools/dotnet.sh test --no-build --configuration Debug --minimum-expected-tests 1
 
       - name: Validate actual HTTP responses against OpenAPI
         run: python3 tools/validate_runtime_contract.py "${{ runner.temp }}/lifetracker-api-contract.json"

@@ -51,3 +51,7 @@ D-004: реальный SQLite adapter и транзакционные contract 
 Локально пройдены 121 .NET test и process smoke с настоящим остановленным/повторно запущенным CLI: record → restart → read/retry → correction. Шесть реально полученных ответов соответствуют пяти OpenAPI schemas. Полный проектный набор и удалённый CI проверяются перед merge. Это M1 backend/demo scope, не R1 release и не UI acceptance.
 
 Следующий пакет — D-006 SwiftUI-персонаж, быстрый ввод и история через этот API. Автозапуск/lifecycle, scheduler, backup/restore и квалификация Apple остаются отдельными gates.
+
+## Минимальный корень репозитория
+
+Удалены корневые props, .editorconfig и AGENTS.md; SDK config перенесён в configs/dotnet. Общие настройки подключаются через tools/dotnet.sh с явными MSBuild paths, Roslyn использует configs/.editorconfig. CI/команды обновлены, checker запрещает возвращение служебных файлов в корень и AGENTS.md в отслеживаемое дерево. Политики проекта остаются в docs.

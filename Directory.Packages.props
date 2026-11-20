@@ -1,3 +1,0 @@
-<Project>
-  <Import Project="configs/dotnet/Directory.Packages.props" />
-</Project>
