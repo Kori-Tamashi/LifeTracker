@@ -51,8 +51,8 @@ S/M/L — относительная инженерная сложность и 
 | D-001.1 | Матрица официальных способов получения aggregate/category Screen Time; права, регион, установка, ссылки и pass/fail | M0 | M | документальная часть выполнена |
 | D-001.2 | Минимальный эксперимент на целевом устройстве или конкретный недостающий prerequisite; обезличенный отчёт | D-001.1 | M | awaiting provisioning prerequisite |
 | D-004.1 | SQLite/EF runtime qualification, минимальная миграция Profile/State/revisions, новая база открывается | M0 | M | реализация D-004.1; см. progress |
-| D-004.2 | Атомарный batch + receipt, profile scope, idempotency; общие repository contracts на реальном SQLite | D-004.1 | M | planned |
-| D-004.3 | Append revision, optimistic conflict, concurrent retry, rollback и отмена без частичной записи | D-004.2 | M | planned |
+| D-004.2 | Атомарный batch + receipt, profile scope, idempotency; общие repository contracts на реальном SQLite | D-004.1 | M | реализация; shared contracts |
+| D-004.3 | Append revision, optimistic conflict, concurrent retry, rollback и отмена без частичной записи | D-004.2 | M | реализация; rollback/concurrency tests |
 | D-004.4 | Минимальные durable inbox/outbox, claim/fencing/retry; crash/restart fixtures | D-004.3 | L | planned |
 | D-005.1 | Local host, composition root, owner credential, health/capability status без личных данных | D-004.2 | M | planned |
 | D-005.2 | Assessment create/revise/current/history; ошибки и receipts соответствуют OpenAPI | D-003 + D-004.3 + D-005.1 | M | planned |

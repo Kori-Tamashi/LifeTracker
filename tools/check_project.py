@@ -72,8 +72,19 @@ def validate(paths):
     return errors, text_count, diagram_count
 
 
+def validate_layout(paths):
+    roots = {'docs', 'src', 'configs', 'tests', 'tools', '.github'}
+    entrypoints = {'README.md', 'AGENTS.md', '.gitignore', '.editorconfig',
+                   'global.json', 'Directory.Build.props', 'Directory.Packages.props'}
+    return [f'{rel}: unsupported top-level location; use docs/src/configs/tests/tools'
+            for rel in paths if (len(rel.parts) == 1 and rel.name not in entrypoints)
+            or (len(rel.parts) > 1 and rel.parts[0] not in roots)]
+
+
 def main():
-    errors, texts, diagrams = validate(visible_files())
+    paths = visible_files()
+    errors, texts, diagrams = validate(paths)
+    errors.extend(validate_layout(paths))
     for error in errors:
         print(error, file=sys.stderr)
     if errors:

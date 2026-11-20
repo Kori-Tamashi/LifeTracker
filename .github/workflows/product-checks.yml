@@ -25,13 +25,13 @@ jobs:
         with:
           global-json-file: global.json
       - name: Restore locked dependencies
-        run: dotnet restore services/core/LifeTracker.slnx --locked-mode
+        run: dotnet restore src/core/LifeTracker.slnx --locked-mode
       - name: Check formatting
-        run: dotnet format whitespace services/core/LifeTracker.slnx --no-restore --verify-no-changes
+        run: dotnet format src/core/LifeTracker.slnx --no-restore --verify-no-changes
       - name: Build with analyzers
-        run: dotnet build services/core/LifeTracker.slnx --no-restore --configuration Debug
+        run: dotnet build src/core/LifeTracker.slnx --no-restore --configuration Debug
       - name: Domain, application and architecture tests
-        run: dotnet test --solution services/core/LifeTracker.slnx --no-build --configuration Debug --minimum-expected-tests 1
+        run: dotnet test --solution src/core/LifeTracker.slnx --no-build --configuration Debug --minimum-expected-tests 1
 
   macos-client:
     runs-on: macos-26
@@ -40,6 +40,8 @@ jobs:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+      - name: Lint Swift style
+        run: sh tools/format_swift.sh lint
       - name: Build and test native client package
         run: sh tools/test_macos.sh
 
