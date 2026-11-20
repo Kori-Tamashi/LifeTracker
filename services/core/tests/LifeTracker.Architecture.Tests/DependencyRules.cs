@@ -5,6 +5,7 @@ using LifeTracker.Kernel;
 using LifeTracker.State.Application;
 using LifeTracker.State.Contracts;
 using LifeTracker.State.Domain;
+using LifeTracker.State.Infrastructure;
 using Xunit;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
@@ -14,7 +15,7 @@ public sealed class DependencyRules
 {
     private static readonly Assembly[] Production = [typeof(Score).Assembly, typeof(Identifiers).Assembly,
         typeof(IUtcClock).Assembly, typeof(CurrentState).Assembly, typeof(RecordAssessmentsHandler).Assembly];
-    private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies(Production).Build();
+    private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies([.. Production, typeof(StateDbContext).Assembly]).Build();
 
     [Fact]
     public void DomainCannotDependOnApplicationOrContracts()
@@ -43,6 +44,17 @@ public sealed class DependencyRules
                 if (name.StartsWith("System.", StringComparison.Ordinal) || name == "System.Runtime") continue;
                 Assert.Contains(name, allowed[assembly.GetName().Name!]);
             }
+    }
+
+    [Fact]
+    public void InnerLayersNeverDependOnInfrastructure()
+    {
+        foreach (var assembly in Production)
+        {
+            var rule = Types().That().ResideInAssembly(assembly).Should()
+                .NotDependOnAny(Types().That().ResideInAssembly(typeof(StateDbContext).Assembly));
+            Assert.True(rule.HasNoViolations(Architecture));
+        }
     }
 
     [Fact]

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+    <ProjectReference Include="../LifeTracker.State.Application/LifeTracker.State.Application.csproj" />
+    <EmbeddedResource Include="Migrations/InitialState.sql" />
+  </ItemGroup>
+</Project>

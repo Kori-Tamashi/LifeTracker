@@ -20,3 +20,10 @@ D-004: реальный SQLite adapter и транзакционные contract 
 ## Управление разработкой
 
 Подготовлен рабочий [план](development-plan.md): ближайшие действия — PM-01 (remote CI gates), ограниченный D-001 Screen Time qualification, затем D-004.1…004.3 и вертикаль M1 через D-005. Scope baseline не изменён; календарные обязательства назначаются после калибровки фактического темпа.
+
+## D-004.1 и проверки рисков
+
+- [PM-01 audit](ci-gate-audit.md): публичные ветки не защищены, rulesets пуст; connector не умеет применять эти настройки. Server-enforced gate остаётся открытым действием, CI перед merge обязателен.
+- [D-001.1](../integrations/screen-time-spike.md): изучены export/report/macOS APIs. D-001.2 ожидает специального provisioning prerequisite; Q-APPLE-ACTIVITY не пройден. Scope R1 не изменён.
+- D-004.1: [bootstrap](../architecture/storage/bootstrap.md) новой файловой SQLite-базы через EF migration с native qualification, WAL/FULL, lease и проверкой целостности. Существующие базы не изменяются. Добавлены 10 storage tests и одно правило architecture; локально пройдены 45 .NET tests. Linux CI подтверждается отдельно на head PR.
+- Следующий основной пакет: D-004.2 — реальные profile-scoped repositories, atomic batch/receipt и idempotency; затем D-004.3 — revisions/concurrency. Текущий DbContext migration-only, repository ещё не реализован.

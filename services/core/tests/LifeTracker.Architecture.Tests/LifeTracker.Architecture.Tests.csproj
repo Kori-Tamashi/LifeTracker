@@ -4,5 +4,6 @@
 <PackageReference Include="xunit.v3" />
 <PackageReference Include="TngTech.ArchUnitNET" />
 <ProjectReference Include="../../src/Modules/State/LifeTracker.State.Application/LifeTracker.State.Application.csproj" />
+<ProjectReference Include="../../src/Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
 </ItemGroup>
 </Project>
