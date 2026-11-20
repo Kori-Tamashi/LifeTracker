@@ -1,0 +1,181 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text.Json.Nodes;
+using LifeTracker.Host;
+using LifeTracker.Infrastructure.Shared;
+using Microsoft.Data.Sqlite;
+using Xunit;
+
+namespace LifeTracker.Host.Tests;
+
+public sealed class OfflineBackupTests : IAsyncLifetime
+{
+    private readonly string root = Path.Combine(Path.GetTempPath(), "lifetracker-backup-synthetic-" + Guid.NewGuid().ToString("N"));
+    private string Profile => Path.Combine(root, "profile");
+    private string Backup => Path.Combine(root, "backups", "snapshot");
+    private string Restored => Path.Combine(root, "restored");
+    private static CancellationToken Ct => TestContext.Current.CancellationToken;
+
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+    public ValueTask DisposeAsync()
+    {
+        if (Directory.Exists(root)) { Directory.Delete(root, recursive: true); }
+        return ValueTask.CompletedTask;
+    }
+
+    private async Task SeedAsync()
+    {
+        await using var host = await LocalApiHost.CreateAsync(new(Profile, 0), ct: Ct);
+        await host.StartAsync(Ct);
+        using var client = new HttpClient { BaseAddress = host.Address };
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+            await File.ReadAllTextAsync(Path.Combine(Profile, "owner.credential"), Ct));
+        client.DefaultRequestHeaders.Add("Idempotency-Key", "synthetic-backup-record");
+        using var response = await client.PostAsJsonAsync("/api/v1/assessments", new
+        {
+            observed_at = DateTimeOffset.UtcNow,
+            values = new[] { new { metric = "energy", score = 8m } }
+        }, Ct);
+        response.EnsureSuccessStatusCode();
+    }
+
+    private static Dictionary<string, string> Hashes(string directory) => Directory.GetFiles(directory)
+        .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))), StringComparer.Ordinal);
+
+    [Fact]
+    public async Task RoundTripPreservesRowsIdentityCredentialPendingAndImmutableBackup()
+    {
+        await SeedAsync();
+        const string pending = "{\"synthetic_pending\":true}";
+        await File.WriteAllTextAsync(Path.Combine(Profile, "desktop-pending-assessment.json"), pending, Ct);
+        await OfflineProfileBackup.CreateAsync(Profile, Backup, Ct);
+        var before = Hashes(Backup);
+        var manifest = await OfflineProfileBackup.VerifyAsync(Backup, Ct);
+        await OfflineProfileBackup.RestoreAsync(Backup, Restored, Ct);
+        Assert.Equal(before.OrderBy(p => p.Key), Hashes(Backup).OrderBy(p => p.Key));
+        Assert.Equal(await File.ReadAllTextAsync(Path.Combine(Profile, "owner.credential"), Ct),
+            await File.ReadAllTextAsync(Path.Combine(Restored, "owner.credential"), Ct));
+        Assert.Equal(pending, await File.ReadAllTextAsync(Path.Combine(Restored, "desktop-pending-assessment.json"), Ct));
+        await using var store = await SqliteStore.OpenExistingAsync(Restored, Ct);
+        await using var query = store.Connection.CreateCommand();
+        query.CommandText = "SELECT id FROM profiles;";
+        Assert.Equal(manifest.ProfileId.ToString("D"), await query.ExecuteScalarAsync(Ct));
+        query.CommandText = "SELECT COUNT(*) FROM observations;";
+        Assert.Equal(1L, await query.ExecuteScalarAsync(Ct));
+    }
+
+    [Fact]
+    public async Task ExistingDestinationAndNestedDestinationAreNeverReplaced()
+    {
+        await SeedAsync();
+        Directory.CreateDirectory(Restored);
+        await File.WriteAllTextAsync(Path.Combine(Restored, "sentinel"), "synthetic", Ct);
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.CreateAsync(Profile, Restored, Ct));
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.CreateAsync(Profile, Path.Combine(Profile, "backup"), Ct));
+        await OfflineProfileBackup.CreateAsync(Profile, Backup, Ct);
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.RestoreAsync(Backup, Restored, Ct));
+        Assert.Equal("synthetic", await File.ReadAllTextAsync(Path.Combine(Restored, "sentinel"), Ct));
+    }
+
+    [Fact]
+    public async Task ActiveCorePreventsBackup()
+    {
+        await SeedAsync();
+        await using var active = await SqliteStore.OpenExistingAsync(Profile, Ct);
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.CreateAsync(Profile, Backup, Ct));
+        Assert.False(Directory.Exists(Backup));
+    }
+
+    [Fact]
+    public async Task ActiveDesktopPreventsBackup()
+    {
+        await SeedAsync();
+        await using var desktop = new FileStream(Path.Combine(Profile, "desktop-assessment.lock"), FileMode.OpenOrCreate,
+            FileAccess.ReadWrite, FileShare.None);
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.CreateAsync(Profile, Backup, Ct));
+        Assert.False(Directory.Exists(Backup));
+    }
+
+    [Theory]
+    [InlineData("unrecognized.txt")]
+    [InlineData("future-module")]
+    public async Task UnknownProfileArtifactsCannotBeSilentlyOmitted(string name)
+    {
+        await SeedAsync();
+        if (name == "future-module") { Directory.CreateDirectory(Path.Combine(Profile, name)); }
+        else { await File.WriteAllTextAsync(Path.Combine(Profile, name), "synthetic", Ct); }
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.CreateAsync(Profile, Backup, Ct));
+        Assert.False(Directory.Exists(Backup));
+    }
+
+    [Fact]
+    public async Task CorruptionIsRejectedBeforeDestinationIsPublished()
+    {
+        await SeedAsync();
+        await OfflineProfileBackup.CreateAsync(Profile, Backup, Ct);
+        await File.WriteAllTextAsync(Path.Combine(Backup, "owner.credential"), new string('a', 43), Ct);
+        await Assert.ThrowsAsync<InvalidDataException>(() => OfflineProfileBackup.RestoreAsync(Backup, Restored, Ct));
+        Assert.False(Directory.Exists(Restored));
+    }
+
+    [Fact]
+    public async Task ManifestCannotEscapeBackupOrChangeProfileIdentity()
+    {
+        await SeedAsync();
+        await OfflineProfileBackup.CreateAsync(Profile, Backup, Ct);
+        var path = Path.Combine(Backup, "backup-manifest.json");
+        var original = await File.ReadAllTextAsync(path, Ct);
+        var json = JsonNode.Parse(original)!;
+        json["sha256"]!["../outside"] = new string('A', 64);
+        await File.WriteAllTextAsync(path, json.ToJsonString(), Ct);
+        await Assert.ThrowsAsync<InvalidDataException>(() => OfflineProfileBackup.VerifyAsync(Backup, Ct));
+        json = JsonNode.Parse(original)!;
+        json["profile_id"] = Guid.NewGuid().ToString("D");
+        await File.WriteAllTextAsync(path, json.ToJsonString(), Ct);
+        await Assert.ThrowsAsync<InvalidDataException>(() => OfflineProfileBackup.VerifyAsync(Backup, Ct));
+    }
+
+    [Fact]
+    public async Task UnknownSchemaFailsEvenWithRecomputedChecksum()
+    {
+        await SeedAsync();
+        await OfflineProfileBackup.CreateAsync(Profile, Backup, Ct);
+        var database = Path.Combine(Backup, "lifetracker.sqlite");
+        await using (var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = database, Pooling = false }.ToString()))
+        {
+            await connection.OpenAsync(Ct);
+            await using var command = connection.CreateCommand();
+            command.CommandText = "PRAGMA user_version=99;";
+            await command.ExecuteNonQueryAsync(Ct);
+        }
+        var path = Path.Combine(Backup, "backup-manifest.json");
+        var json = JsonNode.Parse(await File.ReadAllTextAsync(path, Ct))!;
+        json["sha256"]!["lifetracker.sqlite"] = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(database, Ct)));
+        await File.WriteAllTextAsync(path, json.ToJsonString(), Ct);
+        await Assert.ThrowsAsync<NotSupportedException>(() => OfflineProfileBackup.RestoreAsync(Backup, Restored, Ct));
+        Assert.False(Directory.Exists(Restored));
+    }
+
+    [Fact]
+    public async Task CancellationDoesNotPublishRestore()
+    {
+        await SeedAsync();
+        await OfflineProfileBackup.CreateAsync(Profile, Backup, Ct);
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => OfflineProfileBackup.RestoreAsync(Backup, Restored, cancellation.Token));
+        Assert.False(Directory.Exists(Restored));
+    }
+
+    [Fact]
+    public async Task AncestorLinkCannotBypassNestedDestinationCheck()
+    {
+        await SeedAsync();
+        var alias = Path.Combine(root, "alias");
+        Directory.CreateSymbolicLink(alias, Profile);
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.CreateAsync(Profile, Path.Combine(alias, "backup"), Ct));
+        Assert.False(Directory.Exists(Path.Combine(Profile, "backup")));
+        Directory.Delete(alias);
+    }
+}

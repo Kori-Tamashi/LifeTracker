@@ -37,7 +37,7 @@ public sealed class LocalApiHost : IAsyncDisposable
 
         Directory.CreateDirectory(settings.RuntimeRoot);
         var existing = File.Exists(Path.Combine(settings.RuntimeRoot, "lifetracker.sqlite"));
-        var token = await OwnerCredential.LoadOrCreateAsync(settings.RuntimeRoot, !existing, ct);
+        var token = await ProfileCredential.LoadOrCreateAsync(settings.RuntimeRoot, !existing, ct);
         var store = existing ? await SqliteStore.OpenExistingAsync(settings.RuntimeRoot, ct) : await SqliteStore.CreateAsync(settings.RuntimeRoot, ct);
         try
         {

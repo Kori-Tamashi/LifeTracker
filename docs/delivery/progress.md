@@ -95,3 +95,9 @@ Docker на локальном стенде доступен; Q-DOCKER-STORAGE �
 После проверки обновляются сводка/история без смены identity окна/редактора. Исправлена потеря refresh во время текущей загрузки: несколько запросов объединяются в один последующий fetch. Короткий timeout readiness больше не переносится на пользовательские операции; временная health-session закрывается после probe.
 
 Локально 27 Swift unit/process tests и две live-интеграции с Core beta.1 прошли; tooling/schema — 45 tests. Unit cases моделируют wake callbacks, временный failure/retry, повторное событие, stop/cancel race и pending refresh. Реальный сон ОС/GUI/editor preservation требует ручной квалификации. Lease/job/notification reconciliation, orphan recovery и полный D-007.2 остаются открытыми. Установленный beta.1 bundle и main/tag не обновлялись этим срезом.
+
+## D-009.1.1: offline State snapshot (develop)
+
+Добавлены CLI create/verify/restore для существующего State-профиля. SQLite Backup API, блокировки Core/desktop, inventory и SHA-256, проверка schema/integrity/profile и staging rename предотвращают неполную обычную публикацию. Восстановление только в новый каталог сохраняет credential, receipts и pending journal. Неизвестное содержимое отвергается.
+
+Локально 132 .NET tests прошли; отдельные процессы проверили Core lock, Unix flock desktop, roundtrip и replay без дубликата. Process smoke добавлен в Linux/macOS CI; удалённый результат фиксируется в PR. UI, retention/scheduler/disk policy, power-loss qualification и migration-failure recovery остаются открытыми. Установленный beta.1 и main/tag не обновляются.

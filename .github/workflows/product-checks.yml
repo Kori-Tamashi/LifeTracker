@@ -47,6 +47,9 @@ jobs:
       - name: Process restart smoke
         run: python3 tools/smoke_local_api.py src/core/LifeTracker.Host/bin/Debug/net10.0/LifeTracker.Host.dll
 
+      - name: Offline profile backup and restore smoke
+        run: python3 tools/smoke_profile_backup.py src/core/LifeTracker.Host/bin/Debug/net10.0/LifeTracker.Host.dll
+
   macos-client:
     runs-on: macos-26
     timeout-minutes: 15
@@ -74,6 +77,9 @@ jobs:
           python3 tools/package_macos.py verify "$RUNNER_TEMP/installed/LifeTracker.app"
       - name: Swift client and owned lifecycle with packaged host
         run: python3 tools/smoke_macos_client.py "$RUNNER_TEMP/installed/LifeTracker.app/Contents/Resources/Core/LifeTracker.Host.dll"
+
+      - name: Offline maintenance with packaged host
+        run: python3 tools/smoke_profile_backup.py "$RUNNER_TEMP/installed/LifeTracker.app/Contents/Resources/Core/LifeTracker.Host.dll"
 
   product-checks:
     if: always()
