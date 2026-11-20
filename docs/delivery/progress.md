@@ -81,3 +81,9 @@ D-004: реальный SQLite adapter и транзакционные contract 
 Добавлены menu bar, reopening окна и delegate, оставляющий процесс живым после закрытия окна; Command-Q ожидает остановки собственного host. Профиль/порт запоминаются локально, настройка Login Items использует SMAppService с явным статусом approval/error. Установка не включает её автоматически. Живой UI/закрытие окна/реальный login пока не квалифицированы из-за отсутствия Computer Use permissions; M2/R1 не объявляются принятыми.
 
 Локально 21 Swift unit/process tests и две live-интеграции прошли, включая Core из настоящего `.app`, сохранность записи при stop/restart и idempotent retry. Tooling/schema — 37 tests; package tests дополнены tamper/path checks для Core. CI выполняет live tests после установки/обновления пакета. Sleep/wake, orphan/crash recovery, scheduler/Telegram и полный lifecycle acceptance остаются D-007.2/следующими пакетами.
+
+## Стабилизация B0 — 0.1.0-beta.1
+
+Разработка ограничена первой тестируемой вертикалью, без новых модулей. B0 gates отделены от полного R1: согласованы beta metadata, отдельные preferences профиля, инструкция ручного теста, third-party notices и dependency inventory. Release workflow повторяет проверки на точном main SHA, собирает ZIP/evidence/checksums и публикует GitHub prerelease. Существующий тег не перемещается; GUI/login и full R1 gates не выданы за pass.
+
+Docker на локальном стенде доступен; Q-DOCKER-STORAGE не закрыт, B0 остаётся native. Публикация и конечный SHA проверяются в GitHub Releases/Actions, а не объявляются этой записью заранее.

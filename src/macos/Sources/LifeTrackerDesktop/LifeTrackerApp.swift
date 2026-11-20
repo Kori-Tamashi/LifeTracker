@@ -12,15 +12,23 @@ private final class DesktopSession {
     var error: String?
     var loginStatus = SMAppService.mainApp.status
     private var restored = false
+    private var rootKey: String {
+        Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
+            ? "betaRuntimeRoot" : "runtimeRoot"
+    }
+    private var portKey: String {
+        Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
+            ? "betaRuntimePort" : "runtimePort"
+    }
 
     func restore() async {
         guard !restored else { return }
         restored = true
         let environment = ProcessInfo.processInfo.environment
-        if let root = environment["LIFETRACKER_RUNTIME_ROOT"] ?? UserDefaults.standard.string(forKey: "runtimeRoot") {
+        if let root = environment["LIFETRACKER_RUNTIME_ROOT"] ?? UserDefaults.standard.string(forKey: rootKey) {
             let port =
                 environment["LIFETRACKER_PORT"].flatMap(Int.init)
-                ?? (UserDefaults.standard.object(forKey: "runtimePort") as? Int) ?? 17841
+                ?? (UserDefaults.standard.object(forKey: portKey) as? Int) ?? 17841
             await start(root: URL(fileURLWithPath: root), port: port)
         }
     }
@@ -45,8 +53,8 @@ private final class DesktopSession {
         do {
             workspace = try AssessmentWorkspace(
                 service: client, journal: FilePendingAssessmentJournal(runtimeRoot: root))
-            UserDefaults.standard.set(root.path, forKey: "runtimeRoot")
-            UserDefaults.standard.set(port, forKey: "runtimePort")
+            UserDefaults.standard.set(root.path, forKey: rootKey)
+            UserDefaults.standard.set(port, forKey: portKey)
         } catch {
             _ = await runtime.stop()
             self.error =
@@ -126,6 +134,7 @@ struct LifeTrackerApp: App {
             }
         }
         MenuBarExtra("LifeTracker", systemImage: "person.crop.circle") {
+            Text("LifeTracker " + (Bundle.main.infoDictionary?["LifeTrackerReleaseVersion"] as? String ?? "dev"))
             Text(desktop.runtime.phase.title)
             if desktop.runtime.phase == .ready, !desktop.runtime.ownsHost {
                 Text("Подключён внешний сервис; он управляется отдельно")
@@ -156,6 +165,12 @@ private struct ConnectionView: View {
         VStack(spacing: 20) {
             Image(systemName: "person.crop.square").font(.system(size: 64)).foregroundStyle(.teal)
             Text("LifeTracker").font(.largeTitle.bold())
+            Text(Bundle.main.infoDictionary?["LifeTrackerReleaseVersion"] as? String ?? "Development build").font(
+                .headline)
+            Text(
+                "Ранняя бета: используйте отдельную папку для тестирования. Резервное копирование ещё не автоматизировано."
+            )
+            .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Text("Выберите папку данных. Приложение запустит локальный сервис или подключится к уже работающему.")
                 .multilineTextAlignment(.center).foregroundStyle(.secondary)
             Text("Для запуска сервиса нужен установленный .NET 10.").font(.caption).foregroundStyle(.secondary)
