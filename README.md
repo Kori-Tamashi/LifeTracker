@@ -12,6 +12,7 @@
 - [ТЗ baseline1.0](docs/requirements/specification.md) — требования, этапы, приёмка и открытые решения
 - [Архитектура и диаграммы](docs/architecture/overview.md)
 - [Исследование интеграций](docs/integrations/catalog.md)
+- [План разработки: вехи, задачи, риски и контроль](docs/delivery/development-plan.md)
 - [План проектирования](docs/delivery/design-plan.md)
 - [Алгоритмы](docs/architecture/algorithms/README.md), [BPMN-процессы](docs/processes/README.md) и [сравнение компонентов](docs/research/component-comparison.md)
 - [Clean Architecture и SOLID](docs/architecture/clean-architecture.md)
