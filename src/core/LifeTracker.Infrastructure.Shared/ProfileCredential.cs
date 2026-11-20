@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LifeTracker.Host;
+namespace LifeTracker.Infrastructure.Shared;
 
-internal static class OwnerCredential
+public static class ProfileCredential
 {
     public static async Task<string> LoadOrCreateAsync(string root, bool create, CancellationToken ct)
     {

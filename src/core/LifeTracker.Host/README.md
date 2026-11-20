@@ -39,3 +39,7 @@ python3 tools/smoke_local_api.py src/core/LifeTracker.Host/bin/Debug/net10.0/Lif
 ```
 
 HTTP tests используют настоящий Kestrel и синтетический профиль. В CI реально полученные ответы сверяются с OpenAPI через tools/validate_runtime_contract.py; тела/секреты не выводятся. Full install/update/restore, UI и performance qualification этим не подменяются.
+
+## Offline maintenance
+
+Команды `backup`, `verify-backup`, `restore` работают до запуска HTTP. Состав копии, остановка всех writers, примеры и ограничения описаны в [инструкции](../../../docs/architecture/storage/offline-backup.md). В установленной beta.1 эти команды ещё отсутствуют.

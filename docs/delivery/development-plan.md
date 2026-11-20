@@ -64,7 +64,7 @@ S/M/L — относительная инженерная сложность и 
 | D-007.2 | Sleep/wake, restart, отложенная очередь, no reminder storm, offline state | D-007.1 | M | connection revalidation implemented in develop; real sleep/UI, jobs/quota/orphan recovery pending |
 | D-008.1 | Telegram pairing/owner, state read/write, offline/retry/dedup | D-005.3 + D-007.1 | M | planned |
 | D-008.2 | Общий notification scheduler: quota/quiet/dedup, macOS+Telegram delivery | D-007.2 + D-008.1 | M | planned |
-| D-009.1 | Consistent local snapshot, retention/disk, restore в чистый профиль; migration-failure recovery | D-004.4 + D-007.1 | L | planned |
+| D-009.1 | Consistent local snapshot, retention/disk, restore в чистый профиль; migration-failure recovery | D-004.4 + D-007.1 | L | partial: offline CLI; retention/disk/recovery open |
 | D-009.2 | Readable export/delete и backup handling; операторская инструкция с синтетикой | D-009.1 | M | planned |
 | D-010 | Activity adapter + provenance/stale/unavailable; соответствующие contract/UI tests | Q-APPLE-ACTIVITY pass + D-005.3 | L | gated |
 | R1-AC | Полная R1 acceptance, package/license/manifest, update/restore, target Mac checks, release notes | Все обязательные пакеты R1 | L | gated |
