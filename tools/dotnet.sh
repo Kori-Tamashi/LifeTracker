@@ -11,6 +11,9 @@ case "$command" in
   restore|build|format)
     exec dotnet "$command" "$project_root/src/core/LifeTracker.slnx" "$@"
     ;;
+  publish-host)
+    exec dotnet publish "$project_root/src/core/LifeTracker.Host" "$@"
+    ;;
   test)
     exec dotnet test --solution "$project_root/src/core/LifeTracker.slnx" "$@"
     ;;
@@ -21,7 +24,7 @@ case "$command" in
     exec dotnet "$command" "$@"
     ;;
   *)
-    echo 'Usage: sh tools/dotnet.sh {restore|build|format|test|run|--version|--info} [options]' >&2
+    echo 'Usage: sh tools/dotnet.sh {restore|build|format|test|run|publish-host|--version|--info} [options]' >&2
     exit 2
     ;;
 esac

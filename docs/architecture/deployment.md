@@ -34,3 +34,11 @@ Sleep допускает suspension. Wake: проверить clock/root lock/le
 ## Бесплатный iPhone bridge
 
 Проект — SwiftUI/HealthKit, local pairing; автоматический сбор возможен только после Q-APPLE-HEALTH. Apple документирует повторное provisioning Personal Team каждые семь дней; это не условие бесконечной автономной установки. Срок/entitlements/фон проверяются до обещания готовой интеграции. [Apple Personal Team](https://developer.apple.com/help/account/basics/about-your-developer-account).
+
+## Текущий срез реализации D-007.1
+
+Native supervisor реализован в desktop-процессе (NativeRuntime); бизнес-ядро остаётся отдельным дочерним dotnet Process. Пакет содержит framework-dependent Core и native SQLite текущей архитектуры; установленный .NET 10 / ASP.NET Core runtime обязателен. Core не зависит от пути checkout при запуске установленного `.app`. Путь профиля/порт хранятся в локальных системных preferences; пользовательские данные и резервные копии остаются в выбранном runtime-root. Это ограниченное исключение для macOS control metadata, не перенос профиля в облако или bundle.
+
+Управляемый start проверяет readiness через authenticated State API/rule version, а при уже работающем совместимом host выполняет attach без владения процессом. Полная остановка внешнего host недоступна. Single-writer обеспечивают storage root lock и desktop journal lock; восстановление orphan ownership после падения desktop не реализовано. При неожиданном завершении собственного host показывается failed, а не бесконечный автоматический restart.
+
+Menu bar/close-window/SMAppService включены в код; actual UI/login approval gate открыт до проверки на целевом Mac. Обновление установщика не меняет Login Items самостоятельно. Sleep/wake, lease reconciliation, notification coalescing и shutdown checkpoint для будущих фоновых workers пока не реализованы и не считаются пройденными по Process tests.

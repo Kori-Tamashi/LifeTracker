@@ -44,6 +44,7 @@ public sealed class LocalApiHost : IAsyncDisposable
             var profileId = await InitializeOwnerAsync(store, ct);
             var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { Args = [] });
             builder.Logging.ClearProviders();
+            builder.Services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(10));
             builder.WebHost.ConfigureKestrel(options =>
             {
                 options.Listen(IPAddress.Loopback, settings.Port);
