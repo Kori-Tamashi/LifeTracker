@@ -38,3 +38,13 @@
 ## Открытые решения
 
 Server-enforced branch protections остаются открытыми после PM-01 audit. Подпись B0 — ad-hoc, без notarization; полноценные UI, backup/restore и R1 release gates не закрываются выпуском ранней беты. Процесс восстановления failed draft ограничен тем же SHA; опубликованные теги/assets не перезаписываются.
+
+## Удаление завершённых веток
+
+После merge удалять head-ветку задачи; `main`, `develop`, активные ветки и теги сохраняются. Release-ветку удалять после merge-back в develop. История результата остаётся в PR и целевых ветках, выпуск — в immutable tag.
+
+Workflow `Merged branch cleanup` выполняет `tools/prune_merged_branches.py` после merge PR и при первом добавлении/изменении workflow в develop. Он читает полный список PR и удаляет только ветки feature/codex/release/hotfix этого репозитория: PR merged, нет открытого PR с тем же head, текущий SHA совпадает с merged head, этот SHA достижим из develop. Git push использует точный force-with-lease для удаления: сдвинутый head не удаляется. Токен Actions имеет contents:write/pull-requests:read, не передаётся через URL/аргументы и не сохраняется checkout. Fork PR не запускает cleanup. Protected branch/ошибка доступа дают отказ, не обход правил.
+
+Локально после fetch/prune удалять завершённые ветки через `git branch -d`. При различии локальной и опубликованной commit identity сначала проверить равенство деревьев, достижимость опубликованного head из develop и сохранить локальный SHA в refs/archive; только после этого допустимо `git branch -D`. Архивные refs локальные, не публикуются и не отображаются как ветки. Не удалять незнакомые ветки только по возрасту.
+
+21 ноября локально удалены 16 завершённых веток после этих проверок. Прямой remote push отклонён (HTTPS 403, SSH publickey); удаление на GitHub выполняет отдельный cleanup workflow после принятия этого изменения. Итог удалённого запуска проверяется в Actions и branch inventory.
