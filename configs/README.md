@@ -8,4 +8,4 @@
 - swift-format.json — профиль Swift formatter.
 - api/routes.json — генерируемый перечень маршрутов OpenAPI.
 
-Вход для .NET CLI: `sh tools/dotnet.sh {restore|build|format|test|run} [options]`. Wrapper запускает CLI из каталога SDK config и передаёт MSBuild paths через окружение. Он работает независимо от исходного cwd. Корневые props/global.json/.editorconfig не используются; AGENTS.md не публикуется. Реальные секреты и настройки установки здесь не размещаются.
+Вход для .NET CLI: `sh tools/dotnet.sh {restore|build|format|test|run|publish-host} [options]`. Wrapper запускает CLI из каталога SDK config и передаёт MSBuild paths через окружение. Он работает независимо от исходного cwd. Корневые props/global.json/.editorconfig не используются; AGENTS.md не публикуется. Реальные секреты и настройки установки здесь не размещаются.

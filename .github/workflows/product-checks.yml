@@ -65,8 +65,6 @@ jobs:
         run: |
           sh tools/dotnet.sh restore --locked-mode
           sh tools/dotnet.sh build --no-restore --configuration Debug
-      - name: Swift client with real host
-        run: python3 tools/smoke_macos_client.py src/core/LifeTracker.Host/bin/Debug/net10.0/LifeTracker.Host.dll
       - name: Build, verify and update local app package
         run: |
           python3 tools/package_macos.py build
@@ -74,6 +72,8 @@ jobs:
           python3 tools/package_macos.py install var/build/LifeTracker.app --destination "$RUNNER_TEMP/installed/LifeTracker.app"
           python3 tools/package_macos.py install var/build/LifeTracker.app --destination "$RUNNER_TEMP/installed/LifeTracker.app"
           python3 tools/package_macos.py verify "$RUNNER_TEMP/installed/LifeTracker.app"
+      - name: Swift client and owned lifecycle with packaged host
+        run: python3 tools/smoke_macos_client.py "$RUNNER_TEMP/installed/LifeTracker.app/Contents/Resources/Core/LifeTracker.Host.dll"
 
   product-checks:
     if: always()
