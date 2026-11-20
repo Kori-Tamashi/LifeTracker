@@ -69,3 +69,19 @@ class PublicationChecksTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RepositoryLayoutTests(unittest.TestCase):
+    def test_product_documentation_and_configuration_roots(self):
+        self.assertEqual([], checker.validate_layout([Path('src/core/Example.cs'),
+            Path('docs/design.md'), Path('configs/swift-format.json'), Path('tests/core/Contract.cs'),
+            Path('tools/check_project.py'), Path('.github/workflows/check.yml')]))
+
+    def test_tool_discovery_entrypoints_are_allowed(self):
+        self.assertEqual([], checker.validate_layout([Path('global.json'), Path('.editorconfig'),
+            Path('Directory.Build.props'), Path('Directory.Packages.props'), Path('README.md')]))
+
+    def test_old_product_roots_and_arbitrary_root_files_are_rejected(self):
+        for name in ['services/core/Example.cs', 'apps/macos/Package.swift', 'notes.md', 'private/data.json']:
+            with self.subTest(name=name):
+                self.assertEqual(1, len(checker.validate_layout([Path(name)])))

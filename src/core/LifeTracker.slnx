@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="LifeTracker.Application.Abstractions/LifeTracker.Application.Abstractions.csproj" />
+    <Project Path="LifeTracker.Kernel/LifeTracker.Kernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/State/">
+    <Project Path="Modules/State/LifeTracker.State.Application/LifeTracker.State.Application.csproj" />
+    <Project Path="Modules/State/LifeTracker.State.Contracts/LifeTracker.State.Contracts.csproj" />
+    <Project Path="Modules/State/LifeTracker.State.Domain/LifeTracker.State.Domain.csproj" />
+    <Project Path="Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="../../tests/core/LifeTracker.Architecture.Tests/LifeTracker.Architecture.Tests.csproj" />
+    <Project Path="../../tests/core/LifeTracker.State.Application.Tests/LifeTracker.State.Application.Tests.csproj" />
+    <Project Path="../../tests/core/LifeTracker.State.Domain.Tests/LifeTracker.State.Domain.Tests.csproj" />
+    <Project Path="../../tests/core/LifeTracker.State.Infrastructure.Tests/LifeTracker.State.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../../src/core/Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
+    <None Include="../../../docs/architecture/storage/schema-v1.sql" Link="Fixtures/schema-v1.sql" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../Contracts/StateRepositoryContract.cs" Link="Contracts/StateRepositoryContract.cs" />
+  </ItemGroup>
+</Project>

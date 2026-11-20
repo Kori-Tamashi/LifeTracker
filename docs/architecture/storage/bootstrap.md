@@ -23,3 +23,11 @@ Real-file tests: runtime floor/JSON/FTS5, WAL/FULL/FK/timeout; первая ми
 NuGet metadata: EF Core — MIT; SQLitePCLRaw — Apache-2.0; native SQLite package LICENSE.txt — Public Domain с ссылкой на [SQLite copyright](https://sqlite.org/copyright.html). Полный release SBOM/license manifest остаётся отдельным gate. Зависимости закреплены центрально и транзитивно; моделей/платных сервисов bootstrap не использует.
 
 Особенности EF SQLite и ручных rebuild проверены по [официальной документации](https://learn.microsoft.com/en-us/ef/core/providers/sqlite/limitations). Runtime migration пока разрешена только для новой синтетической/пустой установки; startup migration существующих данных без предварительной verified backup не добавлена.
+
+## D-004.2/004.3: repository
+
+`SqliteStateRepository` реализует profile-scoped current/history/identity/receipt. Batch и исправление фиксируют typed observations, immutable revision snapshot, current pointer и source_events receipt одной IMMEDIATE-транзакцией. Ключ дедупликации ограничен профилем/каналом; другой payload или повторный command ID под другим ключом отклоняются. Receipt найденной команды возвращается до optimistic revision check. Свежесть и баланс вычисляет Domain, SQL не дублирует правила.
+
+Shared contract tests компилируются для test fake и SQLite из tests/core/Contracts. Специфические tests проверяют rollback посреди batch/исправления, параллельные retries через разные repository instances, конфликт expected revision, persistent receipt после reopen, metadata provenance и рассогласованный snapshot. Временные поля поиска хранятся в миллисекундах, snapshot сохраняет полную точность timestamps для round-trip; их соответствие проверяется при чтении.
+
+OpenExistingAsync открывает только базу с точным известным набором EF migrations и user_version; не применяет upgrade автоматически. Backup/restore, crash recovery и jobs/outbox остаются отдельными пакетами. Shared semaphore принадлежит store: все repository instances сериализуют доступ к одному connection. Прямой connection — только для bootstrap/композиции/тестов, не для UI или бизнес-логики. Cancellation проверяется до транзакции и commit; SQLite busy wait может занимать заданный timeout.
