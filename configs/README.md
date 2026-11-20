@@ -4,6 +4,7 @@
 - dotnet/Directory.Build.props — общая компиляция/анализ.
 - dotnet/Directory.Packages.props — центральные версии NuGet.
 - .editorconfig — единый профиль редактора/форматтера; src/tests содержат относительные ссылки на него.
+- macos/Info.plist — идентификатор и метаданные локального desktop bundle.
 - swift-format.json — профиль Swift formatter.
 - api/routes.json — генерируемый перечень маршрутов OpenAPI.
 
