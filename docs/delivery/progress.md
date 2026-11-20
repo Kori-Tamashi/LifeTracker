@@ -101,3 +101,9 @@ Docker на локальном стенде доступен; Q-DOCKER-STORAGE �
 Добавлены CLI create/verify/restore для существующего State-профиля. SQLite Backup API, блокировки Core/desktop, inventory и SHA-256, проверка schema/integrity/profile и staging rename предотвращают неполную обычную публикацию. Восстановление только в новый каталог сохраняет credential, receipts и pending journal. Неизвестное содержимое отвергается.
 
 Локально 132 .NET tests прошли; отдельные процессы проверили Core lock, Unix flock desktop, roundtrip и replay без дубликата. Process smoke добавлен в Linux/macOS CI; удалённый результат фиксируется в PR. UI, retention/scheduler/disk policy, power-loss qualification и migration-failure recovery остаются открытыми. Установленный beta.1 и main/tag не обновляются.
+
+## PM-02: актуализация исполнения
+
+Добавлен оперативный реестр: реализация/автоматическая проверка/приёмка/выпуск разделены, beta.1 отделена от develop. Владелец 21 ноября подтвердил, что три ручных сценария AC-B0 пока не проверял; они not run. Очередь сосредоточена на lifecycle и защите данных перед Telegram. Baseline scope не изменён; beta.2 не назначена.
+
+Добавлены правила учёта активного времени/ожиданий/rework и условия будущего EVM-пилота. Исторические трудозатраты unknown; BAC/PV/EV/AC и индексы не рассчитаны. Обновлены устаревшая очередь и формулировка remote CI. Код, main/tag и установленный пакет этим изменением не обновляются.
