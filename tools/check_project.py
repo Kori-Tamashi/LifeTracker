@@ -39,7 +39,7 @@ def validate(paths):
             if rel not in allowed or path.readlink() != Path('../configs/.editorconfig'):
                 errors.append(f'{rel}: review symlink before publication')
                 continue
-        if rel.suffix.lower() not in {'.md', '.puml', '.bpmn', '.svg', '.py', '.mjs', '.sql', '.yml', '.yaml', '.json', '.toml', '.cs', '.csproj', '.props', '.slnx', '.swift', '.sh'}:
+        if rel.suffix.lower() not in {'.md', '.puml', '.bpmn', '.svg', '.py', '.mjs', '.sql', '.yml', '.yaml', '.json', '.toml', '.cs', '.csproj', '.props', '.slnx', '.swift', '.sh', '.plist'}:
             continue
         try:
             content = path.read_text(encoding='utf-8')
