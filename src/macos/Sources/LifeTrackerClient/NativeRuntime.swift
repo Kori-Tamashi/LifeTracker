@@ -153,14 +153,7 @@ public final class NativeRuntime {
         generation = nil
         client = nil
         if let process = child {
-            if process.isRunning { process.terminate() }
-            let clock = SuspendingClock()
-            let deadline = clock.now.advanced(by: grace)
-            while process.isRunning, clock.now < deadline { await pause() }
-            if process.isRunning { Darwin.kill(process.processIdentifier, SIGKILL) }
-            let killDeadline = clock.now.advanced(by: .seconds(2))
-            while process.isRunning, clock.now < killDeadline { await pause() }
-            guard !process.isRunning else {
+            guard await stopProcess(process, grace: grace) else {
                 phase = .failed
                 errorMessage = "Не удалось остановить собственный процесс сервиса."
                 return false
@@ -171,6 +164,45 @@ public final class NativeRuntime {
         ownsHost = false
         phase = .stopped
         return true
+    }
+
+    /// Preserve the client/view identity while pausing only our own Core for an offline snapshot.
+    public func withOfflinePause(_ operation: @MainActor () async throws -> Void) async throws {
+        guard phase == .ready, ownsHost, let process = child, let configuration = activeConfiguration else {
+            throw LocalAPIError.invalidResponse
+        }
+        let token = UUID()
+        generation = token
+        phase = .recovering
+        guard await stopProcess(process, grace: .seconds(10)) else {
+            phase = .ready
+            Task { await watch(process, token: token) }
+            throw LocalAPIError.invalidResponse
+        }
+        guard generation == token else { throw LocalAPIError.invalidResponse }
+        child = nil
+        ownsHost = false
+        var operationError: (any Error)?
+        do { try await operation() } catch { operationError = error }
+        guard generation == token else { throw LocalAPIError.invalidResponse }
+        phase = .stopped
+        await Task {
+            guard self.generation == token else { return }
+            await self.start(configuration)
+        }.value
+        guard phase == .ready else { throw LocalAPIError.invalidResponse }
+        if let operationError { throw operationError }
+    }
+
+    private func stopProcess(_ process: Process, grace: Duration) async -> Bool {
+        if process.isRunning { process.terminate() }
+        let clock = SuspendingClock()
+        let deadline = clock.now.advanced(by: grace)
+        while process.isRunning, clock.now < deadline { await pause() }
+        if process.isRunning { Darwin.kill(process.processIdentifier, SIGKILL) }
+        let killDeadline = clock.now.advanced(by: .seconds(2))
+        while process.isRunning, clock.now < killDeadline { await pause() }
+        return !process.isRunning
     }
 
     private func watch(_ process: Process, token: UUID) async {

@@ -56,6 +56,11 @@ struct NativeRuntimeTests {
         await runtime.start(configuration(executable: "/missing/synthetic"))
         #expect(runtime.phase == .ready)
         #expect(!runtime.ownsHost)
+        var operated = false
+        await #expect(throws: LocalAPIError.self) {
+            try await runtime.withOfflinePause { operated = true }
+        }
+        #expect(!operated && external.isRunning)
         #expect(await runtime.stop())
         #expect(external.isRunning)
     }
@@ -105,4 +110,23 @@ struct NativeRuntimeTests {
         await startup.value
         #expect(runtime.phase == .stopped && !runtime.ownsHost && runtime.client == nil)
     }
+    @Test @MainActor func explicitStopDuringOfflineOperationCannotRestartCore() async {
+        let probe = RuntimeProbeSequence()
+        let runtime = NativeRuntime { _, _ in try await probe.probe() }
+        await runtime.start(configuration())
+        let gate = RuntimeProbeGate()
+        let operation = Task {
+            do {
+                try await runtime.withOfflinePause { _ = try await gate.probe() }
+                return false
+            } catch { return true }
+        }
+        await gate.waitForEntry()
+        #expect(runtime.client != nil && runtime.phase == .recovering)
+        #expect(await runtime.stop())
+        await gate.release()
+        #expect(await operation.value)
+        #expect(runtime.phase == .stopped && runtime.client == nil && !runtime.ownsHost)
+    }
+
 }

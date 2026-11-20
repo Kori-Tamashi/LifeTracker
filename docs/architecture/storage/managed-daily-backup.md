@@ -1,6 +1,6 @@
-# Суточные State-копии при запуске
+# Суточные State-копии
 
-D-009.1.3a, develop. Реализован ограниченный запусковой сценарий BR-08; установленная beta.1 не меняется. [Offline snapshot](offline-backup.md) остаётся единственным механизмом создания/проверки/восстановления.
+D-009.1.3a/b, develop. Реализованы запусковой сценарий BR-08 и периодическая проверка для собственного Core; установленная beta.1 не меняется. [Offline snapshot](offline-backup.md) остаётся единственным механизмом создания/проверки/восстановления.
 
 ## Использование
 
@@ -28,4 +28,31 @@ LIFETRACKER_RUNTIME_ROOT="$PWD/var/beta-1" dotnet src/core/LifeTracker.Host/bin/
 
 Реальные SQLite tests: Moscow 08:59/09:00, same-day dedup, отсутствие catch-up, восьмой снимок → семь, restore с записью, low-space/quota, corrupt/unknown/lease/links и повтор прерванной ротации. Disk probe проверяется с настоящим filesystem; недостаток места моделируется отдельным injected probe без заполнения диска. Test quota использует sparse synthetic file. Эти .NET tests включены и в macOS CI. Swift process integration вызывает CLI с реальным clock: до 09:00 допустим no-op; детерминированное расписание проверяется .NET clock fixtures.
 
-Открыты: ручная UI/quit/progress acceptance, непрерывный scheduler при работе через границу суток, предмиграционные копии, общий footprint, полная RPO≤24h активной работы и RTO≤10min на 1GB. Запусковая автоматизация не закрывает эти gates. Обновление расписания/ротации здесь уточняет реализацию BR-08, не меняет полный R1 scope.
+Открыты: ручная UI/quit/progress/form acceptance, реальный OS sleep/wake, предмиграционные копии, общий footprint, полная RPO≤24h активной работы и RTO≤10min на 1GB. Наличие scheduler не закрывает измерительные gates. Обновление расписания/ротации здесь уточняет реализацию BR-08, не меняет полный R1 scope.
+
+## Непрерывная работа собственного Core
+
+DesktopSession хранит одну задачу polling независимо от видимости окна: tick раз в 60 секунд и после успешного wake probe. DailyBackupSchedule использует московскую дату/09:00, подавляет повторы успешного дня, после ошибки откладывает повтор минимум на 15 минут. Пропущенные дни не создают очередь исторических копий. После startup no-op до 09:00 день не помечается выполненным; используется время начала попытки, а не завершения процесса.
+
+Tick допускается только для ready/owned Core, выбранного каталога, существующего workspace без активной отправки/загрузки истории/паузы. Флаг maintenanceBusy выставляется до первого await, поэтому повторные tick/wake не начинают второй цикл. Ожидающие условия проверяются снова на следующем tick, без принудительного прерывания запроса. Внешний Core автоматически не останавливается.
+
+```mermaid
+sequenceDiagram
+    participant D as Desktop scheduler
+    participant W as AssessmentWorkspace/journal
+    participant C as Owned Core
+    participant B as Offline backup CLI
+    D->>W: block submit + release journal lease
+    D->>C: stop owned Process, retain client/workspace
+    D->>B: backup-daily (locks + verify + restore + rotation)
+    B-->>D: result
+    D->>C: restart, including on backup error
+    D->>W: reacquire lease + compare pending bytes
+    W-->>D: unlock submit or fail closed
+```
+
+Открытая форма остаётся в том же view tree: runtime сохраняет client во время паузы, workspace не заменяется, savedCount не увеличивается. Редактирование формы возможно, отправка заблокирована. После возврата lease pending journal побайтно сравнивается с состоянием до паузы; чужая запись или занятый lease оставляют submit заблокированным с сообщением о перезапуске. Очистка или перезапись чужой pending-команды не выполняется.
+
+Явный stop инвалидирует generation и не позволяет возродить Core после операции. Обычный quit заблокирован на время maintenance. При ошибке CLI выполняется попытка restart; если сам restart не удался, действует existing failed-state recovery, сохранность UI-черновика в этом случае не обещается. Force Quit/desktop orphan и непрерывная работа без запущенного desktop остаются открытыми сценариями. CLI не получил online bypass: всё ещё требует обе offline блокировки.
+
+Evidence: deterministic schedule boundary/dedup/retry; journal write blocking, lease conflict и изменившиеся bytes; in-flight submit не освобождает lease; stop-vs-pause не перезапускает Core; external host не приостанавливается. Live Swift/packaged-Core проверяет ту же workspace identity, pending receipt replay без дубля и restart после отказа backup. Это не автоматизация SwiftUI-кликов и не target RPO/energy benchmark.

@@ -11,6 +11,59 @@ final class DesktopSession {
     var workspace: AssessmentWorkspace?
     var maintenanceBusy = false
     var automaticBackupRoot: URL?
+    var backupError: String?
+    private var activeRoot: URL?
+    @ObservationIgnored private var backupSchedule = DailyBackupSchedule()
+    @ObservationIgnored private var backupTask: Task<Void, Never>?
+
+    func startBackupPolling() {
+        guard backupTask == nil else { return }
+        backupTask = Task { [weak self] in
+            while !Task.isCancelled {
+                await self?.scheduledBackupTick()
+                do { try await Task.sleep(for: .seconds(60)) } catch { return }
+            }
+        }
+    }
+
+    func scheduledBackupTick() async {
+        let now = Date()
+        guard !maintenanceBusy, backupSchedule.isDue(at: now), let catalog = automaticBackupRoot,
+            let root = activeRoot, let workspace, !workspace.saving, !workspace.historyLoading,
+            !workspace.backupPaused, runtime.phase == .ready, runtime.ownsHost
+        else { return }
+        maintenanceBusy = true
+        defer { maintenanceBusy = false }
+        do {
+            try workspace.beginBackupPause()
+        } catch {
+            backupSchedule.failed(at: now)
+            self.backupError = "Автокопия отложена: не удалось приостановить журнал."
+            return
+        }
+        var completed = false
+        do {
+            let command = coreCommand
+            try await runtime.withOfflinePause { try await command.run(.daily(source: root, catalog: catalog)) }
+            completed = true
+        } catch {
+            self.backupError =
+                "Автокопия не выполнена. Старые снимки сохранены; повторная попытка будет не раньше чем через 15 минут."
+        }
+        do { try workspace.endBackupPause() } catch {
+            completed = false
+            self.backupError =
+                "Журнал профиля изменился или открыт другим клиентом. Отправка заблокирована; перезапустите LifeTracker после закрытия других клиентов."
+        }
+        if completed {
+            backupError = nil
+            backupSchedule.succeeded(at: now)
+            refreshToken = UUID()
+        } else {
+            backupSchedule.failed(at: Date())
+        }
+    }
+
     private var backupKey: String {
         Bundle.main.infoDictionary?["LifeTrackerReleaseChannel"] as? String == "beta"
             ? "betaAutomaticBackupRoot" : "automaticBackupRoot"
@@ -25,6 +78,8 @@ final class DesktopSession {
     func configureAutomaticBackup(_ root: URL?) {
         guard !maintenanceBusy else { return }
         automaticBackupRoot = root
+        backupSchedule = DailyBackupSchedule()
+        backupError = nil
         if let root {
             UserDefaults.standard.set(root.path, forKey: backupKey)
         } else {
@@ -65,8 +120,14 @@ final class DesktopSession {
             FileManager.default.fileExists(atPath: root.appendingPathComponent("lifetracker.sqlite").path)
         {
             maintenanceBusy = true
-            do { try await command.run(.daily(source: root, catalog: catalog)) } catch {
-                self.error =
+            let attemptTime = Date()
+            do {
+                try await command.run(.daily(source: root, catalog: catalog))
+                backupSchedule.succeeded(at: attemptTime)
+                backupError = nil
+            } catch {
+                backupSchedule.failed(at: Date())
+                self.backupError =
                     "Автокопия при запуске не выполнена. Старые копии сохранены. Проверьте каталог копий, свободное место и остановку других клиентов/Core."
             }
             maintenanceBusy = false
@@ -78,6 +139,7 @@ final class DesktopSession {
         do {
             workspace = try AssessmentWorkspace(
                 service: client, journal: FilePendingAssessmentJournal(runtimeRoot: root))
+            activeRoot = root
             UserDefaults.standard.set(root.path, forKey: rootKey)
             UserDefaults.standard.set(port, forKey: portKey)
         } catch {
@@ -121,11 +183,15 @@ final class DesktopSession {
     }
 
     func reconcileAfterWake() async {
+        guard !maintenanceBusy else { return }
         guard runtime.phase == .ready || runtime.phase == .degraded else { return }
         let connected = await runtime.reconcile()
         guard runtime.phase == .ready || runtime.phase == .degraded else { return }
         refreshToken = UUID()
-        if connected { await workspace?.loadHistory() }
+        if connected {
+            await workspace?.loadHistory()
+            await scheduledBackupTick()
+        }
     }
 
     func toggleLogin() async {
@@ -193,7 +259,9 @@ struct LifeTrackerApp: App {
             Group {
                 if let client = desktop.runtime.client, let workspace = desktop.workspace {
                     VStack(spacing: 0) {
-                        if desktop.runtime.phase == .recovering {
+                        if desktop.maintenanceBusy {
+                            ProgressView("Создание резервной копии…").padding(12)
+                        } else if desktop.runtime.phase == .recovering {
                             ProgressView("Восстановление подключения…").padding(12)
                         }
                         if let error = desktop.runtime.errorMessage {
@@ -204,6 +272,7 @@ struct LifeTrackerApp: App {
                             }.padding(12)
                         }
                         if let error = desktop.error { Text(error).foregroundStyle(.orange).padding(12) }
+                        if let error = desktop.backupError { Text(error).foregroundStyle(.orange).padding(12) }
                         DashboardView(
                             client: client, workspace: workspace, refreshToken: desktop.refreshToken,
                             connectionAvailable: desktop.runtime.phase == .ready)
@@ -217,6 +286,7 @@ struct LifeTrackerApp: App {
             }
             .onAppear {
                 delegate.session = desktop
+                desktop.startBackupPolling()
                 Task { await desktop.restore() }
             }
             .onChange(of: desktop.runtime.phase) { _, phase in
@@ -261,6 +331,7 @@ struct LifeTrackerApp: App {
             }
             if desktop.loginStatus == .requiresApproval { Text("Автозапуск ожидает разрешения macOS") }
             if let error = desktop.error { Text(error) }
+            if let error = desktop.backupError { Text(error) }
             Divider()
             Button(desktop.runtime.ownsHost ? "Полностью остановить LifeTracker" : "Завершить LifeTracker") {
                 NSApp.terminate(nil)
@@ -306,6 +377,9 @@ private struct ConnectionView: View {
                 desktop.maintenanceBusy || desktop.runtime.phase == .starting || desktop.runtime.phase == .stopping)
             if desktop.runtime.phase == .starting { ProgressView("Запуск локального сервиса…") }
             if desktop.maintenanceBusy { ProgressView("Проверка резервной копии…") }
+            if let error = desktop.backupError {
+                Text(error).foregroundStyle(.orange).multilineTextAlignment(.center)
+            }
             if let error = desktop.error ?? desktop.runtime.errorMessage {
                 Text(error).foregroundStyle(.orange).multilineTextAlignment(.center)
             }

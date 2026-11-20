@@ -1,6 +1,6 @@
 # Текущее исполнение
 
-Контрольная дата: 21 ноября 2026 года (Москва). Проверенная база develop: `2c18924`, PR #19; запусковая автоматика проходит отдельную проверку. Это оперативный источник статусов и ближайшей очереди. [План](development-plan.md) определяет правила и WBS, [progress](progress.md) хранит историю, [baseline](baseline/implementation-plan.md) — исходный scope. Процент готовности всего продукта и дата R1 не рассчитаны.
+Контрольная дата: 21 ноября 2026 года (Москва). Проверенная база develop: `03949e6`, PR #20; непрерывный backup tick проходит отдельную проверку. Это оперативный источник статусов и ближайшей очереди. [План](development-plan.md) определяет правила и WBS, [progress](progress.md) хранит историю, [baseline](baseline/implementation-plan.md) — исходный scope. Процент готовности всего продукта и дата R1 не рассчитаны.
 
 ## Состояние результатов
 
@@ -35,7 +35,7 @@
 | 1 — AC-B0 | Ручная проверка трёх существующих путей | Waiting: владелец, когда удобно; не блокирует независимую инженерию | Отдельный результат каждого сценария и defect при отказе |
 | 2 — D-007.2.2 | Квалификация аварийного desktop/Core lifecycle | Дочерний D-007.2.2a: local/remote live pass, PR #18; desktop orphan остаётся открытым | Synthetic process regression для выбранного сбоя; сохранность pending/receipt; отдельно записанные непроверенные GUI/OS пути |
 | 3 — D-009.1.2 | Доступный пользователю offline путь backup/restore | D-009.1.2a реализован; process adapter local pass; UI acceptance not run | Явная остановка writers, verify, новый профиль, ошибки без потери исходного; отдельная UI-проверка |
-| 4 — D-009.1.3 | Автокопии/retention/disk policy | D-009.1.3a: startup/7 daily/local quota реализованы; непрерывный scheduler и общий footprint открыты | Согласованная с baseline политика, low-space/отказ/restore evidence; декомпозиция до кода |
+| 4 — D-009.1.3 | Автокопии/retention/disk policy | D-009.1.3a/b: startup/7 daily/local quota и owned Core polling реализованы; UI/OS/RPO и общий footprint открыты | Согласованная с baseline политика, low-space/отказ/restore evidence; декомпозиция до кода |
 | 5 — AC-NEXT | Решение о следующем значимом prerelease | Gated: ИИ после результатов и CI | Зафиксированный scope/evidence/ограничения; release gates, без переноса старого тега |
 | 6 — D-008.1 | Минимальный Telegram State путь | Backlog | Pairing/owner, read/write, retry/dedup после DoR |
 
@@ -58,3 +58,5 @@ D-007.2.2a: добавлены live SIGKILL Core → failed → restart и repla
 D-009.1.2a: экран offline maintenance и process adapter добавлены; локально 5 live cases passed, включая roundtrip через Swift runner. Полная UI-приёмка, автокопии/retention/disk, desktop orphan и R1 остаются открытыми. Cleanup workflow из PR #18 успешно удалил завершённые remote ветки; после fetch/prune локально и удалённо остались main/develop (до открытия следующей задачи).
 
 D-009.1.3a: [запусковые суточные копии](../architecture/storage/managed-daily-backup.md), 139 .NET cases local pass, включая deterministic Moscow schedule, rotation/restore, low-space/corruption и recovery незавершённой ротации. Startup UI/quit/progress не проверены вручную. RPO/RTO, pre-migration и общий disk gate не закрыты. PR #19 прошёл CI и cleanup, локальные/remote ветки убраны; UI acceptance остаётся not run.
+
+D-009.1.3b: одна background задача tick/60s и wake, bounded retry, coordinated journal/Core pause; submit не прерывается, workspace сохраняется. Внешний Core не останавливается. Local real packaged-Core: 6 live cases pass, включая сохранность pending/workspace и restart после failed backup. GUI-form/real sleep/RPO, pre-migration, общий footprint и desktop orphan ещё открыты. PR #20 прошёл CI/cleanup; исходные ветки убраны, beta.1 остаётся установленной версией.

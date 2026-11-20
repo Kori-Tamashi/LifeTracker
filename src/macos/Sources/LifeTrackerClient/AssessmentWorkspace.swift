@@ -8,6 +8,7 @@ public final class AssessmentWorkspace {
     public private(set) var historyLoading = false
     public private(set) var historyError: String?
     public private(set) var saving = false
+    public private(set) var backupPaused = false
     public private(set) var saveError: String?
     public private(set) var pending: AssessmentCommand?
     public private(set) var savedCount = 0
@@ -46,7 +47,7 @@ public final class AssessmentWorkspace {
     }
 
     public func save(_ command: AssessmentCommand) async {
-        guard pending == nil, !saving else { return }
+        guard pending == nil, !saving, !backupPaused else { return }
         do {
             try journal.store(command)
             pending = command
@@ -57,7 +58,7 @@ public final class AssessmentWorkspace {
     }
 
     public func retrySave() async {
-        guard let command = pending, !saving else { return }
+        guard let command = pending, !saving, !backupPaused else { return }
         saving = true
         saveError = nil
         defer { saving = false }
@@ -83,4 +84,24 @@ public final class AssessmentWorkspace {
                 "Ответ не получен. Повторите ту же отправку: новая запись не будет создана дважды. Отправка сохранена локально и доступна после перезапуска."
         }
     }
+    public func beginBackupPause() throws {
+        guard !saving, !backupPaused else { throw LocalAPIError.invalidResponse }
+        guard let lease = journal as? any BackupPausableJournal else { throw LocalAPIError.invalidResponse }
+        try lease.suspendLease()
+        backupPaused = true
+    }
+
+    public func endBackupPause() throws {
+        guard backupPaused else { throw LocalAPIError.invalidResponse }
+        do {
+            guard let lease = journal as? any BackupPausableJournal else { throw LocalAPIError.invalidResponse }
+            try lease.resumeLease()
+            backupPaused = false
+        } catch {
+            saveError =
+                "Не удалось вернуть доступ к журналу после копирования. Закройте другие клиенты и перезапустите приложение; отправка заблокирована."
+            throw error
+        }
+    }
+
 }

@@ -29,7 +29,7 @@ struct DashboardView: View {
                         }
                         Spacer()
                         Button("Отметить состояние", systemImage: "plus") { entering = true }
-                            .disabled(workspace.pending != nil || workspace.saving)
+                            .disabled(workspace.pending != nil || workspace.saving || workspace.backupPaused)
                         Button("Обновить", systemImage: "arrow.clockwise") {
                             Task { await dashboard.refresh() }
                         }
@@ -38,7 +38,7 @@ struct DashboardView: View {
                     if workspace.pending != nil {
                         Text("Есть незавершённая отправка. Повторите её перед новой записью.").foregroundStyle(.orange)
                         Button("Повторить отправку") { Task { await workspace.retrySave() } }
-                            .disabled(workspace.saving)
+                            .disabled(workspace.saving || workspace.backupPaused)
                     }
                     if let error = workspace.saveError { Text(error).foregroundStyle(.orange) }
                     if let error = dashboard.errorMessage {

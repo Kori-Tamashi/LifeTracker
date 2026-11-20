@@ -4,7 +4,7 @@ namespace LifeTracker.Infrastructure.Shared;
 
 public enum DailyBackupResult { BeforeSchedule, AlreadyCurrent, Created }
 
-/// <summary>Startup-only State snapshots. Rotation never makes room before a new verified restore.</summary>
+/// <summary>State snapshots under an offline writer barrier. Rotation never makes room before a new verified restore.</summary>
 public sealed class ManagedDailyBackup(TimeProvider? clock = null, Func<string, long>? availableBytes = null)
 {
     public const long MaximumCatalogBytes = 2_000_000_000;
