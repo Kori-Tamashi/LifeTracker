@@ -1,6 +1,6 @@
 # Текущее исполнение
 
-Контрольная дата: 21 ноября 2026 года (Москва). Проверенная база develop: `a4d8bbd`, PR #16. Это оперативный источник статусов и ближайшей очереди. [План](development-plan.md) определяет правила и WBS, [progress](progress.md) хранит историю, [baseline](baseline/implementation-plan.md) — исходный scope. Процент готовности всего продукта и дата R1 не рассчитаны.
+Контрольная дата: 21 ноября 2026 года (Москва). Проверенная база develop: `ab5f0f2`, PR #18; следующий UI-срез проходит отдельную проверку. Это оперативный источник статусов и ближайшей очереди. [План](development-plan.md) определяет правила и WBS, [progress](progress.md) хранит историю, [baseline](baseline/implementation-plan.md) — исходный scope. Процент готовности всего продукта и дата R1 не рассчитаны.
 
 ## Состояние результатов
 
@@ -33,8 +33,8 @@
 | Порядок / ID | Проверяемый результат | Статус / исполнитель следующего действия | Критерий завершения |
 | --- | --- | --- | --- |
 | 1 — AC-B0 | Ручная проверка трёх существующих путей | Waiting: владелец, когда удобно; не блокирует независимую инженерию | Отдельный результат каждого сценария и defect при отказе |
-| 2 — D-007.2.2 | Квалификация аварийного desktop/Core lifecycle | Дочерний D-007.2.2a: local live pass, remote CI pending; desktop orphan остаётся открытым | Synthetic process regression для выбранного сбоя; сохранность pending/receipt; отдельно записанные непроверенные GUI/OS пути |
-| 3 — D-009.1.2 | Доступный пользователю offline путь backup/restore | Backlog: ИИ, после результата 2 | Явная остановка writers, verify, новый профиль, ошибки без потери исходного; отдельная UI-проверка |
+| 2 — D-007.2.2 | Квалификация аварийного desktop/Core lifecycle | Дочерний D-007.2.2a: local/remote live pass, PR #18; desktop orphan остаётся открытым | Synthetic process regression для выбранного сбоя; сохранность pending/receipt; отдельно записанные непроверенные GUI/OS пути |
+| 3 — D-009.1.2 | Доступный пользователю offline путь backup/restore | D-009.1.2a реализован; process adapter local pass; UI acceptance not run | Явная остановка writers, verify, новый профиль, ошибки без потери исходного; отдельная UI-проверка |
 | 4 — D-009.1.3 | Автокопии/retention/disk policy | Backlog: ИИ | Согласованная с baseline политика, low-space/отказ/restore evidence; декомпозиция до кода |
 | 5 — AC-NEXT | Решение о следующем значимом prerelease | Gated: ИИ после результатов и CI | Зафиксированный scope/evidence/ограничения; release gates, без переноса старого тега |
 | 6 — D-008.1 | Минимальный Telegram State путь | Backlog | Pairing/owner, read/write, retry/dedup после DoR |
@@ -53,4 +53,6 @@
 
 Обновлять после принятого результата, появления дефекта, изменения gate или смены версии. Прогноз пересматривать после пяти сопоставимых измеренных пакетов; до этого сроки и общий процент — unknown.
 
-D-007.2.2a: добавлены live SIGKILL Core → failed → restart и replay pending/receipt без дубликата, а также stop attached → внешний host доступен. Локально 4 live cases passed. Это не аварийное завершение desktop и не тест незавершённой SQLite-транзакции. Подробности — [progress](progress.md).
+D-007.2.2a: добавлены live SIGKILL Core → failed → restart и replay pending/receipt без дубликата, а также stop attached → внешний host доступен. Локально и в macOS CI 4 live cases passed ([PR #18](https://github.com/Kori-Tamashi/LifeTracker/pull/18)). Это не аварийное завершение desktop и не тест незавершённой SQLite-транзакции. Подробности — [progress](progress.md).
+
+D-009.1.2a: экран offline maintenance и process adapter добавлены; локально 5 live cases passed, включая roundtrip через Swift runner. Полная UI-приёмка, автокопии/retention/disk, desktop orphan и R1 остаются открытыми. Cleanup workflow из PR #18 успешно удалил завершённые remote ветки; после fetch/prune локально и удалённо остались main/develop (до открытия следующей задачи).

@@ -28,7 +28,7 @@ def main():
                            env=environment, check=True, timeout=120)
         finally:
             stop(process)
-    print('Swift client/host smoke passed: record/retry/history/correction/conflict owned stop/restart, Core crash/replay and external host preservation.')
+    print('Swift client/host smoke passed: record/retry/history/correction/conflict owned stop/restart, Core crash/replay external host preservation and offline backup/restore.')
 
 
 if __name__ == '__main__':
