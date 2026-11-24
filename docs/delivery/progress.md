@@ -145,3 +145,9 @@ Release metadata согласованы на beta.2/build2. Preferences папк
 В ручном beta.2 тесте найден отказ startup daily backup: Finder создал `.DS_Store` в managed каталоге. Допущен только обычный файл Finder metadata в каталоге/snapshot; он исключается из manifest artifact inventory и restore. Неизвестные файлы и metadata-ссылки/каталоги по-прежнему дают отказ. Три regression cases проверяют daily same-day/next-day, verify/restore и защиту от ссылок/каталогов. `copies/` исключена из Git как дополнительная локальная backup-папка. Пользовательские файлы не изменялись.
 
 Первые три ручных сценария (restart persistence, revision 2, menu reopen) подтверждены владельцем, UI verify — по сообщению интерфейса; полный restore/automatic daily acceptance остаётся открытым до повторного теста исправленного кандидата. Main/tag и установленная beta.1 не меняются.
+
+## D-012.1: бизнес-логика Journal review
+
+Владелец 24 ноября явно перенёс акцент на бизнес-логику. Добавлены Journal.Domain/Application без HTTP/EF/SDK: типизированные proposals с evidence, ручное/автоподтверждение без превращения гипотезы в факт, revision conflicts, stale после правки источника, accepted/current memory eligibility. Review handler использует clock и scenario repository port с fingerprint/receipt, не universal CRUD. Одинаковые person mentions автоматически не объединяются.
+
+20 новых synthetic Domain/Application cases, всего 162 .NET pass локально; Journal включён в architecture reference guards и locked restore. Реальные SQLite review transactions, source ownership/orchestration, AI extraction/voice/RAG и UI этим срезом не объявляются рабочими. Порядок разработки обновлён без сокращения release scope; main/tag и профиль не меняются.

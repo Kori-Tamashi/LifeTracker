@@ -1,6 +1,6 @@
 # Управленческий план разработки
 
-Версия 1.1, 21 ноября 2026 года. Изменение PM-02: актуализация очереди и правил учёта; scope baseline1.0 сохранён. Основание — [ТЗ](../requirements/specification.md), [backlog D-001–024](baseline/implementation-plan.md), [qualification register](../integrations/qualification.md) и [release acceptance](../quality/release-acceptance.md). План организует исполнение baseline1.0 и не меняет его scope. Новые даты, оценки и решения о scope версионируются отдельно от исходного baseline.
+Версия 1.2, 24 ноября 2026 года. Приоритет владельца: бизнес-логика дневника перед дальнейшими эксплуатационными улучшениями. Изменение PM-02: актуализация очереди и правил учёта; scope baseline1.0 сохранён. Основание — [ТЗ](../requirements/specification.md), [backlog D-001–024](baseline/implementation-plan.md), [qualification register](../integrations/qualification.md) и [release acceptance](../quality/release-acceptance.md). План организует исполнение baseline1.0 и не меняет его scope. Новые даты, оценки и решения о scope версионируются отдельно от исходного baseline.
 
 Оперативные статусы, evidence и текущая очередь: [текущее исполнение](current-status.md). Состояния в подробной WBS ниже — описания реализованных срезов; при расхождении текущая очередь определяется оперативным реестром.
 
@@ -73,7 +73,7 @@ S/M/L — относительная инженерная сложность и 
 
 `ready` означает наличие проектных входов, а не завершённую подготовку конкретного PR. Definition of Ready проверяется перед взятием задачи. Технически возможное начало D-005.1 до D-004.4 не создаёт дополнительный ресурс: при WIP=1 это выбор порядка, а не обещание параллельной работы.
 
-Текущий порядок: приёмка AC-B0 → декомпозиция и crash/lifecycle D-007.2.2 → пользовательский backup/restore D-009.1.2 → retention/disk D-009.1.3 → решение о значимом prerelease → Telegram D-008.1. При ожидании ручного AC-B0 продолжается один независимый инженерный результат. Критерии и остаток — в [оперативном реестре](current-status.md). Apple gate сохраняется; скрытого изменения R1 scope нет.
+Текущий порядок по указанию владельца 24 ноября: D-012.1 Journal Domain/Application review → D-012 real-store conversations/messages/revisions → Q-AI-TEXT qualification до actual extractor/RAG → пользовательский дневник. Эксплуатационные AC-B0/backup/lifecycle и Telegram остаются открытыми задачами R1; они не блокируют независимую бизнес-логику, но требования релизов сохраняются. Размеры/допуск текущего результата — в [оперативном реестре](current-status.md).
 
 ## 5. Зависимости и ограничивающие цепочки
 

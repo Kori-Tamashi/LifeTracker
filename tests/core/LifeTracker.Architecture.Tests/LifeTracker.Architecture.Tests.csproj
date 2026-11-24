@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../../src/core/Modules/Journal/LifeTracker.Journal.Application/LifeTracker.Journal.Application.csproj" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="TngTech.ArchUnitNET" />
     <ProjectReference Include="../../../src/core/Modules/State/LifeTracker.State.Application/LifeTracker.State.Application.csproj" />

@@ -327,6 +327,19 @@
           "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )"
         }
       },
+      "lifetracker.journal.application": {
+        "type": "Project",
+        "dependencies": {
+          "LifeTracker.Application.Abstractions": "[1.0.0, )",
+          "LifeTracker.Journal.Domain": "[1.0.0, )"
+        }
+      },
+      "lifetracker.journal.domain": {
+        "type": "Project",
+        "dependencies": {
+          "LifeTracker.Kernel": "[1.0.0, )"
+        }
+      },
       "lifetracker.kernel": {
         "type": "Project"
       },
