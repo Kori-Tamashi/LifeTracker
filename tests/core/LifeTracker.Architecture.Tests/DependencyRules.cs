@@ -3,6 +3,8 @@ using ArchUnitNET.Loader;
 using LifeTracker.Application.Abstractions;
 using LifeTracker.Host;
 using LifeTracker.Infrastructure.Shared;
+using LifeTracker.Journal.Application;
+using LifeTracker.Journal.Domain;
 using LifeTracker.Kernel;
 using LifeTracker.Operations.Application;
 using LifeTracker.Operations.Domain;
@@ -18,7 +20,7 @@ namespace LifeTracker.Architecture.Tests;
 
 public sealed class DependencyRules
 {
-    private static readonly Assembly[] Production = [typeof(Score).Assembly, typeof(Identifiers).Assembly,
+    private static readonly Assembly[] Production = [typeof(ExtractionRevision).Assembly, typeof(ReviewExtractionHandler).Assembly, typeof(Score).Assembly, typeof(Identifiers).Assembly,
         typeof(IUtcClock).Assembly, typeof(CurrentState).Assembly, typeof(RecordAssessmentsHandler).Assembly, typeof(RetryPolicy).Assembly, typeof(IJobQueue).Assembly];
     private static readonly ArchUnitNET.Domain.Architecture Architecture = new ArchLoader().LoadAssemblies([.. Production, typeof(CoreDbContext).Assembly, typeof(SqliteStateRepository).Assembly, typeof(SqliteJobQueue).Assembly, typeof(LocalApiHost).Assembly]).Build();
 
@@ -36,6 +38,8 @@ public sealed class DependencyRules
     {
         var allowed = new Dictionary<string, string[]>
         {
+            ["LifeTracker.Journal.Domain"] = ["LifeTracker.Kernel"],
+            ["LifeTracker.Journal.Application"] = ["LifeTracker.Journal.Domain", "LifeTracker.Application.Abstractions"],
             ["LifeTracker.Kernel"] = [],
             ["LifeTracker.Application.Abstractions"] = [],
             ["LifeTracker.State.Contracts"] = [],

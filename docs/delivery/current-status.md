@@ -1,6 +1,6 @@
 # Текущее исполнение
 
-Контрольная дата: 21 ноября 2026 года (Москва). Проверенная база develop: `8df2757`, PR #21; кандидат beta.2 проходит отдельную подготовку. Это оперативный источник статусов и ближайшей очереди. [План](development-plan.md) определяет правила и WBS, [progress](progress.md) хранит историю, [baseline](baseline/implementation-plan.md) — исходный scope. Процент готовности всего продукта и дата R1 не рассчитаны.
+Контрольная дата: 24 ноября 2026 года (Москва). Проверенная база develop: `8df2757`, PR #21; кандидат beta.2 проходит отдельную подготовку. Это оперативный источник статусов и ближайшей очереди. [План](development-plan.md) определяет правила и WBS, [progress](progress.md) хранит историю, [baseline](baseline/implementation-plan.md) — исходный scope. Процент готовности всего продукта и дата R1 не рассчитаны.
 
 ## Состояние результатов
 
@@ -64,3 +64,9 @@ D-009.1.3b: одна background задача tick/60s и wake, bounded retry, co
 B1: [кандидат beta.2](../releases/v0.1.0-beta.2.md), техническая передача для ручной проверки. Release workflow расширен backup smoke и обязательными live cases; develop push release metadata выдаёт artifact без публикации. Настройки beta-версий разделены, beta.1 профиль не переключается. Ручные AC-B0/B1 остаются not run; beta.2 ещё не опубликован. PR #21 прошёл CI и branch cleanup.
 
 Ручная проверка beta.2: владелец подтвердил сохранение после завершения/повторного запуска, исправление с revision 2 и закрытие/повторное открытие через menu bar. UI verify копии показал успех. Полный restore roundtrip ещё не отмечен принятым: после запуска показано предупреждение автокопии. Найден дефект B1-FINDER: обычный `.DS_Store` внутри managed каталога приводил к отказу. Исправление проверяется на синтетике; личные значения/снимки в Git не включаются.
+
+## Приоритет бизнеса: 24 ноября
+
+По явному указанию владельца основная инженерная очередь переключена с эксплуатационных доработок на бизнес-логику. Следующий этап по прежнему продуктовому приоритету — дневник. Открытые R1/backup/UI gates остаются в backlog и не выдаются за пройденные; release scope не сокращён. Не блокировать независимую Journal Domain/Application работу ожиданием этих gates.
+
+D-012.1: [Journal review](../../src/core/Modules/Journal/README.md) — immutable proposals/decisions, тип/субъект/полярность, цитаты/версии источника, autoconfirm, stale/eligibility и review use case с idempotency/revision port. Локально 162 .NET tests pass (20 новых Journal cases); real repository, извлекатель, речь и UI ещё не подключены. Q-AI-TEXT сохраняется перед actual local inference/RAG. Дальнейшая очередь: real-store conversations/messages/review → qualification локального извлекателя → пользовательский дневник; Insights/питание отдельными срезами.

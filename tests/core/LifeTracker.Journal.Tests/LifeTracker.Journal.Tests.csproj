@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../../src/core/Modules/Journal/LifeTracker.Journal.Application/LifeTracker.Journal.Application.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,5 +1,9 @@
 <Solution>
   <Folder Name="/Modules/" />
+  <Folder Name="/Modules/Journal/">
+    <Project Path="Modules/Journal/LifeTracker.Journal.Domain/LifeTracker.Journal.Domain.csproj" />
+    <Project Path="Modules/Journal/LifeTracker.Journal.Application/LifeTracker.Journal.Application.csproj" />
+  </Folder>
   <Folder Name="/Modules/Operations/">
     <Project Path="Modules/Operations/LifeTracker.Operations.Application/LifeTracker.Operations.Application.csproj" />
     <Project Path="Modules/Operations/LifeTracker.Operations.Domain/LifeTracker.Operations.Domain.csproj" />
@@ -18,6 +22,7 @@
     <Project Path="Modules/State/LifeTracker.State.Infrastructure/LifeTracker.State.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="../../tests/core/LifeTracker.Journal.Tests/LifeTracker.Journal.Tests.csproj" />
     <Project Path="../../tests/core/LifeTracker.Architecture.Tests/LifeTracker.Architecture.Tests.csproj" />
     <Project Path="../../tests/core/LifeTracker.State.Application.Tests/LifeTracker.State.Application.Tests.csproj" />
     <Project Path="../../tests/core/LifeTracker.State.Domain.Tests/LifeTracker.State.Domain.Tests.csproj" />
