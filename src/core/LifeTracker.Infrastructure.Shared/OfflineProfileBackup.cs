@@ -84,7 +84,7 @@ public static class OfflineProfileBackup
     public static async Task<Manifest> VerifyAsync(string backupRoot, CancellationToken ct = default)
     {
         var backup = Root(backupRoot);
-        KnownFiles(backup, [Database, Credential, Pending, ManifestName]);
+        KnownFiles(backup, [Database, Credential, Pending, ManifestName, ".DS_Store"]);
         var manifestPath = Path.Combine(backup, ManifestName);
         if (new FileInfo(manifestPath).Length > 16384)
         {
@@ -100,7 +100,7 @@ public static class OfflineProfileBackup
         {
             throw new InvalidDataException("Unsupported backup manifest.");
         }
-        var actual = Directory.GetFiles(backup).Select(Path.GetFileName).Where(name => name != ManifestName).ToHashSet();
+        var actual = Directory.GetFiles(backup).Select(Path.GetFileName).Where(name => name != ManifestName && name != ".DS_Store").ToHashSet();
         if (!actual.SetEquals(manifest.Sha256.Keys))
         {
             throw new InvalidDataException("Backup artifact inventory mismatch.");
