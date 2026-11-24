@@ -139,3 +139,9 @@ Desktop opt-in сохраняет локальный каталог и вызы�
 Release metadata согласованы на beta.2/build2. Preferences папки/порта/автокопий разделены по beta-версии; legacy beta.1 и development keys сохраняются. Release evidence format2 требует шесть конкретных lifecycle/backup live cases и отдельный backup process smoke. Workflow выдаёт candidate artifacts из чистого develop при изменении release metadata, publish остаётся только exact main.
 
 Добавлены инструкция проверки синтетического профиля и явные remaining GUI/OS/RPO/disk/orphan gates. Это подготовка проверяемого кандидата, не main/tag release и не установка поверх beta.1. Автоматическая проверка не подменяет ручной результат. Данные пользователя/копии не публикуются; старые теги/релизные assets сохраняются.
+
+## B1-FINDER: резервные копии после открытия в Finder
+
+В ручном beta.2 тесте найден отказ startup daily backup: Finder создал `.DS_Store` в managed каталоге. Допущен только обычный файл Finder metadata в каталоге/snapshot; он исключается из manifest artifact inventory и restore. Неизвестные файлы и metadata-ссылки/каталоги по-прежнему дают отказ. Три regression cases проверяют daily same-day/next-day, verify/restore и защиту от ссылок/каталогов. `copies/` исключена из Git как дополнительная локальная backup-папка. Пользовательские файлы не изменялись.
+
+Первые три ручных сценария (restart persistence, revision 2, menu reopen) подтверждены владельцем, UI verify — по сообщению интерфейса; полный restore/automatic daily acceptance остаётся открытым до повторного теста исправленного кандидата. Main/tag и установленная beta.1 не меняются.

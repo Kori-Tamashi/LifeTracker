@@ -33,7 +33,7 @@ public sealed class ManagedDailyBackup(TimeProvider? clock = null, Func<string, 
         foreach (var entry in new DirectoryInfo(catalog).EnumerateFileSystemInfos())
         {
             if (entry.LinkTarget is not null) { throw new IOException("Catalog links are unsupported."); }
-            if (entry.Name == ".daily.lock" && entry is FileInfo) { continue; }
+            if ((entry.Name == ".daily.lock" || entry.Name == ".DS_Store") && entry is FileInfo) { continue; }
             if (entry is not DirectoryInfo || !entry.Name.StartsWith("daily-", StringComparison.Ordinal)
                 || !DateOnly.TryParseExact(entry.Name[6..], "yyyy-MM-dd", CultureInfo.InvariantCulture,
                     DateTimeStyles.None, out var date) || date > today)

@@ -305,4 +305,54 @@ public sealed class OfflineBackupTests : IAsyncLifetime
         Assert.False(Directory.Exists(first));
     }
 
+    [Fact]
+    public async Task FinderMetadataDoesNotInvalidateSnapshotOrDailyCatalog()
+    {
+        await SeedAsync();
+        await Daily(BackupMorning).RunAsync(Profile, Catalog, Ct);
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        var snapshot = Assert.Single(Directory.GetDirectories(directory));
+        await File.WriteAllTextAsync(Path.Combine(directory, ".DS_Store"), "synthetic Finder metadata", Ct);
+        await File.WriteAllTextAsync(Path.Combine(snapshot, ".DS_Store"), "synthetic Finder metadata", Ct);
+        var before = Hashes(snapshot);
+        Assert.Equal(DailyBackupResult.AlreadyCurrent, await Daily(BackupMorning).RunAsync(Profile, Catalog, Ct));
+        await OfflineProfileBackup.VerifyAsync(snapshot, Ct);
+        await OfflineProfileBackup.RestoreAsync(snapshot, Restored, Ct);
+        Assert.False(File.Exists(Path.Combine(Restored, ".DS_Store")));
+        Assert.Equal(before.OrderBy(p => p.Key), Hashes(snapshot).OrderBy(p => p.Key));
+        Assert.Equal(DailyBackupResult.Created, await Daily(BackupMorning.AddDays(1)).RunAsync(Profile, Catalog, Ct));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FinderMetadataNameDoesNotPermitDirectoriesOrSymbolicLinks(bool directoryEntry)
+    {
+        await SeedAsync();
+        await Daily(BackupMorning).RunAsync(Profile, Catalog, Ct);
+        var directory = Assert.Single(Directory.GetDirectories(Catalog));
+        var snapshot = Assert.Single(Directory.GetDirectories(directory));
+        var target = Path.Combine(root, "synthetic-metadata-target");
+        await File.WriteAllTextAsync(target, "synthetic", Ct);
+        foreach (var folder in new[] { directory, snapshot })
+        {
+            var metadata = Path.Combine(folder, ".DS_Store");
+            if (directoryEntry) { Directory.CreateDirectory(metadata); }
+            else { File.CreateSymbolicLink(metadata, target); }
+        }
+        await Assert.ThrowsAsync<IOException>(() => OfflineProfileBackup.VerifyAsync(snapshot, Ct));
+        var snapshotMetadata = Path.Combine(snapshot, ".DS_Store");
+        if (directoryEntry) { Directory.Delete(snapshotMetadata); }
+        else { File.Delete(snapshotMetadata); }
+        if (directoryEntry)
+        {
+            await Assert.ThrowsAsync<InvalidDataException>(() => Daily(BackupMorning.AddDays(1)).RunAsync(Profile, Catalog, Ct));
+        }
+        else
+        {
+            await Assert.ThrowsAsync<IOException>(() => Daily(BackupMorning.AddDays(1)).RunAsync(Profile, Catalog, Ct));
+        }
+        Assert.Contains(snapshot, Directory.GetDirectories(directory));
+    }
+
 }
